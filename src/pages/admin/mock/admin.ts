@@ -175,7 +175,9 @@ export async function deleteAdmin(_id: number): Promise<{ success: boolean; mess
   }
 }
 
-export async function deactivateAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+export async function deactivateAdmin(
+  _id: number
+): Promise<{ success: boolean; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
   return {
@@ -376,7 +378,7 @@ export async function fetchStudentDetail(id: number): Promise<StudentDetail> {
 
 export async function forceSubmitStudent(
   _id: number
-): Promise<{ success: boolean; submitTime: string }> {
+): Promise<{ success: boolean; submitTime?: string; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 500))
 
   return {

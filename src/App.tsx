@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 
 import { AdminPage } from './pages/admin/AdminPage'
+import { AdminManagementPage } from './pages/admin/pages/AdminManagementPage'
 import { DashboardPage } from './pages/admin/pages/DashboardPage'
 import { ExportPage } from './pages/admin/pages/ExportPage'
 import { StudentDetailPage } from './pages/admin/pages/StudentDetailPage'
 import { StudentListPage } from './pages/admin/pages/StudentListPage'
-import { AdminManagementPage } from './pages/admin/pages/AdminManagementPage'
 import LoginPage from './pages/login/LoginPage'
 import { MainPage } from './pages/main/MainPage'
 

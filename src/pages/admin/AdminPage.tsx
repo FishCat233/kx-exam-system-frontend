@@ -2,6 +2,7 @@ import { Spin, Result, Button } from 'antd'
 import { useEffect, useState } from 'react'
 
 import { AdminLayout } from './components/AdminLayout'
+import { ExamProvider } from './contexts/ExamContext'
 import { useAuth } from './hooks/useAuth'
 import { AdminLoginPage } from './pages/AdminLoginPage'
 
@@ -55,9 +56,7 @@ export function AdminPage() {
           subTitle={
             <div>
               <p>抱歉，您没有权限访问此页面</p>
-              <p style={{ fontSize: 14, color: '#999', marginTop: 8 }}>
-                请先登录
-              </p>
+              <p style={{ fontSize: 14, color: '#999', marginTop: 8 }}>请先登录</p>
             </div>
           }
           extra={
@@ -70,5 +69,9 @@ export function AdminPage() {
     )
   }
 
-  return <AdminLayout />
+  return (
+    <ExamProvider>
+      <AdminLayout />
+    </ExamProvider>
+  )
 }

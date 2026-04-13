@@ -23,7 +23,10 @@ import {
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 
-import { fetchStudentDetail } from '../mock/admin'
+import { API_CONFIG } from '@/api/config'
+import { fetchStudentDetail as fetchStudentDetailApi } from '@/api/student'
+
+import * as mockAdmin from '../mock/admin'
 import type { StudentDetail, LogLevel, SubmitStatus } from '../types/admin'
 
 const { Title } = Typography
@@ -73,7 +76,9 @@ export function StudentDetailPage() {
       if (!id) return
       setLoading(true)
       try {
-        const data = await fetchStudentDetail(Number(id))
+        const data = API_CONFIG.USE_MOCK
+          ? await mockAdmin.fetchStudentDetail(Number(id))
+          : await fetchStudentDetailApi(Number(id))
         setStudent(data)
       } finally {
         setLoading(false)

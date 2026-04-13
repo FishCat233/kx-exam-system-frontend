@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useSyncExternalStore, useRef } from 'react'
 
-import { loginAdmin, verifyAdminToken } from '../mock/admin'
+import { loginAdmin as loginAdminApi, verifyAdminToken as verifyAdminTokenApi } from '@/api'
+import { API_CONFIG } from '@/api/config'
+
+import * as mockAdmin from '../mock/admin'
 
 const TOKEN_KEY = 'admin_token'
 const ADMIN_INFO_KEY = 'admin_info'
@@ -92,12 +95,11 @@ export function useAuth(): UseAuthReturn {
   const isSuperAdmin = adminInfo?.username === 'admin'
 
   const login = useCallback(
-    async (
-      username: string,
-      password: string
-    ): Promise<{ success: boolean; message?: string }> => {
-      // 使用 Mock 数据
-      const result = await loginAdmin(username, password)
+    async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
+      // 根据配置选择使用 Mock 或真实 API
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.loginAdmin(username, password)
+        : await loginAdminApi({ username, password })
 
       if (result.success && result.data) {
         const { token: newToken, admin } = result.data
@@ -121,8 +123,10 @@ export function useAuth(): UseAuthReturn {
   const verifyToken = useCallback(async (): Promise<boolean> => {
     if (!token) return false
 
-    // 使用 Mock 数据
-    const result = await verifyAdminToken(token)
+    // 根据配置选择使用 Mock 或真实 API
+    const result = API_CONFIG.USE_MOCK
+      ? await mockAdmin.verifyAdminToken(token)
+      : await verifyAdminTokenApi(token)
 
     if (result.valid) {
       if (result.admin_info) {

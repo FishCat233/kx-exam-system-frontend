@@ -24,16 +24,19 @@ import {
 import type { ColumnsType } from 'antd/es/table'
 import { useEffect, useState, useCallback } from 'react'
 
-import { AdminFormModal } from '../components/AdminFormModal'
 import {
-  fetchAdminList,
-  createAdmin,
-  updateAdmin,
-  deleteAdmin,
-  deactivateAdmin,
-  activateAdmin,
-  forceChangePassword,
-} from '../mock/admin'
+  fetchAdminList as fetchAdminListApi,
+  createAdmin as createAdminApi,
+  updateAdmin as updateAdminApi,
+  deleteAdmin as deleteAdminApi,
+  deactivateAdmin as deactivateAdminApi,
+  activateAdmin as activateAdminApi,
+  forceChangePassword as forceChangePasswordApi,
+} from '@/api/admin'
+import { API_CONFIG } from '@/api/config'
+
+import { AdminFormModal } from '../components/AdminFormModal'
+import * as mockAdmin from '../mock/admin'
 import type { Admin, CreateAdminRequest, UpdateAdminRequest } from '../types/admin'
 
 const { Title, Text } = Typography
@@ -64,7 +67,9 @@ export function AdminManagementPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await fetchAdminList(isActiveFilter)
+      const data = API_CONFIG.USE_MOCK
+        ? await mockAdmin.fetchAdminList(isActiveFilter)
+        : await fetchAdminListApi(isActiveFilter)
       setAdmins(data)
       setFilteredAdmins(data)
     } finally {
@@ -105,7 +110,9 @@ export function AdminManagementPage() {
     setModalLoading(true)
     try {
       if (editingAdmin) {
-        const result = await updateAdmin(editingAdmin.id, values as UpdateAdminRequest)
+        const result = API_CONFIG.USE_MOCK
+          ? await mockAdmin.updateAdmin(editingAdmin.id, values as UpdateAdminRequest)
+          : await updateAdminApi(editingAdmin.id, values as UpdateAdminRequest)
         if (result.success) {
           message.success('更新成功')
           setModalVisible(false)
@@ -114,7 +121,9 @@ export function AdminManagementPage() {
           message.error(result.message || '更新失败')
         }
       } else {
-        const result = await createAdmin(values as CreateAdminRequest)
+        const result = API_CONFIG.USE_MOCK
+          ? await mockAdmin.createAdmin(values as CreateAdminRequest)
+          : await createAdminApi(values as CreateAdminRequest)
         if (result.success) {
           message.success('创建成功')
           setModalVisible(false)
@@ -137,7 +146,9 @@ export function AdminManagementPage() {
       cancelText: '取消',
       onOk: async () => {
         try {
-          const result = await deleteAdmin(admin.id)
+          const result = API_CONFIG.USE_MOCK
+            ? await mockAdmin.deleteAdmin(admin.id)
+            : await deleteAdminApi(admin.id)
           if (result.success) {
             message.success('删除成功')
             loadData()
@@ -160,7 +171,9 @@ export function AdminManagementPage() {
       cancelText: '取消',
       onOk: async () => {
         try {
-          const result = await deactivateAdmin(admin.id)
+          const result = API_CONFIG.USE_MOCK
+            ? await mockAdmin.deactivateAdmin(admin.id)
+            : await deactivateAdminApi(admin.id)
           if (result.success) {
             message.success('停用成功')
             loadData()
@@ -176,7 +189,9 @@ export function AdminManagementPage() {
 
   const handleActivate = async (admin: Admin) => {
     try {
-      const result = await activateAdmin(admin.id)
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.activateAdmin(admin.id)
+        : await activateAdminApi(admin.id)
       if (result.success) {
         message.success('启用成功')
         loadData()
@@ -208,9 +223,9 @@ export function AdminManagementPage() {
 
     setPasswordModalLoading(true)
     try {
-      const result = await forceChangePassword(passwordModalAdmin.id, {
-        new_password: newPassword,
-      })
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.forceChangePassword(passwordModalAdmin.id, { new_password: newPassword })
+        : await forceChangePasswordApi(passwordModalAdmin.id, { new_password: newPassword })
       if (result.success) {
         message.success('密码修改成功')
         setPasswordModalVisible(false)
@@ -315,7 +330,11 @@ export function AdminManagementPage() {
           )}
 
           <Tooltip title="重置密码">
-            <Button icon={<KeyOutlined />} size="small" onClick={() => handleChangePassword(record)}>
+            <Button
+              icon={<KeyOutlined />}
+              size="small"
+              onClick={() => handleChangePassword(record)}
+            >
               重置密码
             </Button>
           </Tooltip>

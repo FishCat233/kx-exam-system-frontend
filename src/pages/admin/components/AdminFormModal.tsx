@@ -65,12 +65,7 @@ export function AdminFormModal({
       cancelText="取消"
       destroyOnClose
     >
-      <Form
-        form={form}
-        layout="vertical"
-        autoComplete="off"
-        style={{ marginTop: 16 }}
-      >
+      <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
         <Form.Item
           name="username"
           label="账号"
@@ -80,11 +75,7 @@ export function AdminFormModal({
             { max: 50, message: '账号最多50个字符' },
           ]}
         >
-          <Input
-            placeholder="请输入账号"
-            disabled={isEditing}
-            autoFocus={!isEditing}
-          />
+          <Input placeholder="请输入账号" disabled={isEditing} autoFocus={!isEditing} />
         </Form.Item>
 
         {!isEditing && (
@@ -109,25 +100,12 @@ export function AdminFormModal({
           <Input placeholder="请输入显示名称" />
         </Form.Item>
 
-        <Form.Item
-          name="remark"
-          label="备注"
-          rules={[{ max: 500, message: '备注最多500个字符' }]}
-        >
-          <Input.TextArea
-            placeholder="请输入备注"
-            rows={3}
-            showCount
-            maxLength={500}
-          />
+        <Form.Item name="remark" label="备注" rules={[{ max: 500, message: '备注最多500个字符' }]}>
+          <Input.TextArea placeholder="请输入备注" rows={3} showCount maxLength={500} />
         </Form.Item>
 
         {isEditing && (
-          <Form.Item
-            name="is_active"
-            label="启用状态"
-            valuePropName="checked"
-          >
+          <Form.Item name="is_active" label="启用状态" valuePropName="checked">
             <Switch checkedChildren="启用" unCheckedChildren="停用" />
           </Form.Item>
         )}

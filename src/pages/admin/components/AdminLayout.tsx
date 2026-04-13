@@ -13,8 +13,12 @@ import type { MenuProps } from 'antd'
 import { useState, useMemo } from 'react'
 import { useNavigate, useLocation, Outlet } from 'react-router'
 
+import { changePassword as changePasswordApi } from '@/api/admin'
+import { API_CONFIG } from '@/api/config'
+
 import { useAuth } from '../hooks/useAuth'
-import { changePassword } from '../mock/admin'
+import * as mockAdmin from '../mock/admin'
+import { ExamSelector } from './ExamSelector'
 
 const { Header, Sider, Content } = Layout
 
@@ -23,15 +27,16 @@ type MenuItem = Required<MenuProps>['items'][number]
 function ChangePasswordModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const { token } = useAuth()
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields()
       setLoading(true)
 
-      // 使用 Mock 数据
-      const result = await changePassword({ new_password: values.newPassword })
+      // 根据配置选择使用 Mock 或真实 API
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.changePassword({ new_password: values.newPassword })
+        : await changePasswordApi({ new_password: values.newPassword })
 
       if (result.success) {
         message.success('密码修改成功')
@@ -224,10 +229,11 @@ export function AdminLayout() {
             background: colorBgContainer,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
           }}
         >
+          <ExamSelector />
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <div
               style={{

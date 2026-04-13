@@ -10,15 +10,22 @@ import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Typography, Badge
 import type { ColumnsType } from 'antd/es/table'
 import { useEffect, useState, useCallback } from 'react'
 
-import { fetchDashboardData, exportExamData } from '../mock/admin'
-import type { DashboardData, RecentLog, ExamStatus, LogLevel } from '../types/admin'
+import { API_CONFIG } from '@/api/config'
+import { fetchDashboardData as fetchDashboardDataApi } from '@/api/dashboard'
+import { exportExamData as exportExamDataApi, downloadBlob } from '@/api/export'
+
+import * as mockAdmin from '../mock/admin'
+import { useExam } from '../contexts/ExamContext'
+import type { DashboardData, RecentLog, LogLevel } from '../types/admin'
 
 const { Title } = Typography
 
-const examStatusMap: Record<ExamStatus, { text: string; color: string }> = {
+const examStatusMap: Record<string, { text: string; color: string }> = {
   not_started: { text: '未开始', color: 'default' },
   ongoing: { text: '进行中', color: 'processing' },
   ended: { text: '已结束', color: 'success' },
+  pending: { text: '准备中', color: 'warning' },
+  cancelled: { text: '已取消', color: 'error' },
 }
 
 const logLevelMap: Record<LogLevel, { color: string; text: string }> = {
@@ -39,21 +46,25 @@ function formatTime(isoString: string): string {
 }
 
 export function DashboardPage() {
+  const { currentExamId } = useExam()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [countdown, setCountdown] = useState(0)
   const [exporting, setExporting] = useState(false)
 
   const loadData = useCallback(async () => {
+    if (!currentExamId) return
     setLoading(true)
     try {
-      const result = await fetchDashboardData()
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.fetchDashboardData()
+        : await fetchDashboardDataApi(currentExamId)
       setData(result)
       setCountdown(result.countdown)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentExamId])
 
   useEffect(() => {
     loadData()
@@ -76,17 +87,14 @@ export function DashboardPage() {
   }, [countdown])
 
   const handleExport = async () => {
+    if (!currentExamId) return
     setExporting(true)
     try {
-      const blob = await exportExamData()
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `考试数据_${new Date().toISOString().slice(0, 10)}.zip`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const blob = API_CONFIG.USE_MOCK
+        ? await mockAdmin.exportExamData()
+        : await exportExamDataApi(currentExamId)
+      const filename = `考试数据_${new Date().toISOString().slice(0, 10)}.zip`
+      downloadBlob(blob, filename)
     } finally {
       setExporting(false)
     }
@@ -156,7 +164,7 @@ export function DashboardPage() {
           <Card loading={loading}>
             <Statistic
               title="考试状态"
-              value={data ? examStatusMap[data.examStatus].text : '-'}
+              value={data ? (examStatusMap[data.examStatus]?.text ?? '未知状态') : '-'}
               prefix={
                 data && (
                   <Badge

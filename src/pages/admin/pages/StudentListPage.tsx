@@ -10,7 +10,15 @@ import type { ColumnsType } from 'antd/es/table'
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 
-import { fetchStudentList, forceSubmitStudent, exportExamData } from '../mock/admin'
+import { API_CONFIG } from '@/api/config'
+import { exportExamData as exportExamDataApi, downloadBlob } from '@/api/export'
+import {
+  fetchStudentList as fetchStudentListApi,
+  forceSubmitStudent as forceSubmitStudentApi,
+} from '@/api/student'
+
+import * as mockAdmin from '../mock/admin'
+import { useExam } from '../contexts/ExamContext'
 import type { Student, SubmitStatus } from '../types/admin'
 
 const { Title } = Typography
@@ -31,6 +39,7 @@ function formatTime(isoString: string | null): string {
 
 export function StudentListPage() {
   const navigate = useNavigate()
+  const { currentExamId } = useExam()
   const [students, setStudents] = useState<Student[]>([])
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,15 +47,18 @@ export function StudentListPage() {
   const [exporting, setExporting] = useState(false)
 
   const loadData = useCallback(async () => {
+    if (!currentExamId) return
     setLoading(true)
     try {
-      const data = await fetchStudentList()
+      const data = API_CONFIG.USE_MOCK
+        ? await mockAdmin.fetchStudentList()
+        : await fetchStudentListApi(currentExamId)
       setStudents(data)
       setFilteredStudents(data)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentExamId])
 
   useEffect(() => {
     loadData()
@@ -81,9 +93,15 @@ export function StudentListPage() {
       cancelText: '取消',
       onOk: async () => {
         try {
-          await forceSubmitStudent(student.id)
-          message.success(`已成功对 "${student.name}" 强制收卷`)
-          loadData()
+          const result = API_CONFIG.USE_MOCK
+            ? await mockAdmin.forceSubmitStudent(student.id)
+            : await forceSubmitStudentApi(student.id)
+          if (result.success) {
+            message.success(`已成功对 "${student.name}" 强制收卷`)
+            loadData()
+          } else {
+            message.error(result.message || '强制收卷失败')
+          }
         } catch {
           message.error('强制收卷失败，请重试')
         }
@@ -92,17 +110,14 @@ export function StudentListPage() {
   }
 
   const handleExport = async () => {
+    if (!currentExamId) return
     setExporting(true)
     try {
-      const blob = await exportExamData()
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `考生数据_${new Date().toISOString().slice(0, 10)}.zip`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      const blob = API_CONFIG.USE_MOCK
+        ? await mockAdmin.exportExamData()
+        : await exportExamDataApi(currentExamId)
+      const filename = `考生数据_${new Date().toISOString().slice(0, 10)}.zip`
+      downloadBlob(blob, filename)
       message.success('导出成功')
     } catch {
       message.error('导出失败')
