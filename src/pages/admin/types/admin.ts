@@ -6,13 +6,55 @@ export type LogLevel = 'normal' | 'warning' | 'critical'
 
 export interface AdminInfo {
   id: number
-  name: string
-  role: string
+  username: string
+  name: string | null
+  is_active: boolean
+}
+
+export interface Admin {
+  id: number
+  username: string
+  name: string | null
+  is_active: boolean
+  remark: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface AdminLoginRequest {
+  username: string
+  password: string
+}
+
+export interface AdminLoginResponse {
+  token: string
+  admin: AdminInfo
+}
+
+export interface CreateAdminRequest {
+  username: string
+  password: string
+  name?: string
+  remark?: string
+}
+
+export interface UpdateAdminRequest {
+  name?: string
+  remark?: string
+  is_active?: boolean
+}
+
+export interface ChangePasswordRequest {
+  new_password: string
+}
+
+export interface ForceChangePasswordRequest {
+  new_password: string
 }
 
 export interface AdminVerifyResult {
   valid: boolean
-  adminInfo?: AdminInfo
+  admin_info?: AdminInfo
 }
 
 export interface RecentLog {

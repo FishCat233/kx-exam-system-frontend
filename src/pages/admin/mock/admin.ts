@@ -5,23 +5,210 @@ import type {
   StudentDetail,
   OperationLog,
   ExamStatus,
+  Admin,
+  AdminLoginResponse,
+  CreateAdminRequest,
+  UpdateAdminRequest,
+  ChangePasswordRequest,
+  ForceChangePasswordRequest,
 } from '../types/admin'
 
-const MOCK_ADMIN_TOKEN = '123456'
+const MOCK_ADMIN_TOKEN = 'mock_admin_token_123456'
+const MOCK_SUPER_ADMIN_TOKEN = 'mock_super_admin_token_123456'
 
 export async function verifyAdminToken(token: string): Promise<AdminVerifyResult> {
   await new Promise((resolve) => setTimeout(resolve, 500))
 
+  const isValid = token === MOCK_ADMIN_TOKEN || token === MOCK_SUPER_ADMIN_TOKEN
+  const isSuperAdmin = token === MOCK_SUPER_ADMIN_TOKEN
+
   return {
-    valid: token === MOCK_ADMIN_TOKEN,
-    adminInfo:
-      token === MOCK_ADMIN_TOKEN
-        ? {
-            id: 1,
-            name: '管理员',
-            role: 'admin',
-          }
-        : undefined,
+    valid: isValid,
+    admin_info: isValid
+      ? {
+          id: 1,
+          username: isSuperAdmin ? 'admin' : 'teacher1',
+          name: isSuperAdmin ? '超级管理员' : '张老师',
+          is_active: true,
+        }
+      : undefined,
+  }
+}
+
+export async function loginAdmin(
+  username: string,
+  password: string
+): Promise<{ success: boolean; data?: AdminLoginResponse; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  if (username === 'admin' && password === 'admin123') {
+    return {
+      success: true,
+      data: {
+        token: MOCK_SUPER_ADMIN_TOKEN,
+        admin: {
+          id: 1,
+          username: 'admin',
+          name: '超级管理员',
+          is_active: true,
+        },
+      },
+    }
+  }
+
+  if (username === 'teacher1' && password === 'teacher123') {
+    return {
+      success: true,
+      data: {
+        token: MOCK_ADMIN_TOKEN,
+        admin: {
+          id: 2,
+          username: 'teacher1',
+          name: '张老师',
+          is_active: true,
+        },
+      },
+    }
+  }
+
+  return {
+    success: false,
+    message: '账号或密码错误',
+  }
+}
+
+export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const admins: Admin[] = [
+    {
+      id: 1,
+      username: 'admin',
+      name: '超级管理员',
+      is_active: true,
+      remark: '系统默认超级管理员',
+      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 2,
+      username: 'teacher1',
+      name: '张老师',
+      is_active: true,
+      remark: 'C语言课程教师',
+      created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: 3,
+      username: 'teacher2',
+      name: '李老师',
+      is_active: false,
+      remark: '已停用账号',
+      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ]
+
+  if (isActive !== undefined) {
+    return admins.filter((admin) => admin.is_active === isActive)
+  }
+
+  return admins
+}
+
+export async function createAdmin(
+  data: CreateAdminRequest
+): Promise<{ success: boolean; admin?: Admin; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  if (data.username === 'admin') {
+    return {
+      success: false,
+      message: '管理员账号已存在',
+    }
+  }
+
+  const newAdmin: Admin = {
+    id: Date.now(),
+    username: data.username,
+    name: data.name || null,
+    is_active: true,
+    remark: data.remark || null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  return {
+    success: true,
+    admin: newAdmin,
+  }
+}
+
+export async function updateAdmin(
+  _id: number,
+  data: UpdateAdminRequest
+): Promise<{ success: boolean; admin?: Admin; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const updatedAdmin: Admin = {
+    id: 1,
+    username: 'teacher1',
+    name: data.name || '张老师',
+    is_active: data.is_active !== undefined ? data.is_active : true,
+    remark: data.remark || 'C语言课程教师',
+    created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  return {
+    success: true,
+    admin: updatedAdmin,
+  }
+}
+
+export async function deleteAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  return {
+    success: true,
+  }
+}
+
+export async function deactivateAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  return {
+    success: true,
+  }
+}
+
+export async function activateAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  return {
+    success: true,
+  }
+}
+
+export async function forceChangePassword(
+  _id: number,
+  _data: ForceChangePasswordRequest
+): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  return {
+    success: true,
+  }
+}
+
+export async function changePassword(
+  _data: ChangePasswordRequest
+): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  return {
+    success: true,
   }
 }
 
