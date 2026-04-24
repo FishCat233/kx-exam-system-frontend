@@ -5,7 +5,7 @@ import type { WebSocketMessage } from '../types'
 
 interface UseWebSocketOptions {
   url: string
-  token: string
+  token?: string
   onMessage?: (message: WebSocketMessage) => void
   onConnect?: () => void
   onDisconnect?: () => void
@@ -53,6 +53,10 @@ export function useWebSocket({
   }, [])
 
   useEffect(() => {
+    if (!url) {
+      return undefined
+    }
+
     const connect = () => {
       if (
         wsRef.current?.readyState === WebSocket.OPEN ||
@@ -64,7 +68,9 @@ export function useWebSocket({
       setStatus('connecting')
       setWsStatus('connecting')
 
-      const wsUrl = `${url}?token=${encodeURIComponent(token)}`
+      const wsUrl = token
+        ? `${url}${url.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`
+        : url
 
       try {
         const ws = new WebSocket(wsUrl)

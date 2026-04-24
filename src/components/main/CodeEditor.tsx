@@ -9,40 +9,30 @@ interface CodeEditorProps {
   onSave: (problemId: number, code: string) => void
 }
 
-export function CodeEditor({ onSave }: CodeEditorProps) {
-  const currentProblemId = useExamStore((state) => state.currentProblemId)
+interface ProblemCodeEditorProps extends CodeEditorProps {
+  problemId: number
+}
+
+function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
   const getCode = useExamStore((state) => state.getCode)
   const updateCode = useExamStore((state) => state.updateCode)
 
-  const [localCode, setLocalCode] = useState('')
+  const [localCode, setLocalCode] = useState(() => getCode(problemId).code)
   const [isDirty, setIsDirty] = useState(false)
-
-  // 当题目切换时，加载对应题目的代码
-  useEffect(() => {
-    if (currentProblemId !== null) {
-      const codeState = getCode(currentProblemId)
-      setLocalCode(codeState.code)
-      setIsDirty(false)
-    }
-  }, [currentProblemId, getCode])
 
   const handleChange = useCallback(
     (value: string) => {
       setLocalCode(value)
       setIsDirty(true)
-      if (currentProblemId !== null) {
-        updateCode(currentProblemId, value)
-      }
+      updateCode(problemId, value)
     },
-    [currentProblemId, updateCode]
+    [problemId, updateCode]
   )
 
   const handleSave = useCallback(() => {
-    if (currentProblemId !== null) {
-      onSave(currentProblemId, localCode)
-      setIsDirty(false)
-    }
-  }, [currentProblemId, localCode, onSave])
+    onSave(problemId, localCode)
+    setIsDirty(false)
+  }, [problemId, localCode, onSave])
 
   // 监听 Ctrl+S 快捷键
   useEffect(() => {
@@ -58,8 +48,7 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
   }, [handleSave])
 
   const getSaveStatus = () => {
-    if (currentProblemId === null) return null
-    const codeState = getCode(currentProblemId)
+    const codeState = getCode(problemId)
 
     if (codeState.isSaving) {
       return {
@@ -118,22 +107,6 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
   }
 
   const saveStatus = getSaveStatus()
-
-  if (currentProblemId === null) {
-    return (
-      <div className="flex flex-col h-full bg-gray-900">
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">代码编辑器</span>
-            <span className="text-xs text-gray-500">(C语言)</span>
-          </div>
-        </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-          <p>请选择题目开始编程</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col h-full bg-gray-900">
@@ -201,4 +174,26 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
       </div>
     </div>
   )
+}
+
+export function CodeEditor({ onSave }: CodeEditorProps) {
+  const currentProblemId = useExamStore((state) => state.currentProblemId)
+
+  if (currentProblemId === null) {
+    return (
+      <div className="flex flex-col h-full bg-gray-900">
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-300">代码编辑器</span>
+            <span className="text-xs text-gray-500">(C语言)</span>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">
+          <p>请选择题目开始编程</p>
+        </div>
+      </div>
+    )
+  }
+
+  return <ProblemCodeEditor key={currentProblemId} problemId={currentProblemId} onSave={onSave} />
 }

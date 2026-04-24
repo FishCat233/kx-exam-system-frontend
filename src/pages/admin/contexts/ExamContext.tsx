@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { createContext, useContext, useState, useCallback } from 'react'
 
-import type { Exam } from '@/api/exam'
+import type { Exam } from '../types/admin'
 
 interface ExamContextType {
   currentExam: Exam | null
@@ -37,6 +37,7 @@ export function ExamProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useExam() {
   const context = useContext(ExamContext)
   if (context === undefined) {

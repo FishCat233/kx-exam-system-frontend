@@ -7,6 +7,8 @@ import {
   DownOutlined,
   SafetyCertificateOutlined,
   KeyOutlined,
+  CalendarOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons'
 import { Layout, Menu, Avatar, Dropdown, Badge, theme, Modal, Form, Input, message } from 'antd'
 import type { MenuProps } from 'antd'
@@ -18,6 +20,7 @@ import { API_CONFIG } from '@/api/config'
 
 import { useAuth } from '../hooks/useAuth'
 import * as mockAdmin from '../mock/admin'
+
 import { ExamSelector } from './ExamSelector'
 
 const { Header, Sider, Content } = Layout
@@ -121,11 +124,6 @@ export function AdminLayout() {
         label: '仪表盘',
       },
       {
-        key: '/admin/students',
-        icon: <TeamOutlined />,
-        label: '考生管理',
-      },
-      {
         key: '/admin/export',
         icon: <FileZipOutlined />,
         label: '阅卷导出',
@@ -133,12 +131,30 @@ export function AdminLayout() {
     ]
 
     if (isSuperAdmin) {
-      items.push({
-        key: '/admin/admins',
-        icon: <SafetyCertificateOutlined />,
-        label: '管理员管理',
-      })
+      items.push(
+        {
+          key: '/admin/students',
+          icon: <TeamOutlined />,
+          label: '考生管理',
+        },
+        {
+          key: '/admin/exams',
+          icon: <CalendarOutlined />,
+          label: '考试管理',
+        },
+        {
+          key: '/admin/admins',
+          icon: <SafetyCertificateOutlined />,
+          label: '管理员管理',
+        }
+      )
     }
+
+    items.push({
+      key: '/admin/problems',
+      icon: <FileTextOutlined />,
+      label: '试题管理',
+    })
 
     return items
   }, [isSuperAdmin])

@@ -3,8 +3,11 @@ import { useState } from 'react'
 import type { LoginFormData } from '../../types'
 
 interface LoginFormProps {
-  onSubmit: (data: LoginFormData) => void
+  onSubmit: (data: LoginFormData) => void | Promise<void>
   onPledgeClick: () => void
+  loading?: boolean
+  disabled?: boolean
+  submitError?: string | null
 }
 
 // 用户图标
@@ -102,7 +105,13 @@ const CheckIcon = () => (
   </svg>
 )
 
-export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
+export default function LoginForm({
+  onSubmit,
+  onPledgeClick,
+  loading = false,
+  disabled = false,
+  submitError = null,
+}: LoginFormProps) {
   const [formData, setFormData] = useState<LoginFormData>({
     studentId: '',
     name: '',
@@ -125,13 +134,15 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
     // 姓名校验：中文
     if (!formData.name.trim()) {
       newErrors.name = '请输入姓名'
-    } else if (!/[\u4e00-\u9fa5]+/.test(formData.name)) {
+    } else if (!/^[\u4e00-\u9fa5]+$/.test(formData.name)) {
       newErrors.name = '姓名必须为中文'
     }
 
-    // 登录码校验：不能为空
+    // 登录码校验：数字字母组成
     if (!formData.loginCode.trim()) {
       newErrors.loginCode = '请输入登录码'
+    } else if (!/^[a-zA-Z0-9]+$/.test(formData.loginCode)) {
+      newErrors.loginCode = '登录码必须由数字和字母组成'
     }
 
     // 承诺书校验：必须勾选
@@ -162,9 +173,11 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
     formData.studentId.trim() &&
     /^\d+$/.test(formData.studentId) &&
     formData.name.trim() &&
-    /[\u4e00-\u9fa5]+/.test(formData.name) &&
+    /^[\u4e00-\u9fa5]+$/.test(formData.name) &&
     formData.loginCode.trim() &&
-    formData.pledgeAgreed
+    /^[a-zA-Z0-9]+$/.test(formData.loginCode) &&
+    formData.pledgeAgreed &&
+    !disabled
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -180,6 +193,7 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
             value={formData.studentId}
             onChange={(e) => handleChange('studentId', e.target.value)}
             placeholder="请输入学号"
+            disabled={disabled || loading}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
           />
         </div>
@@ -205,6 +219,7 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="请输入姓名"
+            disabled={disabled || loading}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
           />
         </div>
@@ -230,6 +245,7 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
             value={formData.loginCode}
             onChange={(e) => handleChange('loginCode', e.target.value)}
             placeholder="请输入登录码"
+            disabled={disabled || loading}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
           />
         </div>
@@ -249,6 +265,7 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
           <button
             type="button"
             onClick={() => handleChange('pledgeAgreed', !formData.pledgeAgreed)}
+            disabled={disabled || loading}
             className={`relative flex items-center justify-center w-5 h-5 rounded-md border-2 transition-all duration-200 ${
               formData.pledgeAgreed
                 ? 'bg-blue-500 border-blue-500'
@@ -272,6 +289,7 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
                 e.stopPropagation()
                 onPledgeClick()
               }}
+              disabled={disabled || loading}
               className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium transition-colors"
             >
               考前承诺书
@@ -289,12 +307,21 @@ export default function LoginForm({ onSubmit, onPledgeClick }: LoginFormProps) {
       </div>
 
       {/* 登录按钮 */}
+      {submitError && (
+        <div className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+          <span className="text-red-500">
+            <AlertCircleIcon />
+          </span>
+          <p className="text-sm text-red-600 font-medium">{submitError}</p>
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={!isFormValid}
+        disabled={!isFormValid || loading}
         className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold text-base shadow-lg shadow-blue-500/30 outline-none transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
       >
-        登录
+        {loading ? '登录中...' : '登录'}
       </button>
     </form>
   )

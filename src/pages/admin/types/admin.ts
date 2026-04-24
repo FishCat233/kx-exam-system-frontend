@@ -1,14 +1,17 @@
 export type ExamStatus = 'not_started' | 'ongoing' | 'ended'
 
-export type SubmitStatus = 'not_started' | 'ongoing' | 'submitted' | 'forced_submit'
+export type SubmitStatus = 'not_started' | 'in_progress' | 'submitted' | 'force_submitted'
 
 export type LogLevel = 'normal' | 'warning' | 'critical'
+
+export type AdminRole = 'super_admin' | 'admin'
 
 export interface AdminInfo {
   id: number
   username: string
   name: string | null
   is_active: boolean
+  role: AdminRole
 }
 
 export interface Admin {
@@ -16,6 +19,7 @@ export interface Admin {
   username: string
   name: string | null
   is_active: boolean
+  role: AdminRole
   remark: string | null
   created_at: string
   updated_at: string
@@ -95,4 +99,60 @@ export interface OperationLog {
 
 export interface StudentDetail extends Student {
   logs: OperationLog[]
+}
+
+export interface Exam {
+  id: number
+  name: string
+  subject: string
+  duration: number
+  start_time: string
+  end_time: string
+  actual_start_time?: string
+  actual_end_time?: string
+  status: ExamStatus
+  pledge_content: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Problem {
+  id: number
+  exam_id: number
+  title: string
+  content: string
+  order_num: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateExamRequest {
+  name: string
+  subject: string
+  duration: number
+  start_time: string
+  end_time: string
+  pledge_content: string
+}
+
+export interface UpdateExamRequest {
+  name?: string
+  subject?: string
+  duration?: number
+  start_time?: string
+  end_time?: string
+  pledge_content?: string
+  status?: ExamStatus
+}
+
+export interface CreateProblemRequest {
+  title: string
+  content: string
+  order_num: number
+}
+
+export interface UpdateProblemRequest {
+  title?: string
+  content?: string
+  order_num?: number
 }

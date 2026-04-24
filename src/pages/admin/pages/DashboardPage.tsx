@@ -12,10 +12,14 @@ import { useEffect, useState, useCallback } from 'react'
 
 import { API_CONFIG } from '@/api/config'
 import { fetchDashboardData as fetchDashboardDataApi } from '@/api/dashboard'
-import { exportExamData as exportExamDataApi, downloadBlob } from '@/api/export'
+import {
+  buildExportFilename,
+  exportExamData as exportExamDataApi,
+  downloadBlob,
+} from '@/api/export'
 
-import * as mockAdmin from '../mock/admin'
 import { useExam } from '../contexts/ExamContext'
+import * as mockAdmin from '../mock/admin'
 import type { DashboardData, RecentLog, LogLevel } from '../types/admin'
 
 const { Title } = Typography
@@ -46,7 +50,7 @@ function formatTime(isoString: string): string {
 }
 
 export function DashboardPage() {
-  const { currentExamId } = useExam()
+  const { currentExam, currentExamId } = useExam()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [countdown, setCountdown] = useState(0)
@@ -93,8 +97,7 @@ export function DashboardPage() {
       const blob = API_CONFIG.USE_MOCK
         ? await mockAdmin.exportExamData()
         : await exportExamDataApi(currentExamId)
-      const filename = `考试数据_${new Date().toISOString().slice(0, 10)}.zip`
-      downloadBlob(blob, filename)
+      downloadBlob(blob, buildExportFilename(currentExam?.name))
     } finally {
       setExporting(false)
     }

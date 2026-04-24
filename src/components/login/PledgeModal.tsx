@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
 
 interface PledgeModalProps {
   isOpen: boolean
@@ -45,81 +46,6 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
     }
   }
 
-  // 简单的 Markdown 渲染（将 # 转换为标题，** 转换为粗体）
-  const renderMarkdown = (markdown: string): React.ReactNode[] => {
-    const lines = markdown.split('\n')
-    return lines.map((line, index) => {
-      const trimmedLine = line.trim()
-
-      if (trimmedLine.startsWith('# ')) {
-        return (
-          <h1
-            key={index}
-            className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200"
-          >
-            {trimmedLine.slice(2)}
-          </h1>
-        )
-      }
-
-      if (trimmedLine.startsWith('## ')) {
-        return (
-          <h2 key={index} className="text-xl font-bold text-gray-800 mt-6 mb-3">
-            {trimmedLine.slice(3)}
-          </h2>
-        )
-      }
-
-      if (trimmedLine.startsWith('- ')) {
-        return (
-          <li
-            key={index}
-            className="ml-4 mb-2 text-gray-700 leading-relaxed list-disc marker:text-blue-500"
-          >
-            {parseInlineMarkdown(trimmedLine.slice(2))}
-          </li>
-        )
-      }
-
-      if (trimmedLine.match(/^\d+\.\s/)) {
-        const itemContent = trimmedLine.replace(/^\d+\.\s/, '')
-        return (
-          <li
-            key={index}
-            className="ml-4 mb-3 text-gray-700 leading-relaxed list-decimal marker:text-blue-500 marker:font-medium"
-          >
-            {parseInlineMarkdown(itemContent)}
-          </li>
-        )
-      }
-
-      if (trimmedLine === '') {
-        return <div key={index} className="h-3" />
-      }
-
-      return (
-        <p key={index} className="mb-3 text-gray-700 leading-relaxed">
-          {parseInlineMarkdown(trimmedLine)}
-        </p>
-      )
-    })
-  }
-
-  const parseInlineMarkdown = (text: string): React.ReactNode => {
-    // 处理 **粗体**
-    const parts = text.split(/(\*\*.*?\*\*)/g)
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return (
-          <strong key={index} className="font-bold text-gray-900">
-            {part.slice(2, -2)}
-          </strong>
-        )
-      }
-      return part
-    })
-  }
-
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -141,7 +67,29 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
         {/* 内容区域 */}
         <div className="overflow-auto px-8 py-6">
           <div className="prose prose-sm max-w-none">
-            {renderMarkdown(content || defaultPledgeContent)}
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h1 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="text-xl font-bold text-gray-800 mt-6 mb-3">{children}</h2>
+                ),
+                p: ({ children }) => (
+                  <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>
+                ),
+                li: ({ children }) => (
+                  <li className="mb-2 text-gray-700 leading-relaxed">{children}</li>
+                ),
+                strong: ({ children }) => (
+                  <strong className="font-bold text-gray-900">{children}</strong>
+                ),
+              }}
+            >
+              {content || defaultPledgeContent}
+            </ReactMarkdown>
           </div>
         </div>
 

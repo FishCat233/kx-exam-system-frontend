@@ -9,6 +9,22 @@ export interface StudentCreateRequest {
   name: string
 }
 
+function mapSubmitStatus(status: string): Student['submitStatus'] {
+  switch (status) {
+    case 'not_started':
+    case 'in_progress':
+    case 'submitted':
+    case 'force_submitted':
+      return status
+    case 'ongoing':
+      return 'in_progress'
+    case 'forced_submit':
+      return 'force_submitted'
+    default:
+      return 'not_started'
+  }
+}
+
 // 获取考生列表
 export async function fetchStudentList(examId: number): Promise<Student[]> {
   const result = await http.get<
@@ -31,7 +47,7 @@ export async function fetchStudentList(examId: number): Promise<Student[]> {
     loginCode: item.login_code,
     loginTime: item.login_time,
     submitTime: item.submit_time,
-    submitStatus: item.submit_status as 'not_started' | 'ongoing' | 'submitted' | 'forced_submit',
+    submitStatus: mapSubmitStatus(item.submit_status),
   }))
 }
 
@@ -64,6 +80,8 @@ export async function fetchStudentDetail(id: number): Promise<StudentDetail> {
     }[]
   }>(API_ENDPOINTS.STUDENT.DETAIL(id))
 
+  const logs = result.logs ?? []
+
   // 转换后端数据格式到前端格式
   return {
     id: result.id,
@@ -72,8 +90,8 @@ export async function fetchStudentDetail(id: number): Promise<StudentDetail> {
     loginCode: result.login_code,
     loginTime: result.login_time,
     submitTime: result.submit_time,
-    submitStatus: result.submit_status as 'not_started' | 'ongoing' | 'submitted' | 'forced_submit',
-    logs: result.logs.map((log) => ({
+    submitStatus: mapSubmitStatus(result.submit_status),
+    logs: logs.map((log) => ({
       id: log.id,
       operationType: log.operation_type,
       description: log.description,
@@ -131,5 +149,17 @@ export async function importStudents(
       success: false,
       message: error instanceof Error ? error.message : '导入失败',
     }
+  }
+}
+
+// 手动添加单个考生
+export async function createStudent(
+  examId: number,
+  student: StudentCreateRequest
+): Promise<{ success: boolean; message?: string }> {
+  const result = await importStudents(examId, [student])
+  return {
+    success: result.success,
+    message: result.message,
   }
 }

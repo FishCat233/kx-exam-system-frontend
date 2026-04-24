@@ -1,45 +1,66 @@
 import {
+  AppstoreOutlined,
   DownloadOutlined,
   FileZipOutlined,
   FileTextOutlined,
   CheckCircleOutlined,
   InfoCircleOutlined,
+  ReadOutlined,
 } from '@ant-design/icons'
-import { Card, Button, Typography, Space, Alert, List, Divider, Steps, message } from 'antd'
+import {
+  Card,
+  Button,
+  Typography,
+  Space,
+  Alert,
+  List,
+  Divider,
+  Steps,
+  message,
+  Empty,
+  Tag,
+} from 'antd'
 import { useState } from 'react'
 
-import { exportExamData } from '../mock/admin'
+import { API_CONFIG } from '@/api/config'
+import {
+  buildExportFilename,
+  downloadBlob,
+  exportExamData as exportExamDataApi,
+} from '@/api/export'
+
+import { useExam } from '../contexts/ExamContext'
+import * as mockAdmin from '../mock/admin'
 
 const { Title, Text, Paragraph } = Typography
 
 export function ExportPage() {
+  const { currentExam, currentExamId } = useExam()
   const [exporting, setExporting] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
 
   const handleExport = async () => {
+    if (!currentExamId) {
+      message.warning('请先选择一个考试')
+      return
+    }
+
     setExporting(true)
-    setCurrentStep(1)
+    setCurrentStep(0)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      setCurrentStep(1)
+
+      const blob = API_CONFIG.USE_MOCK
+        ? await mockAdmin.exportExamData()
+        : await exportExamDataApi(currentExamId)
       setCurrentStep(2)
 
-      const blob = await exportExamData()
+      downloadBlob(blob, buildExportFilename(currentExam?.name))
       setCurrentStep(3)
-
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `考试数据_${new Date().toISOString().slice(0, 10)}.zip`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-
-      setCurrentStep(4)
-      message.success('导出成功！')
-    } catch {
-      message.error('导出失败，请重试')
+      message.success('阅卷导出已开始下载')
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '导出失败，请重试')
       setCurrentStep(0)
     } finally {
       setExporting(false)
@@ -58,17 +79,22 @@ export function ExportPage() {
       icon: <FileZipOutlined />,
     },
     {
-      title: '操作日志',
-      description: '考试期间的所有操作记录，包括切屏、全屏切换等异常行为',
+      title: '阅卷模板',
+      description: '自动生成 grading_template.csv，便于按题录入分数、总分与评语',
+      icon: <ReadOutlined />,
+    },
+    {
+      title: '考试元数据与日志',
+      description: '包含考生清单、题目清单、操作日志 CSV/JSON 和考试摘要',
       icon: <FileTextOutlined />,
     },
   ]
 
   const steps = [
     { title: '准备', description: '准备导出数据' },
-    { title: '收集', description: '收集考生信息' },
-    { title: '打包', description: '打包代码文件' },
-    { title: '下载', description: '开始下载' },
+    { title: '收集', description: '收集考生、题目和日志信息' },
+    { title: '打包', description: '生成阅卷 ZIP 压缩包' },
+    { title: '完成', description: '浏览器开始下载文件' },
   ]
 
   return (
@@ -79,12 +105,40 @@ export function ExportPage() {
 
       <Alert
         message="导出说明"
-        description="导出功能将生成一个 ZIP 压缩包，包含所有考生的基本信息、提交的代码文件以及操作日志。请妥善保管导出文件。"
+        description="导出功能将生成一个 ZIP 压缩包，包含阅卷模板、考生清单、题目清单、操作日志以及按考生整理的代码文件。请妥善保管导出文件。"
         type="info"
         showIcon
         icon={<InfoCircleOutlined />}
         style={{ marginBottom: 24 }}
       />
+
+      {!currentExamId ? (
+        <Card style={{ marginBottom: 24 }}>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="请先在顶部选择一个考试，再执行阅卷导出"
+          />
+        </Card>
+      ) : (
+        <Card title="当前导出对象" style={{ marginBottom: 24 }}>
+          <Space direction="vertical" size="small">
+            <Space>
+              <Text type="secondary">考试名称：</Text>
+              <Text strong>{currentExam?.name || `考试 ${currentExamId}`}</Text>
+            </Space>
+            <Space>
+              <Text type="secondary">考试 ID：</Text>
+              <Tag color="blue">{currentExamId}</Tag>
+            </Space>
+            {currentExam?.subject && (
+              <Space>
+                <Text type="secondary">考试科目：</Text>
+                <Text>{currentExam.subject}</Text>
+              </Space>
+            )}
+          </Space>
+        </Card>
+      )}
 
       <Card title="导出内容" style={{ marginBottom: 24 }}>
         <List
@@ -129,8 +183,8 @@ export function ExportPage() {
           <div>
             <Title level={5}>开始导出</Title>
             <Paragraph type="secondary">
-              点击下方的导出按钮，系统将自动收集并打包所有考试数据。
-              导出过程可能需要一些时间，请耐心等待。
+              点击下方按钮后，系统会为当前考试生成一份可直接用于阅卷和归档的 ZIP 文件。
+              若考生和题目较多，导出过程可能需要一些时间。
             </Paragraph>
           </div>
 
@@ -140,10 +194,11 @@ export function ExportPage() {
             icon={<DownloadOutlined />}
             onClick={handleExport}
             loading={exporting}
+            disabled={!currentExamId}
             block
             style={{ height: 48, fontSize: 16 }}
           >
-            {exporting ? '导出中...' : '导出考试数据'}
+            {exporting ? '导出中...' : '导出阅卷数据'}
           </Button>
 
           <Divider />
@@ -155,11 +210,19 @@ export function ExportPage() {
             </Text>
             <Text type="secondary">
               <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
-              代码文件格式：.c 源文件
+              内含文件：`grading_template.csv`、`students.csv`、`problems.csv`
             </Text>
             <Text type="secondary">
               <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
-              日志文件格式：JSON / CSV
+              代码文件格式：按考生目录拆分的 `.c` 源文件
+            </Text>
+            <Text type="secondary">
+              <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
+              日志文件格式：`operation_logs.csv` 与 `operation_logs.json`
+            </Text>
+            <Text type="secondary">
+              <AppstoreOutlined style={{ marginRight: 8, color: '#1677ff' }} />
+              建议先确认顶部已切换到正确考试，再进行导出
             </Text>
           </Space>
         </Space>

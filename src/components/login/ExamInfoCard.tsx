@@ -4,6 +4,29 @@ interface ExamInfoCardProps {
   examInfo: ExamInfo
 }
 
+function formatDateTime(value: string): string {
+  return new Date(value).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function getStatusLabel(status?: string): { text: string; className: string } {
+  switch (status) {
+    case 'ongoing':
+      return { text: '进行中', className: 'bg-green-100 text-green-700' }
+    case 'not_started':
+      return { text: '未开始', className: 'bg-blue-100 text-blue-700' }
+    case 'ended':
+      return { text: '已结束', className: 'bg-slate-200 text-slate-600' }
+    default:
+      return { text: '待确认', className: 'bg-slate-100 text-slate-600' }
+  }
+}
+
 // 内联 SVG 图标组件
 const BookOpenIcon = () => (
   <svg
@@ -98,6 +121,8 @@ const InfoItem = ({ icon, label, value }: InfoItemProps) => (
 )
 
 function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
+  const status = getStatusLabel(examInfo.status)
+
   return (
     <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-6 shadow-lg shadow-blue-100/50">
       {/* 装饰性背景元素 */}
@@ -106,18 +131,33 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
 
       {/* 标题区域 */}
       <div className="relative mb-6">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-          {examInfo.name}
-        </h2>
-        <div className="mt-2 h-1 w-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-300" />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              {examInfo.name}
+            </h2>
+            <div className="mt-2 h-1 w-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-300" />
+          </div>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}>
+            {status.text}
+          </span>
+        </div>
       </div>
 
       {/* 信息列表 */}
       <div className="relative space-y-2">
         <InfoItem icon={<BookOpenIcon />} label="考试科目" value={examInfo.subject} />
         <InfoItem icon={<ClockIcon />} label="考试时长" value={`${examInfo.duration} 分钟`} />
-        <InfoItem icon={<CalendarIcon />} label="开考时间" value={examInfo.startTime} />
-        <InfoItem icon={<CalendarXIcon />} label="结束时间" value={examInfo.endTime} />
+        <InfoItem
+          icon={<CalendarIcon />}
+          label="开考时间"
+          value={formatDateTime(examInfo.startTime)}
+        />
+        <InfoItem
+          icon={<CalendarXIcon />}
+          label="结束时间"
+          value={formatDateTime(examInfo.endTime)}
+        />
       </div>
     </div>
   )

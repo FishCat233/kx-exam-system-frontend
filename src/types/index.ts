@@ -5,6 +5,8 @@ export interface ExamInfo {
   duration: number
   startTime: string
   endTime: string
+  status?: string
+  pledgeContent?: string
 }
 
 export interface LoginFormData {
@@ -19,6 +21,12 @@ export interface Problem {
   examId: number
   title: string
   content: string
+  orderNum: number
+}
+
+export interface ProblemSummary {
+  id: number
+  title: string
   orderNum: number
 }
 
@@ -49,4 +57,23 @@ export interface WarningMessage {
 
 export interface ForceSubmitMessage {
   reason: string
+}
+
+export interface StudentLoginPayload {
+  studentToken: string
+  examInfo: ExamInfo
+  problems: ProblemSummary[]
+}
+
+export interface FullscreenPayload {
+  websocketToken: string
+  wsUrl: string
+}
+
+export interface StudentExamSession {
+  studentToken: string
+  websocketToken: string
+  wsUrl: string
+  examInfo: ExamInfo
+  problems: Problem[]
 }

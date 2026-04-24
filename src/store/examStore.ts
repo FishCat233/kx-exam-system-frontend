@@ -8,6 +8,12 @@ interface CodeState {
   isSaving: boolean
 }
 
+interface CodeSnapshot {
+  problemId: number
+  code: string
+  savedAt: string | null
+}
+
 interface ExamState {
   // 考试信息
   examInfo: ExamInfo | null
@@ -42,7 +48,9 @@ interface ExamState {
   getCode: (problemId: number) => CodeState
   updateCode: (problemId: number, code: string) => void
   markSaving: (problemId: number) => void
-  markSaved: (problemId: number) => void
+  markSaved: (problemId: number, savedAt?: string) => void
+  clearSaving: (problemId: number) => void
+  hydrateCodes: (snapshots: CodeSnapshot[]) => void
 
   // 防作弊操作
   incrementTabSwitchCount: () => void
@@ -137,7 +145,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
     }
   },
 
-  markSaved: (problemId) => {
+  markSaved: (problemId, savedAt) => {
     const state = get()
     const existing = state.codes.get(problemId)
     if (existing) {
@@ -145,10 +153,36 @@ export const useExamStore = create<ExamState>((set, get) => ({
       newCodes.set(problemId, {
         ...existing,
         isSaving: false,
-        savedAt: new Date().toISOString(),
+        savedAt: savedAt ?? new Date().toISOString(),
       })
       set({ codes: newCodes })
     }
+  },
+
+  clearSaving: (problemId) => {
+    const state = get()
+    const existing = state.codes.get(problemId)
+    if (existing) {
+      const newCodes = new Map(state.codes)
+      newCodes.set(problemId, { ...existing, isSaving: false })
+      set({ codes: newCodes })
+    }
+  },
+
+  hydrateCodes: (snapshots) => {
+    const state = get()
+    const newCodes = new Map(state.codes)
+
+    for (const snapshot of snapshots) {
+      const existing = newCodes.get(snapshot.problemId)
+      newCodes.set(snapshot.problemId, {
+        code: snapshot.code,
+        savedAt: snapshot.savedAt,
+        isSaving: existing?.isSaving ?? false,
+      })
+    }
+
+    set({ codes: newCodes })
   },
 
   incrementTabSwitchCount: () =>

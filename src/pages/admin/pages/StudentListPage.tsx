@@ -4,21 +4,46 @@ import {
   SearchOutlined,
   ReloadOutlined,
   ExportOutlined,
+  PlusOutlined,
+  UploadOutlined,
 } from '@ant-design/icons'
-import { Table, Button, Space, Input, Card, Typography, Modal, message, Tooltip, Badge } from 'antd'
+import {
+  Table,
+  Button,
+  Space,
+  Input,
+  Card,
+  Typography,
+  Modal,
+  message,
+  Tooltip,
+  Badge,
+  Empty,
+  Result,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 
 import { API_CONFIG } from '@/api/config'
-import { exportExamData as exportExamDataApi, downloadBlob } from '@/api/export'
 import {
+  buildExportFilename,
+  exportExamData as exportExamDataApi,
+  downloadBlob,
+} from '@/api/export'
+import {
+  createStudent as createStudentApi,
   fetchStudentList as fetchStudentListApi,
   forceSubmitStudent as forceSubmitStudentApi,
+  importStudents as importStudentsApi,
+  type StudentCreateRequest,
 } from '@/api/student'
 
-import * as mockAdmin from '../mock/admin'
+import { StudentBatchImportModal } from '../components/StudentBatchImportModal'
+import { StudentFormModal } from '../components/StudentFormModal'
 import { useExam } from '../contexts/ExamContext'
+import { useAuth } from '../hooks/useAuth'
+import * as mockAdmin from '../mock/admin'
 import type { Student, SubmitStatus } from '../types/admin'
 
 const { Title } = Typography
@@ -27,9 +52,9 @@ const { confirm } = Modal
 
 const submitStatusMap: Record<SubmitStatus, { text: string; color: string }> = {
   not_started: { text: '未开始', color: 'default' },
-  ongoing: { text: '进行中', color: 'processing' },
+  in_progress: { text: '进行中', color: 'processing' },
   submitted: { text: '已交卷', color: 'success' },
-  forced_submit: { text: '强制收卷', color: 'error' },
+  force_submitted: { text: '强制收卷', color: 'error' },
 }
 
 function formatTime(isoString: string | null): string {
@@ -39,15 +64,24 @@ function formatTime(isoString: string | null): string {
 
 export function StudentListPage() {
   const navigate = useNavigate()
-  const { currentExamId } = useExam()
+  const { currentExam, currentExamId } = useExam()
+  const { isSuperAdmin } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [searchText, setSearchText] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [createModalVisible, setCreateModalVisible] = useState(false)
+  const [batchImportVisible, setBatchImportVisible] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const loadData = useCallback(async () => {
-    if (!currentExamId) return
+    if (!currentExamId || !isSuperAdmin) {
+      setStudents([])
+      setFilteredStudents([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
     try {
       const data = API_CONFIG.USE_MOCK
@@ -55,10 +89,12 @@ export function StudentListPage() {
         : await fetchStudentListApi(currentExamId)
       setStudents(data)
       setFilteredStudents(data)
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '加载考生列表失败')
     } finally {
       setLoading(false)
     }
-  }, [currentExamId])
+  }, [currentExamId, isSuperAdmin])
 
   useEffect(() => {
     loadData()
@@ -78,6 +114,56 @@ export function StudentListPage() {
         student.loginCode.toLowerCase().includes(value.toLowerCase())
     )
     setFilteredStudents(filtered)
+  }
+
+  const handleCreateStudent = async (values: StudentCreateRequest) => {
+    if (!currentExamId) {
+      message.warning('请先选择考试')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.createStudent(values)
+        : await createStudentApi(currentExamId, values)
+
+      if (!result.success) {
+        message.error(result.message || '添加考生失败')
+        return
+      }
+
+      message.success('考生添加成功')
+      setCreateModalVisible(false)
+      await loadData()
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleBatchImport = async (values: StudentCreateRequest[]) => {
+    if (!currentExamId) {
+      message.warning('请先选择考试')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const result = API_CONFIG.USE_MOCK
+        ? await mockAdmin.importStudents(values)
+        : await importStudentsApi(currentExamId, values)
+
+      if (!result.success) {
+        message.error(result.message || '批量导入失败')
+        return
+      }
+
+      message.success(`成功导入 ${result.importedCount ?? values.length} 名考生`)
+      setBatchImportVisible(false)
+      await loadData()
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleViewDetail = (id: number) => {
@@ -116,8 +202,7 @@ export function StudentListPage() {
       const blob = API_CONFIG.USE_MOCK
         ? await mockAdmin.exportExamData()
         : await exportExamDataApi(currentExamId)
-      const filename = `考生数据_${new Date().toISOString().slice(0, 10)}.zip`
-      downloadBlob(blob, filename)
+      downloadBlob(blob, buildExportFilename(currentExam?.name))
       message.success('导出成功')
     } catch {
       message.error('导出失败')
@@ -178,11 +263,11 @@ export function StudentListPage() {
       render: (status: SubmitStatus) => (
         <Badge
           status={
-            status === 'ongoing'
+            status === 'in_progress'
               ? 'processing'
               : status === 'submitted'
                 ? 'success'
-                : status === 'forced_submit'
+                : status === 'force_submitted'
                   ? 'error'
                   : 'default'
           }
@@ -191,9 +276,9 @@ export function StudentListPage() {
       ),
       filters: [
         { text: '未开始', value: 'not_started' },
-        { text: '进行中', value: 'ongoing' },
+        { text: '进行中', value: 'in_progress' },
         { text: '已交卷', value: 'submitted' },
-        { text: '强制收卷', value: 'forced_submit' },
+        { text: '强制收卷', value: 'force_submitted' },
       ],
       onFilter: (value, record) => record.submitStatus === value,
     },
@@ -215,7 +300,7 @@ export function StudentListPage() {
               详情
             </Button>
           </Tooltip>
-          {record.submitStatus === 'ongoing' && (
+          {record.submitStatus === 'in_progress' && (
             <Tooltip title="强制收卷">
               <Button
                 danger
@@ -232,6 +317,19 @@ export function StudentListPage() {
     },
   ]
 
+  if (!isSuperAdmin) {
+    return <Result status="403" title="无权限访问" subTitle="考生管理仅对超级管理员开放。" />
+  }
+
+  if (!currentExamId) {
+    return (
+      <Empty
+        description="请先在顶部选择一个考试，再进行考生管理"
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+      />
+    )
+  }
+
   return (
     <div>
       <div
@@ -246,6 +344,17 @@ export function StudentListPage() {
           考生管理
         </Title>
         <Space>
+          <Button
+            type="primary"
+            ghost
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalVisible(true)}
+          >
+            手动添加
+          </Button>
+          <Button icon={<UploadOutlined />} onClick={() => setBatchImportVisible(true)}>
+            批量导入
+          </Button>
           <Search
             placeholder="搜索学号/姓名/登陆码"
             allowClear
@@ -269,6 +378,11 @@ export function StudentListPage() {
         </Space>
       </div>
 
+      <Typography.Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 16 }}>
+        当前考试：{currentExam?.name || `考试 ${currentExamId}`}
+        。可手动添加单个考生，或按“学号,姓名”格式批量导入。
+      </Typography.Paragraph>
+
       <Card>
         <Table
           columns={columns}
@@ -283,6 +397,20 @@ export function StudentListPage() {
           }}
         />
       </Card>
+
+      <StudentFormModal
+        visible={createModalVisible}
+        loading={submitting}
+        onCancel={() => setCreateModalVisible(false)}
+        onSubmit={handleCreateStudent}
+      />
+
+      <StudentBatchImportModal
+        visible={batchImportVisible}
+        loading={submitting}
+        onCancel={() => setBatchImportVisible(false)}
+        onSubmit={handleBatchImport}
+      />
     </div>
   )
 }

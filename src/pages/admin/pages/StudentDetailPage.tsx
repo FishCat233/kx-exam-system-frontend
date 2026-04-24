@@ -19,6 +19,7 @@ import {
   Typography,
   Space,
   Badge,
+  Alert,
 } from 'antd'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
@@ -39,9 +40,9 @@ const logLevelMap: Record<LogLevel, { color: string; text: string; icon: React.R
 
 const submitStatusMap: Record<SubmitStatus, { text: string; color: string }> = {
   not_started: { text: '未开始', color: 'default' },
-  ongoing: { text: '进行中', color: 'processing' },
+  in_progress: { text: '进行中', color: 'processing' },
   submitted: { text: '已交卷', color: 'success' },
-  forced_submit: { text: '强制收卷', color: 'error' },
+  force_submitted: { text: '强制收卷', color: 'error' },
 }
 
 function formatTime(isoString: string | null): string {
@@ -70,16 +71,21 @@ export function StudentDetailPage() {
   const navigate = useNavigate()
   const [student, setStudent] = useState<StudentDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadData() {
       if (!id) return
       setLoading(true)
+      setLoadError(null)
       try {
         const data = API_CONFIG.USE_MOCK
           ? await mockAdmin.fetchStudentDetail(Number(id))
           : await fetchStudentDetailApi(Number(id))
         setStudent(data)
+      } catch (error) {
+        setStudent(null)
+        setLoadError(error instanceof Error ? error.message : '考生详情加载失败')
       } finally {
         setLoading(false)
       }
@@ -102,11 +108,22 @@ export function StudentDetailPage() {
 
   if (!student) {
     return (
-      <Empty description="未找到考生信息" style={{ marginTop: 100 }}>
-        <Button type="primary" onClick={handleBack}>
-          返回列表
-        </Button>
-      </Empty>
+      <div style={{ marginTop: 100 }}>
+        {loadError && (
+          <Alert
+            type="error"
+            showIcon
+            message="考生详情加载失败"
+            description={loadError}
+            style={{ margin: '0 auto 24px', maxWidth: 640 }}
+          />
+        )}
+        <Empty description={loadError ? '暂时无法查看考生信息' : '未找到考生信息'}>
+          <Button type="primary" onClick={handleBack}>
+            返回列表
+          </Button>
+        </Empty>
+      </div>
     )
   }
 
@@ -135,11 +152,11 @@ export function StudentDetailPage() {
           <Descriptions.Item label="交卷状态">
             <Badge
               status={
-                student.submitStatus === 'ongoing'
+                student.submitStatus === 'in_progress'
                   ? 'processing'
                   : student.submitStatus === 'submitted'
                     ? 'success'
-                    : student.submitStatus === 'forced_submit'
+                    : student.submitStatus === 'force_submitted'
                       ? 'error'
                       : 'default'
               }

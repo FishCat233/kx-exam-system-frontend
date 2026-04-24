@@ -13,6 +13,7 @@ export interface AdminInfo {
   username: string
   name: string | null
   is_active: boolean
+  role: 'super_admin' | 'admin'
 }
 
 export interface UseAuthReturn {
@@ -92,7 +93,7 @@ export function useAuth(): UseAuthReturn {
   }, [])
 
   const isAuthenticated = !!token && !!adminInfo
-  const isSuperAdmin = adminInfo?.username === 'admin'
+  const isSuperAdmin = adminInfo?.role === 'super_admin'
 
   const login = useCallback(
     async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {

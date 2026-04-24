@@ -1,3 +1,5 @@
+import { clearStudentSession, getStudentToken } from '@/utils/studentSession'
+
 import { API_CONFIG } from './config'
 
 // 后端响应格式
@@ -10,6 +12,7 @@ export interface ApiResponse<T> {
 // 请求配置
 interface RequestConfig extends RequestInit {
   timeout?: number
+  authMode?: 'admin' | 'student' | 'none'
 }
 
 // API 错误类
@@ -26,15 +29,28 @@ export class ApiError extends Error {
 }
 
 // 获取存储的 Token
-function getToken(): string | null {
+function getToken(authMode: RequestConfig['authMode'] = 'admin'): string | null {
+  if (authMode === 'student') {
+    return getStudentToken()
+  }
+  if (authMode === 'none') {
+    return null
+  }
   return localStorage.getItem('admin_token')
 }
 
 // 清除认证信息并跳转登录页
-function handleUnauthorized(): void {
-  localStorage.removeItem('admin_token')
-  localStorage.removeItem('admin_info')
-  window.location.href = '/admin'
+function handleUnauthorized(authMode: RequestConfig['authMode'] = 'admin'): void {
+  if (authMode === 'student') {
+    clearStudentSession()
+    window.location.href = '/login'
+    return
+  }
+  if (authMode === 'admin') {
+    localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_info')
+    window.location.href = '/admin'
+  }
 }
 
 // 构建完整 URL
@@ -58,7 +74,7 @@ function fetchWithTimeout(url: string, options: RequestInit, timeout: number): P
 
 // 核心请求函数
 export async function request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
-  const { timeout = API_CONFIG.TIMEOUT, headers = {}, ...restConfig } = config
+  const { timeout = API_CONFIG.TIMEOUT, headers = {}, authMode = 'admin', ...restConfig } = config
 
   // 构建请求头
   const requestHeaders: Record<string, string> = {
@@ -73,7 +89,7 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
   })
 
   // 添加认证头
-  const token = getToken()
+  const token = getToken(authMode)
   if (token) {
     requestHeaders['Authorization'] = `Bearer ${token}`
   }
@@ -92,7 +108,7 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
 
     // 处理 401 未授权
     if (response.status === 401) {
-      handleUnauthorized()
+      handleUnauthorized(authMode)
       throw new ApiError(401, '登录已过期，请重新登录')
     }
 
@@ -112,7 +128,7 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
     if (data.code !== 200) {
       // 如果是 401，处理未授权
       if (data.code === 401) {
-        handleUnauthorized()
+        handleUnauthorized(authMode)
       }
       throw new ApiError(data.code, data.message, data.data)
     }
@@ -155,7 +171,8 @@ export const http = {
 
   // 用于文件下载，返回 Blob
   download(endpoint: string, config?: RequestConfig): Promise<Blob> {
-    const token = getToken()
+    const authMode = config?.authMode ?? 'admin'
+    const token = getToken(authMode)
     const headers: Record<string, string> = {}
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
@@ -168,7 +185,7 @@ export const http = {
     }).then((response) => {
       if (!response.ok) {
         if (response.status === 401) {
-          handleUnauthorized()
+          handleUnauthorized(authMode)
         }
         throw new ApiError(response.status, `HTTP ${response.status}`)
       }

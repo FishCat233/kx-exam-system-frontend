@@ -12,6 +12,11 @@ export const API_ENDPOINTS = {
     STUDENT_LOGIN: '/api/auth/student/login',
     STUDENT_FULLSCREEN: '/api/auth/student/fullscreen',
   },
+  CODE: {
+    DETAIL: (problemId: number) => `/api/code/${problemId}`,
+    SAVE: (problemId: number) => `/api/code/${problemId}`,
+    SUBMIT: (problemId: number) => `/api/code/${problemId}/submit`,
+  },
   // 管理员相关
   ADMIN: {
     LIST: '/api/admin/admins',
@@ -40,5 +45,15 @@ export const API_ENDPOINTS = {
   EXAM: {
     LIST: '/api/exams',
     DETAIL: (id: number) => `/api/exams/${id}`,
+    CREATE: '/api/exams',
+    UPDATE: (id: number) => `/api/exams/${id}`,
+    DELETE: (id: number) => `/api/exams/${id}`,
+  },
+  // 题目
+  PROBLEM: {
+    LIST: (examId: number) => `/api/exams/${examId}/problems`,
+    CREATE: (examId: number) => `/api/exams/${examId}/problems`,
+    UPDATE: (id: number) => `/api/problems/${id}`,
+    DELETE: (id: number) => `/api/problems/${id}`,
   },
 } as const

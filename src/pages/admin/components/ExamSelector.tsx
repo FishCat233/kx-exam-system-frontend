@@ -2,10 +2,11 @@ import { BookOutlined, ReloadOutlined } from '@ant-design/icons'
 import { Select, Space, Typography, Button, message } from 'antd'
 import { useEffect, useState, useCallback } from 'react'
 
-import { fetchExamList, type Exam } from '@/api/exam'
 import { API_CONFIG } from '@/api/config'
+import { fetchExamList } from '@/api/exam'
 
 import { useExam } from '../contexts/ExamContext'
+import type { Exam } from '../types/admin'
 
 const { Text } = Typography
 const { Option } = Select
@@ -20,6 +21,9 @@ const MOCK_EXAMS: Exam[] = [
     start_time: new Date(Date.now() - 3600000).toISOString(),
     end_time: new Date(Date.now() + 3600000).toISOString(),
     status: 'ongoing',
+    pledge_content: '# 考前承诺书\n\n我承诺诚信考试。',
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 2,
@@ -29,6 +33,9 @@ const MOCK_EXAMS: Exam[] = [
     start_time: new Date(Date.now() + 86400000).toISOString(),
     end_time: new Date(Date.now() + 90000000).toISOString(),
     status: 'not_started',
+    pledge_content: '# 考前承诺书\n\n我承诺诚信考试。',
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ]
 

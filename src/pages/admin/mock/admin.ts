@@ -16,6 +16,67 @@ import type {
 const MOCK_ADMIN_TOKEN = 'mock_admin_token_123456'
 const MOCK_SUPER_ADMIN_TOKEN = 'mock_super_admin_token_123456'
 
+interface StudentCreatePayload {
+  student_id: string
+  name: string
+}
+
+let mockStudents: Student[] = [
+  {
+    id: 1,
+    studentId: '2021001',
+    name: '张三',
+    loginCode: 'ABC123',
+    loginTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    submitTime: null,
+    submitStatus: 'in_progress',
+  },
+  {
+    id: 2,
+    studentId: '2021002',
+    name: '李四',
+    loginCode: 'DEF456',
+    loginTime: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
+    submitTime: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    submitStatus: 'submitted',
+  },
+  {
+    id: 3,
+    studentId: '2021003',
+    name: '王五',
+    loginCode: 'GHI789',
+    loginTime: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
+    submitTime: null,
+    submitStatus: 'in_progress',
+  },
+  {
+    id: 4,
+    studentId: '2021004',
+    name: '赵六',
+    loginCode: 'JKL012',
+    loginTime: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    submitTime: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    submitStatus: 'force_submitted',
+  },
+  {
+    id: 5,
+    studentId: '2021005',
+    name: '钱七',
+    loginCode: 'MNO345',
+    loginTime: null,
+    submitTime: null,
+    submitStatus: 'not_started',
+  },
+]
+
+function generateMockLoginCode(): string {
+  return Math.random().toString(36).slice(2, 8).toUpperCase()
+}
+
+function cloneStudent(student: Student): Student {
+  return { ...student }
+}
+
 export async function verifyAdminToken(token: string): Promise<AdminVerifyResult> {
   await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -30,6 +91,7 @@ export async function verifyAdminToken(token: string): Promise<AdminVerifyResult
           username: isSuperAdmin ? 'admin' : 'teacher1',
           name: isSuperAdmin ? '超级管理员' : '张老师',
           is_active: true,
+          role: isSuperAdmin ? 'super_admin' : 'admin',
         }
       : undefined,
   }
@@ -51,6 +113,7 @@ export async function loginAdmin(
           username: 'admin',
           name: '超级管理员',
           is_active: true,
+          role: 'super_admin',
         },
       },
     }
@@ -66,6 +129,7 @@ export async function loginAdmin(
           username: 'teacher1',
           name: '张老师',
           is_active: true,
+          role: 'admin',
         },
       },
     }
@@ -86,6 +150,7 @@ export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
       username: 'admin',
       name: '超级管理员',
       is_active: true,
+      role: 'super_admin',
       remark: '系统默认超级管理员',
       created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -95,6 +160,7 @@ export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
       username: 'teacher1',
       name: '张老师',
       is_active: true,
+      role: 'admin',
       remark: 'C语言课程教师',
       created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
       updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
@@ -104,6 +170,7 @@ export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
       username: 'teacher2',
       name: '李老师',
       is_active: false,
+      role: 'admin',
       remark: '已停用账号',
       created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
       updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
@@ -134,6 +201,7 @@ export async function createAdmin(
     username: data.username,
     name: data.name || null,
     is_active: true,
+    role: 'admin',
     remark: data.remark || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -156,6 +224,7 @@ export async function updateAdmin(
     username: 'teacher1',
     name: data.name || '张老师',
     is_active: data.is_active !== undefined ? data.is_active : true,
+    role: 'admin',
     remark: data.remark || 'C语言课程教师',
     created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date().toISOString(),
@@ -269,62 +338,14 @@ export async function fetchDashboardData(): Promise<DashboardData> {
 
 export async function fetchStudentList(): Promise<Student[]> {
   await new Promise((resolve) => setTimeout(resolve, 300))
-
-  const students: Student[] = [
-    {
-      id: 1,
-      studentId: '2021001',
-      name: '张三',
-      loginCode: 'ABC123',
-      loginTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      submitTime: null,
-      submitStatus: 'ongoing',
-    },
-    {
-      id: 2,
-      studentId: '2021002',
-      name: '李四',
-      loginCode: 'DEF456',
-      loginTime: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
-      submitTime: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-      submitStatus: 'submitted',
-    },
-    {
-      id: 3,
-      studentId: '2021003',
-      name: '王五',
-      loginCode: 'GHI789',
-      loginTime: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
-      submitTime: null,
-      submitStatus: 'ongoing',
-    },
-    {
-      id: 4,
-      studentId: '2021004',
-      name: '赵六',
-      loginCode: 'JKL012',
-      loginTime: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-      submitTime: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-      submitStatus: 'forced_submit',
-    },
-    {
-      id: 5,
-      studentId: '2021005',
-      name: '钱七',
-      loginCode: 'MNO345',
-      loginTime: null,
-      submitTime: null,
-      submitStatus: 'not_started',
-    },
-  ]
-
-  return students
+  return mockStudents.map(cloneStudent)
 }
 
 export async function fetchStudentDetail(id: number): Promise<StudentDetail> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
   const now = new Date()
+  const targetStudent = mockStudents.find((student) => student.id === id) ?? mockStudents[0]
 
   const logs: OperationLog[] = [
     {
@@ -365,25 +386,103 @@ export async function fetchStudentDetail(id: number): Promise<StudentDetail> {
   ]
 
   return {
-    id,
-    studentId: '2021001',
-    name: '张三',
-    loginCode: 'ABC123',
-    loginTime: new Date(now.getTime() - 30 * 60 * 1000).toISOString(),
-    submitTime: null,
-    submitStatus: 'ongoing',
+    ...cloneStudent(targetStudent),
     logs,
   }
 }
 
 export async function forceSubmitStudent(
-  _id: number
+  id: number
 ): Promise<{ success: boolean; submitTime?: string; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 500))
+
+  mockStudents = mockStudents.map((student) =>
+    student.id === id
+      ? {
+          ...student,
+          submitStatus: 'force_submitted',
+          submitTime: new Date().toISOString(),
+        }
+      : student
+  )
 
   return {
     success: true,
     submitTime: new Date().toISOString(),
+  }
+}
+
+export async function createStudent(
+  data: StudentCreatePayload
+): Promise<{ success: boolean; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 400))
+
+  if (mockStudents.some((student) => student.studentId === data.student_id)) {
+    return {
+      success: false,
+      message: '该学号已存在',
+    }
+  }
+
+  mockStudents = [
+    {
+      id: Date.now(),
+      studentId: data.student_id,
+      name: data.name,
+      loginCode: generateMockLoginCode(),
+      loginTime: null,
+      submitTime: null,
+      submitStatus: 'not_started',
+    },
+    ...mockStudents,
+  ]
+
+  return {
+    success: true,
+  }
+}
+
+export async function importStudents(
+  students: StudentCreatePayload[]
+): Promise<{ success: boolean; importedCount?: number; message?: string }> {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  const duplicatedExisting = students.find((student) =>
+    mockStudents.some((current) => current.studentId === student.student_id)
+  )
+  if (duplicatedExisting) {
+    return {
+      success: false,
+      message: `学号已存在：${duplicatedExisting.student_id}`,
+    }
+  }
+
+  const duplicateInsidePayload = students.find(
+    (student, index) =>
+      students.findIndex((current) => current.student_id === student.student_id) !== index
+  )
+  if (duplicateInsidePayload) {
+    return {
+      success: false,
+      message: `导入内容中存在重复学号：${duplicateInsidePayload.student_id}`,
+    }
+  }
+
+  const newStudents = students.map((student, index) => ({
+    id: Date.now() + index,
+    studentId: student.student_id,
+    name: student.name,
+    loginCode: generateMockLoginCode(),
+    loginTime: null,
+    submitTime: null,
+    submitStatus: 'not_started' as const,
+  }))
+
+  mockStudents = [...newStudents, ...mockStudents]
+
+  return {
+    success: true,
+    importedCount: students.length,
   }
 }
 
