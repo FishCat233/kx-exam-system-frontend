@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.1](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.0.0...kx-exam-system-frontend-v0.0.1) (2026-04-24)
+
+
+### 🤖 CI
+
+* 更新 release-please 工作流和配置文件 ([149e9b5](https://github.com/FishCat233/kx-exam-system-frontend/commit/149e9b55ef6a1e2e6a4d52f521b7ca8348b30551))
+
 ## 0.0.0 (2026-04-24)
 
 
