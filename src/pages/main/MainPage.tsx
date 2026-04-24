@@ -12,7 +12,11 @@ import { StatusBar } from '../../components/main/StatusBar'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import { useExamStore } from '../../store/examStore'
 import type { StudentExamSession, WebSocketMessage } from '../../types'
-import { clearStudentSession, getStudentSession } from '../../utils/studentSession'
+import {
+  clearStudentSession,
+  getStudentSession,
+  saveStudentSession,
+} from '../../utils/studentSession'
 
 interface SystemNotice {
   level: 'info' | 'warning' | 'error'
@@ -66,6 +70,7 @@ export function MainPage() {
   const currentProblemId = useExamStore((state) => state.currentProblemId)
   const setExamInfo = useExamStore((state) => state.setExamInfo)
   const setProblems = useExamStore((state) => state.setProblems)
+  const syncProblems = useExamStore((state) => state.syncProblems)
   const setEndTime = useExamStore((state) => state.setEndTime)
   const setCurrentProblemId = useExamStore((state) => state.setCurrentProblemId)
   const markSaving = useExamStore((state) => state.markSaving)
@@ -81,6 +86,7 @@ export function MainPage() {
   const [session, setSession] = useState<StudentExamSession | null>(null)
   const [bootstrapping, setBootstrapping] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [refreshingProblems, setRefreshingProblems] = useState(false)
   const [pageError, setPageError] = useState<string | null>(null)
   const [systemNotice, setSystemNotice] = useState<SystemNotice | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement))
@@ -155,6 +161,66 @@ export function MainPage() {
     await Promise.all(tasks)
   }, [clearSaving, codes, markSaved, markSaving])
 
+  const refreshProblemList = useCallback(async () => {
+    if (!session) {
+      return
+    }
+
+    setRefreshingProblems(true)
+    setPageError(null)
+
+    try {
+      const examDetail = await fetchPublicExamDetail(session.examInfo.id)
+      const nextProblems = examDetail.problems.length > 0 ? examDetail.problems : session.problems
+      const existingProblemIds = new Set(problems.map((problem) => problem.id))
+      const newProblemIds = nextProblems
+        .filter((problem) => !existingProblemIds.has(problem.id))
+        .map((problem) => problem.id)
+
+      setExamInfo(examDetail.examInfo)
+      syncProblems(nextProblems)
+      setEndTime(examDetail.examInfo.endTime)
+      setExamStatus(getExamUiStatus(examDetail.examInfo.endTime))
+
+      if (newProblemIds.length > 0) {
+        const snapshots = await Promise.all(
+          newProblemIds.map(async (problemId) => {
+            const result = await fetchStudentCode(problemId)
+            return {
+              problemId,
+              code: result.code,
+              savedAt: result.savedAt,
+            }
+          })
+        )
+        hydrateCodes(snapshots)
+      }
+
+      const nextSession: StudentExamSession = {
+        ...session,
+        examInfo: examDetail.examInfo,
+        problems: nextProblems,
+      }
+      setSession(nextSession)
+      saveStudentSession(nextSession)
+
+      setSystemNotice({
+        level: 'info',
+        message:
+          newProblemIds.length > 0
+            ? `题目列表已刷新，新增 ${newProblemIds.length} 道题目。`
+            : '题目列表已刷新。',
+      })
+    } catch (error) {
+      setSystemNotice({
+        level: 'error',
+        message: error instanceof Error ? error.message : '刷新题目列表失败，请稍后重试。',
+      })
+    } finally {
+      setRefreshingProblems(false)
+    }
+  }, [hydrateCodes, problems, session, setEndTime, setExamInfo, setExamStatus, syncProblems])
+
   useEffect(() => {
     const storedSession = getStudentSession()
     if (!storedSession) {
@@ -228,17 +294,17 @@ export function MainPage() {
   }, [hydrateCodes, navigate, setEndTime, setExamInfo, setExamStatus, setProblems])
 
   useEffect(() => {
-    if (!session) {
+    if (!examInfo?.endTime) {
       return
     }
 
-    setExamStatus(getExamUiStatus(session.examInfo.endTime))
+    setExamStatus(getExamUiStatus(examInfo.endTime))
     const timer = window.setInterval(() => {
-      setExamStatus(getExamUiStatus(session.examInfo.endTime))
+      setExamStatus(getExamUiStatus(examInfo.endTime))
     }, 1000)
 
     return () => window.clearInterval(timer)
-  }, [session, setExamStatus])
+  }, [examInfo?.endTime, setExamStatus])
 
   useEffect(() => {
     if (!bootstrapping && !document.fullscreenElement) {
@@ -456,7 +522,12 @@ export function MainPage() {
   return (
     <div className="fixed inset-0 flex flex-col bg-slate-100">
       {/* 状态栏 */}
-      <StatusBar onSubmit={() => void handleSubmit()} submitting={submitting} />
+      <StatusBar
+        onRefreshProblems={() => void refreshProblemList()}
+        onSubmit={() => void handleSubmit()}
+        refreshingProblems={refreshingProblems}
+        submitting={submitting}
+      />
 
       {/* 主内容区 */}
       <div className="flex-1 min-h-0 p-3 lg:p-4">

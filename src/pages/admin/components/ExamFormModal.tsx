@@ -1,4 +1,4 @@
-import { Modal, Form, Input, InputNumber, DatePicker, message } from 'antd'
+import { Modal, Form, Input, DatePicker, message, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 
@@ -15,18 +15,36 @@ interface ExamFormModalProps {
   onSuccess: () => void
 }
 
+const MAX_DURATION_MINUTES = 300
+
+function serializeLocalDateTime(value: dayjs.Dayjs): string {
+  return value.second(0).millisecond(0).format('YYYY-MM-DDTHH:mm:ss')
+}
+
+function calculateDurationMinutes(
+  startTime?: dayjs.Dayjs | null,
+  endTime?: dayjs.Dayjs | null
+): number | null {
+  if (!startTime || !endTime || !endTime.isAfter(startTime)) {
+    return null
+  }
+  return endTime.diff(startTime, 'minute')
+}
+
 export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormModalProps) {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const isEditing = !!exam
   const isNotStarted = exam?.status === 'not_started'
+  const startTime = Form.useWatch('start_time', form)
+  const endTime = Form.useWatch('end_time', form)
+  const durationMinutes = calculateDurationMinutes(startTime, endTime)
 
   useEffect(() => {
     if (visible && exam) {
       form.setFieldsValue({
         name: exam.name,
         subject: exam.subject,
-        duration: exam.duration,
         start_time: dayjs(exam.start_time),
         end_time: dayjs(exam.end_time),
         pledge_content: exam.pledge_content,
@@ -47,8 +65,9 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
 
       const formattedValues = {
         ...values,
-        start_time: values.start_time.toISOString(),
-        end_time: values.end_time.toISOString(),
+        duration: durationMinutes ?? 0,
+        start_time: serializeLocalDateTime(values.start_time),
+        end_time: serializeLocalDateTime(values.end_time),
       }
 
       if (isEditing && exam) {
@@ -135,24 +154,6 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         </Form.Item>
 
         <Form.Item
-          name="duration"
-          label="考试时长（分钟）"
-          rules={[
-            { required: true, message: '请输入考试时长' },
-            { type: 'number', min: 1, message: '考试时长至少1分钟' },
-            { type: 'number', max: 300, message: '考试时长最多300分钟' },
-          ]}
-        >
-          <InputNumber
-            style={{ width: '100%' }}
-            placeholder="请输入考试时长"
-            min={1}
-            max={300}
-            disabled={disabledFields}
-          />
-        </Form.Item>
-
-        <Form.Item
           name="start_time"
           label="开考时间"
           rules={[{ required: true, message: '请选择开考时间' }]}
@@ -175,6 +176,12 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
               validator(_, value) {
                 const startTime = getFieldValue('start_time')
                 if (!value || !startTime || value.isAfter(startTime)) {
+                  const duration = calculateDurationMinutes(startTime, value)
+                  if (duration !== null && duration > MAX_DURATION_MINUTES) {
+                    return Promise.reject(
+                      new Error(`考试时长不能超过 ${MAX_DURATION_MINUTES} 分钟`)
+                    )
+                  }
                   return Promise.resolve()
                 }
                 return Promise.reject(new Error('结束时间必须晚于开考时间'))
@@ -190,6 +197,24 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
             disabled={disabledFields}
           />
         </Form.Item>
+
+        <Form.Item label="考试时长（自动计算）">
+          <Input
+            value={
+              durationMinutes === null
+                ? '请选择有效的开始时间和结束时间'
+                : `${durationMinutes} 分钟`
+            }
+            readOnly
+            disabled
+          />
+        </Form.Item>
+
+        {durationMinutes !== null && durationMinutes > MAX_DURATION_MINUTES && (
+          <Typography.Text type="danger" style={{ display: 'block', marginBottom: 16 }}>
+            当前考试时长已超过 {MAX_DURATION_MINUTES} 分钟，请重新设置时间范围。
+          </Typography.Text>
+        )}
 
         <Form.Item
           name="pledge_content"

@@ -40,6 +40,7 @@ interface ExamState {
   setExamInfo: (examInfo: ExamInfo) => void
   setEndTime: (endTime: string) => void
   setProblems: (problems: Problem[]) => void
+  syncProblems: (problems: Problem[]) => void
   setCurrentProblemId: (problemId: number) => void
   setWsStatus: (status: WebSocketStatus) => void
   setExamStatus: (status: ExamStatus) => void
@@ -104,6 +105,31 @@ export const useExamStore = create<ExamState>((set, get) => ({
     if (problems.length > 0 && get().currentProblemId === null) {
       set({ currentProblemId: problems[0].id })
     }
+  },
+
+  syncProblems: (problems) => {
+    const state = get()
+    const nextCodes = new Map<number, CodeState>()
+
+    for (const problem of problems) {
+      const existing = state.codes.get(problem.id)
+      nextCodes.set(problem.id, existing ?? { code: DEFAULT_CODE, savedAt: null, isSaving: false })
+    }
+
+    const currentProblemStillExists = problems.some(
+      (problem) => problem.id === state.currentProblemId
+    )
+
+    set({
+      problems,
+      codes: nextCodes,
+      currentProblemId:
+        problems.length === 0
+          ? null
+          : currentProblemStillExists
+            ? state.currentProblemId
+            : problems[0].id,
+    })
   },
 
   setCurrentProblemId: (problemId) => set({ currentProblemId: problemId }),
