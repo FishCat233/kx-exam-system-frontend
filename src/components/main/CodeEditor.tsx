@@ -1,5 +1,5 @@
 import { cpp } from '@codemirror/lang-cpp'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { githubLight } from '@uiw/codemirror-theme-github'
 import CodeMirror from '@uiw/react-codemirror'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -109,15 +109,15 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
   const saveStatus = getSaveStatus()
 
   return (
-    <div className="flex flex-col h-full bg-gray-900">
+    <div className="flex flex-col h-full bg-white">
       {/* 工具栏 */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-300">代码编辑器</span>
-          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded font-medium">
+          <span className="text-sm text-gray-700">代码编辑器</span>
+          <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded font-medium">
             C
           </span>
-          <span className="text-xs text-gray-500">|</span>
+          <span className="text-xs text-gray-400">|</span>
           <span className="text-xs text-gray-500">Ctrl+S 保存</span>
         </div>
 
@@ -135,7 +135,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
             className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
               isDirty
                 ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +156,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
         <CodeMirror
           value={localCode}
           height="100%"
-          theme={oneDark}
+          theme={githubLight}
           extensions={[cpp()]}
           onChange={handleChange}
           basicSetup={{
@@ -181,14 +181,14 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
 
   if (currentProblemId === null) {
     return (
-      <div className="flex flex-col h-full bg-gray-900">
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+      <div className="flex flex-col h-full bg-white">
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">代码编辑器</span>
+            <span className="text-sm text-gray-700">代码编辑器</span>
             <span className="text-xs text-gray-500">(C语言)</span>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">
+        <div className="flex-1 flex items-center justify-center text-gray-400">
           <p>请选择题目开始编程</p>
         </div>
       </div>
