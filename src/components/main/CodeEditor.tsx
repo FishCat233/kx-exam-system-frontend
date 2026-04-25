@@ -1,9 +1,39 @@
 import { cpp } from '@codemirror/lang-cpp'
-import { githubLight } from '@uiw/codemirror-theme-github'
+import type { Extension } from '@codemirror/state'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { dracula } from '@uiw/codemirror-theme-dracula'
+import { githubDark, githubLight } from '@uiw/codemirror-theme-github'
+import { material } from '@uiw/codemirror-theme-material'
+import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useExamStore } from '../../store/examStore'
+
+type ThemeKey = 'githubLight' | 'githubDark' | 'oneDark' | 'vscodeDark' | 'dracula' | 'material'
+
+const THEME_CONFIG: Record<ThemeKey, { label: string; theme: Extension; isDark: boolean }> = {
+  githubLight: { label: 'GitHub Light', theme: githubLight, isDark: false },
+  githubDark: { label: 'GitHub Dark', theme: githubDark, isDark: true },
+  oneDark: { label: 'One Dark', theme: oneDark, isDark: true },
+  vscodeDark: { label: 'VS Code', theme: vscodeDark, isDark: true },
+  dracula: { label: 'Dracula', theme: dracula, isDark: true },
+  material: { label: 'Material', theme: material, isDark: true },
+}
+
+const STORAGE_KEY = 'editor-theme'
+
+function getStoredTheme(): ThemeKey {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored && stored in THEME_CONFIG) {
+      return stored as ThemeKey
+    }
+  } catch {
+    void 0
+  }
+  return 'githubLight'
+}
 
 interface CodeEditorProps {
   onSave: (problemId: number, code: string) => void
@@ -19,6 +49,19 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
 
   const [localCode, setLocalCode] = useState(() => getCode(problemId).code)
   const [isDirty, setIsDirty] = useState(false)
+  const [themeKey, setThemeKey] = useState<ThemeKey>(getStoredTheme)
+
+  const currentTheme = THEME_CONFIG[themeKey]
+  const isDark = currentTheme.isDark
+
+  const handleThemeChange = useCallback((key: ThemeKey) => {
+    setThemeKey(key)
+    try {
+      localStorage.setItem(STORAGE_KEY, key)
+    } catch {
+      void 0
+    }
+  }, [])
 
   const handleChange = useCallback(
     (value: string) => {
@@ -34,7 +77,6 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     setIsDirty(false)
   }, [problemId, localCode, onSave])
 
-  // 监听 Ctrl+S 快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -53,7 +95,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     if (codeState.isSaving) {
       return {
         text: '保存中...',
-        color: 'text-yellow-400',
+        color: isDark ? 'text-yellow-400' : 'text-yellow-600',
         icon: (
           <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
@@ -77,7 +119,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     if (isDirty) {
       return {
         text: '未保存',
-        color: 'text-orange-400',
+        color: isDark ? 'text-orange-400' : 'text-orange-600',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -94,7 +136,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     if (codeState.savedAt) {
       return {
         text: '已保存',
-        color: 'text-green-400',
+        color: isDark ? 'text-green-400' : 'text-green-600',
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -109,16 +151,23 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
   const saveStatus = getSaveStatus()
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* 工具栏 */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+    <div className={`flex flex-col h-full ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <div
+        className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+      >
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-700">代码编辑器</span>
-          <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded font-medium">
+          <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+            代码编辑器
+          </span>
+          <span
+            className={`px-2 py-0.5 text-xs rounded font-medium ${isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`}
+          >
             C
           </span>
-          <span className="text-xs text-gray-400">|</span>
-          <span className="text-xs text-gray-500">Ctrl+S 保存</span>
+          <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>|</span>
+          <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+            Ctrl+S 保存
+          </span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -129,13 +178,31 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
             </div>
           )}
 
+          <select
+            value={themeKey}
+            onChange={(e) => handleThemeChange(e.target.value as ThemeKey)}
+            className={`px-2 py-1.5 text-xs rounded-lg border outline-none transition-colors cursor-pointer ${
+              isDark
+                ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            {Object.entries(THEME_CONFIG).map(([key, { label }]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+
           <button
             onClick={handleSave}
             disabled={!isDirty}
             className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
               isDirty
                 ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : isDark
+                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,12 +218,11 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
         </div>
       </div>
 
-      {/* 编辑器 */}
       <div className="flex-1 overflow-hidden">
         <CodeMirror
           value={localCode}
           height="100%"
-          theme={githubLight}
+          theme={currentTheme.theme}
           extensions={[cpp()]}
           onChange={handleChange}
           basicSetup={{
@@ -178,17 +244,25 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
 
 export function CodeEditor({ onSave }: CodeEditorProps) {
   const currentProblemId = useExamStore((state) => state.currentProblemId)
+  const [themeKey] = useState<ThemeKey>(getStoredTheme)
+  const isDark = THEME_CONFIG[themeKey].isDark
 
   if (currentProblemId === null) {
     return (
-      <div className="flex flex-col h-full bg-white">
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+      <div className={`flex flex-col h-full ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div
+          className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+        >
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">代码编辑器</span>
-            <span className="text-xs text-gray-500">(C语言)</span>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              代码编辑器
+            </span>
+            <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>(C语言)</span>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-400">
+        <div
+          className={`flex-1 flex items-center justify-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+        >
           <p>请选择题目开始编程</p>
         </div>
       </div>
