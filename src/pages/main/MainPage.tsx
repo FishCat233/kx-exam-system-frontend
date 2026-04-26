@@ -461,10 +461,18 @@ export function MainPage() {
 
   // 切屏检测
   useEffect(() => {
+    // 用于防止短时间内重复触发
+    let lastTriggerTime = 0
+    const DEBOUNCE_MS = 500
+
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden
 
       if (!isVisible) {
+        const now = Date.now()
+        if (now - lastTriggerTime < DEBOUNCE_MS) return
+        lastTriggerTime = now
+
         // 切屏次数+1
         incrementTabSwitchCount()
 
@@ -481,9 +489,32 @@ export function MainPage() {
       }
     }
 
+    // 多屏幕环境下，窗口失去焦点检测
+    const handleWindowBlur = () => {
+      const now = Date.now()
+      if (now - lastTriggerTime < DEBOUNCE_MS) return
+      lastTriggerTime = now
+
+      // 切屏次数+1
+      incrementTabSwitchCount()
+
+      // 发送切屏事件到 WebSocket
+      sendMessageRef.current?.({
+        type: 'visibility_change',
+        data: { is_visible: false, timestamp: new Date().toISOString(), reason: 'window_blur' },
+      })
+
+      // 多次切屏显示警告
+      if (tabSwitchCount + 1 >= 2) {
+        setShowTabSwitchWarning(true)
+      }
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('blur', handleWindowBlur)
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur', handleWindowBlur)
     }
   }, [incrementTabSwitchCount, tabSwitchCount])
 
