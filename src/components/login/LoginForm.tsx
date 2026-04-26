@@ -131,11 +131,11 @@ export default function LoginForm({
       newErrors.studentId = '学号必须为纯数字'
     }
 
-    // 姓名校验：中文
+    // 姓名校验：中文或英文
     if (!formData.name.trim()) {
       newErrors.name = '请输入姓名'
-    } else if (!/^[\u4e00-\u9fa5]+$/.test(formData.name)) {
-      newErrors.name = '姓名必须为中文'
+    } else if (!/^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(formData.name)) {
+      newErrors.name = '姓名必须为中文或英文'
     }
 
     // 登录码校验：数字字母组成
@@ -173,7 +173,7 @@ export default function LoginForm({
     formData.studentId.trim() &&
     /^\d+$/.test(formData.studentId) &&
     formData.name.trim() &&
-    /^[\u4e00-\u9fa5]+$/.test(formData.name) &&
+    /^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(formData.name) &&
     formData.loginCode.trim() &&
     /^[a-zA-Z0-9]+$/.test(formData.loginCode) &&
     formData.pledgeAgreed &&
