@@ -1,4 +1,4 @@
-import { Modal, Form, Input, DatePicker, message, Typography } from 'antd'
+import { Modal, Form, Input, DatePicker, message } from 'antd'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 
@@ -14,8 +14,6 @@ interface ExamFormModalProps {
   onClose: () => void
   onSuccess: () => void
 }
-
-const MAX_DURATION_MINUTES = 300
 
 function serializeLocalDateTime(value: dayjs.Dayjs): string {
   return value.second(0).millisecond(0).format('YYYY-MM-DDTHH:mm:ss')
@@ -176,12 +174,6 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
               validator(_, value) {
                 const startTime = getFieldValue('start_time')
                 if (!value || !startTime || value.isAfter(startTime)) {
-                  const duration = calculateDurationMinutes(startTime, value)
-                  if (duration !== null && duration > MAX_DURATION_MINUTES) {
-                    return Promise.reject(
-                      new Error(`考试时长不能超过 ${MAX_DURATION_MINUTES} 分钟`)
-                    )
-                  }
                   return Promise.resolve()
                 }
                 return Promise.reject(new Error('结束时间必须晚于开考时间'))
@@ -209,12 +201,6 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
             disabled
           />
         </Form.Item>
-
-        {durationMinutes !== null && durationMinutes > MAX_DURATION_MINUTES && (
-          <Typography.Text type="danger" style={{ display: 'block', marginBottom: 16 }}>
-            当前考试时长已超过 {MAX_DURATION_MINUTES} 分钟，请重新设置时间范围。
-          </Typography.Text>
-        )}
 
         <Form.Item
           name="pledge_content"
