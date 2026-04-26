@@ -62,7 +62,7 @@ export function StudentFormModal({
           label="姓名"
           rules={[
             { required: true, message: '请输入姓名' },
-            { pattern: /^[\u4e00-\u9fa5]+$/, message: '姓名必须为中文' },
+            { pattern: /^[\u4e00-\u9fa5a-zA-Z\s]+$/, message: '姓名必须为中文或英文' },
           ]}
         >
           <Input placeholder="请输入姓名" />

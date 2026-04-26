@@ -39,8 +39,8 @@ function parseStudentLines(rawText: string): StudentCreateRequest[] {
       throw new Error(`第 ${index + 1} 行学号格式错误，必须为纯数字`)
     }
 
-    if (!/^[\u4e00-\u9fa5]+$/.test(name)) {
-      throw new Error(`第 ${index + 1} 行姓名格式错误，必须为中文`)
+    if (!/^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(name)) {
+      throw new Error(`第 ${index + 1} 行姓名格式错误，必须为中文或英文`)
     }
 
     return { student_id, name }
