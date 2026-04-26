@@ -120,6 +120,8 @@ export async function buildStudentExamSession(
         examId: loginPayload.examInfo.id,
         title: problem.title,
         content: '题目内容加载中，请稍候...',
+        type: problem.type,
+        options: null,
         orderNum: problem.orderNum,
       })
     ),

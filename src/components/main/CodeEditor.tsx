@@ -10,6 +10,8 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { useExamStore } from '../../store/examStore'
 
+import { ChoiceQuestion } from './ChoiceQuestion'
+
 type ThemeKey = 'githubLight' | 'githubDark' | 'oneDark' | 'vscodeDark' | 'dracula' | 'material'
 
 const THEME_CONFIG: Record<ThemeKey, { label: string; theme: Extension; isDark: boolean }> = {
@@ -244,8 +246,13 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
 
 export function CodeEditor({ onSave }: CodeEditorProps) {
   const currentProblemId = useExamStore((state) => state.currentProblemId)
+  const problems = useExamStore((state) => state.problems)
   const [themeKey] = useState<ThemeKey>(getStoredTheme)
   const isDark = THEME_CONFIG[themeKey].isDark
+
+  // 获取当前题目信息
+  const currentProblem =
+    currentProblemId !== null ? problems.find((p) => p.id === currentProblemId) : null
 
   if (currentProblemId === null) {
     return (
@@ -255,19 +262,37 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
         >
           <div className="flex items-center gap-2">
             <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              代码编辑器
+              答题区域
             </span>
-            <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>(C语言)</span>
           </div>
         </div>
         <div
           className={`flex-1 flex items-center justify-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
         >
-          <p>请选择题目开始编程</p>
+          <p>请选择题目开始答题</p>
         </div>
       </div>
     )
   }
 
+  // 根据题目类型渲染不同的编辑器
+  if (currentProblem) {
+    if (currentProblem.type === 'single_choice' || currentProblem.type === 'multiple_choice') {
+      // 选择题
+      if (currentProblem.options && currentProblem.options.length > 0) {
+        return (
+          <ChoiceQuestion
+            key={currentProblemId}
+            problemId={currentProblemId}
+            problemType={currentProblem.type}
+            options={currentProblem.options}
+            onSave={onSave}
+          />
+        )
+      }
+    }
+  }
+
+  // 默认渲染代码编辑器（编程题或选择题没有选项时）
   return <ProblemCodeEditor key={currentProblemId} problemId={currentProblemId} onSave={onSave} />
 }

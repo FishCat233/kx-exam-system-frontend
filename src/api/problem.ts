@@ -1,4 +1,9 @@
-import type { Problem, CreateProblemRequest, UpdateProblemRequest } from '@/pages/admin/types/admin'
+import type {
+  Problem,
+  CreateProblemRequest,
+  UpdateProblemRequest,
+  ProblemOption,
+} from '@/pages/admin/types/admin'
 
 import { API_ENDPOINTS } from './config'
 import { http } from './request'
@@ -8,6 +13,8 @@ export interface ProblemApiResponse {
   exam_id: number
   title: string
   content: string
+  type: 'coding' | 'single_choice' | 'multiple_choice'
+  options: ProblemOption[] | null
   order_num: number
   created_at: string
   updated_at: string
@@ -19,6 +26,8 @@ function mapProblemResponse(data: ProblemApiResponse): Problem {
     exam_id: data.exam_id,
     title: data.title,
     content: data.content,
+    type: data.type,
+    options: data.options,
     order_num: data.order_num,
     created_at: data.created_at,
     updated_at: data.updated_at,

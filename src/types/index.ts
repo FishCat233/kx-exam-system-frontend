@@ -16,17 +16,28 @@ export interface LoginFormData {
   pledgeAgreed: boolean
 }
 
+export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'
+
+export interface ProblemOption {
+  id: string
+  content: string
+  is_correct: boolean
+}
+
 export interface Problem {
   id: number
   examId: number
   title: string
   content: string
+  type: ProblemType
+  options: ProblemOption[] | null
   orderNum: number
 }
 
 export interface ProblemSummary {
   id: number
   title: string
+  type: ProblemType
   orderNum: number
 }
 

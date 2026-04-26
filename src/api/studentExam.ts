@@ -14,12 +14,20 @@ interface PublicExamResponse {
   pledge_content?: string | null
 }
 
+interface ProblemOptionResponse {
+  id: string
+  content: string
+  is_correct: boolean
+}
+
 interface PublicExamDetailResponse extends PublicExamResponse {
   problems: Array<{
     id: number
     exam_id: number
     title: string
     content: string
+    type: 'coding' | 'single_choice' | 'multiple_choice'
+    options: ProblemOptionResponse[] | null
     order_num: number
   }>
 }
@@ -43,6 +51,8 @@ function mapProblem(problem: PublicExamDetailResponse['problems'][number]): Prob
     examId: problem.exam_id,
     title: problem.title,
     content: problem.content,
+    type: problem.type,
+    options: problem.options,
     orderNum: problem.order_num,
   }
 }

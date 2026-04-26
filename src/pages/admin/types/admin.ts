@@ -6,6 +6,14 @@ export type LogLevel = 'normal' | 'warning' | 'critical'
 
 export type AdminRole = 'super_admin' | 'admin'
 
+export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'
+
+export interface ProblemOption {
+  id: string
+  content: string
+  is_correct: boolean
+}
+
 export interface AdminInfo {
   id: number
   username: string
@@ -121,6 +129,8 @@ export interface Problem {
   exam_id: number
   title: string
   content: string
+  type: ProblemType
+  options: ProblemOption[] | null
   order_num: number
   created_at: string
   updated_at: string
@@ -148,11 +158,15 @@ export interface UpdateExamRequest {
 export interface CreateProblemRequest {
   title: string
   content: string
+  type: ProblemType
+  options?: ProblemOption[]
   order_num: number
 }
 
 export interface UpdateProblemRequest {
   title?: string
   content?: string
+  type?: ProblemType
+  options?: ProblemOption[]
   order_num?: number
 }

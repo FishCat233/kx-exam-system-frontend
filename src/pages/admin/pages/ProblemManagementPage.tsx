@@ -9,9 +9,15 @@ import { fetchProblemList, deleteProblem } from '@/api/problem'
 import { ProblemFormModal } from '../components/ProblemFormModal'
 import { useExam } from '../contexts/ExamContext'
 import * as mockProblem from '../mock/problem'
-import type { Problem } from '../types/admin'
+import type { Problem, ProblemType } from '../types/admin'
 
 const { confirm } = Modal
+
+const PROBLEM_TYPE_MAP: Record<ProblemType, { label: string; color: string }> = {
+  coding: { label: '编程题', color: 'blue' },
+  single_choice: { label: '单选题', color: 'green' },
+  multiple_choice: { label: '多选题', color: 'orange' },
+}
 
 export function ProblemManagementPage() {
   const { currentExam } = useExam()
@@ -101,6 +107,15 @@ export function ProblemManagementPage() {
       dataIndex: 'title',
       key: 'title',
       ellipsis: true,
+    },
+    {
+      title: '题目类型',
+      dataIndex: 'type',
+      key: 'type',
+      width: 120,
+      render: (type: ProblemType) => (
+        <Tag color={PROBLEM_TYPE_MAP[type].color}>{PROBLEM_TYPE_MAP[type].label}</Tag>
+      ),
     },
     {
       title: '创建时间',
@@ -196,7 +211,56 @@ export function ProblemManagementPage() {
       >
         {previewProblem && (
           <div className="markdown-body" style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: 16 }}>
+              <Tag color={PROBLEM_TYPE_MAP[previewProblem.type].color}>
+                {PROBLEM_TYPE_MAP[previewProblem.type].label}
+              </Tag>
+            </div>
             <ReactMarkdown>{previewProblem.content}</ReactMarkdown>
+
+            {/* 显示选择题选项 */}
+            {previewProblem.type !== 'coding' && previewProblem.options && (
+              <div
+                style={{ marginTop: 24, padding: 16, backgroundColor: '#f5f5f5', borderRadius: 8 }}
+              >
+                <h4 style={{ marginBottom: 16 }}>选项：</h4>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  {previewProblem.options.map((option) => (
+                    <div
+                      key={option.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: 12,
+                        backgroundColor: option.is_correct ? '#f6ffed' : 'white',
+                        border: `1px solid ${option.is_correct ? '#b7eb8f' : '#d9d9d9'}`,
+                        borderRadius: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 28,
+                          height: 28,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: option.is_correct ? '#52c41a' : '#1890ff',
+                          color: 'white',
+                          borderRadius: '50%',
+                          fontWeight: 'bold',
+                          fontSize: 12,
+                        }}
+                      >
+                        {option.id}
+                      </span>
+                      <span style={{ flex: 1 }}>{option.content}</span>
+                      {option.is_correct && <Tag color="success">正确答案</Tag>}
+                    </div>
+                  ))}
+                </Space>
+              </div>
+            )}
           </div>
         )}
       </Modal>

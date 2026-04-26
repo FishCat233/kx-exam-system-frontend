@@ -1,4 +1,5 @@
 import { useExamStore } from '../../store/examStore'
+import type { ProblemType } from '../../types'
 
 interface ProblemNavProps {
   onSelectProblem: (problemId: number) => void
@@ -10,6 +11,49 @@ function CheckIcon({ className = '' }: { className?: string }) {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   )
+}
+
+function ProblemTypeIcon({ type }: { type: ProblemType }) {
+  if (type === 'coding') {
+    return (
+      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+        />
+      </svg>
+    )
+  }
+  if (type === 'single_choice') {
+    return (
+      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    )
+  }
+  return (
+    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+      />
+    </svg>
+  )
+}
+
+const PROBLEM_TYPE_LABEL: Record<ProblemType, string> = {
+  coding: '编程',
+  single_choice: '单选',
+  multiple_choice: '多选',
 }
 
 export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
@@ -62,13 +106,27 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
 
                 {/* 题目标题 - 在窄屏下隐藏 */}
                 <div className="hidden lg:block flex-1 min-w-0">
-                  <span
-                    className={`text-sm truncate block ${
-                      isActive ? 'text-blue-700 font-medium' : 'text-gray-700'
-                    }`}
-                  >
-                    {problem.title}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-sm truncate block ${
+                        isActive ? 'text-blue-700 font-medium' : 'text-gray-700'
+                      }`}
+                    >
+                      {problem.title}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded ${
+                        problem.type === 'coding'
+                          ? 'bg-blue-100 text-blue-600'
+                          : problem.type === 'single_choice'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-orange-100 text-orange-600'
+                      }`}
+                      title={PROBLEM_TYPE_LABEL[problem.type]}
+                    >
+                      <ProblemTypeIcon type={problem.type} />
+                    </span>
+                  </div>
                   {isSaved && <span className="text-xs text-green-600">已保存</span>}
                 </div>
 
