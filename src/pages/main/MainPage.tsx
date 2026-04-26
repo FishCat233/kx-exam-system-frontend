@@ -429,7 +429,15 @@ export function MainPage() {
   )
 
   const handleSubmit = useCallback(async () => {
-    if (submitting || problems.length === 0) {
+    if (submitting) {
+      return
+    }
+
+    if (problems.length === 0) {
+      setSystemNotice({
+        level: 'warning',
+        message: '当前考试暂无题目，无法交卷。请联系管理员。',
+      })
       return
     }
 
