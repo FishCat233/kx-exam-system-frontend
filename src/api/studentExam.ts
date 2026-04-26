@@ -61,6 +61,6 @@ export async function fetchPublicExamDetail(
 
   return {
     examInfo: mapExamInfo(result),
-    problems: result.problems.map(mapProblem),
+    problems: result.problems.map(mapProblem).sort((a, b) => a.orderNum - b.orderNum),
   }
 }
