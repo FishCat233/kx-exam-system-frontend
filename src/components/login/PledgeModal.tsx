@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface PledgeModalProps {
   isOpen: boolean
@@ -68,6 +69,7 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
         <div className="overflow-auto px-8 py-6">
           <div className="prose prose-sm max-w-none">
             <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => (
                   <h1 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
@@ -85,6 +87,26 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
                 ),
                 strong: ({ children }) => (
                   <strong className="font-bold text-gray-900">{children}</strong>
+                ),
+                table: ({ children }) => (
+                  <div className="overflow-x-auto my-4">
+                    <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
+                tbody: ({ children }) => <tbody className="bg-white">{children}</tbody>,
+                tr: ({ children }) => (
+                  <tr className="border-b border-gray-200 last:border-b-0">{children}</tr>
+                ),
+                th: ({ children }) => (
+                  <th className="px-4 py-2 text-left font-semibold text-gray-700 border border-gray-300">
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className="px-4 py-2 text-gray-700 border border-gray-300">{children}</td>
                 ),
               }}
             >

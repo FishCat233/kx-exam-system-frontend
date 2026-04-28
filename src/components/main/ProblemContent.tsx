@@ -3,6 +3,7 @@ import { memo, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import remarkGfm from 'remark-gfm'
 
 import { useExamStore } from '../../store/examStore'
 
@@ -70,6 +71,30 @@ const useMarkdownComponents = () =>
       strong: ({ children }: { children?: ReactNode }) => (
         <strong className="font-semibold text-gray-900">{children}</strong>
       ),
+      table: ({ children }: { children?: ReactNode }) => (
+        <div className="overflow-x-auto my-4">
+          <table className="min-w-full border-collapse border border-gray-300 text-sm">
+            {children}
+          </table>
+        </div>
+      ),
+      thead: ({ children }: { children?: ReactNode }) => (
+        <thead className="bg-gray-100">{children}</thead>
+      ),
+      tbody: ({ children }: { children?: ReactNode }) => (
+        <tbody className="bg-white">{children}</tbody>
+      ),
+      tr: ({ children }: { children?: ReactNode }) => (
+        <tr className="border-b border-gray-200 last:border-b-0">{children}</tr>
+      ),
+      th: ({ children }: { children?: ReactNode }) => (
+        <th className="px-4 py-2 text-left font-semibold text-gray-700 border border-gray-300">
+          {children}
+        </th>
+      ),
+      td: ({ children }: { children?: ReactNode }) => (
+        <td className="px-4 py-2 text-gray-700 border border-gray-300">{children}</td>
+      ),
     }),
     []
   )
@@ -123,7 +148,9 @@ export const ProblemContent = memo(function ProblemContent() {
 
         {/* 题目内容 */}
         <div className="prose prose-slate max-w-none">
-          <ReactMarkdown components={markdownComponents}>{problem.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {problem.content}
+          </ReactMarkdown>
         </div>
       </div>
     </div>
