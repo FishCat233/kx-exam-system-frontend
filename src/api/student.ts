@@ -141,7 +141,7 @@ export async function importStudents(
   try {
     const result = await http.post<{ imported_count: number }>(
       API_ENDPOINTS.STUDENT.IMPORT(examId),
-      students
+      { students }
     )
     return { success: true, importedCount: result.imported_count }
   } catch (error) {
