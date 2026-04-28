@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useExamStore } from '../../store/examStore'
 import type { ProblemOption, ProblemType } from '../../types'
@@ -56,6 +56,23 @@ function SingleChoiceEditor({
     onSave(problemId, selectedOption)
     setIsDirty(false)
   }, [problemId, selectedOption, onSave, setIsDirty])
+
+  // 监听 Ctrl+S 快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (isDirty) {
+          handleSave()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isDirty, handleSave])
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -155,6 +172,23 @@ function MultipleChoiceEditor({
     onSave(problemId, answer)
     setIsDirty(false)
   }, [problemId, selectedOptions, onSave, setIsDirty])
+
+  // 监听 Ctrl+S 快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (isDirty) {
+          handleSave()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isDirty, handleSave])
 
   return (
     <div className="flex flex-col h-full bg-white">
