@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import screenfull from 'screenfull'
 
@@ -66,7 +66,7 @@ export function MainPage() {
   // 从 store 获取状态和方法
   const examInfo = useExamStore((state) => state.examInfo)
   const problems = useExamStore((state) => state.problems)
-  const codes = useExamStore((state) => state.codes)
+  // 注意：不要在这里订阅 codes，避免代码输入时触发整个页面重新渲染
   const currentProblemId = useExamStore((state) => state.currentProblemId)
   const setExamInfo = useExamStore((state) => state.setExamInfo)
   const setProblems = useExamStore((state) => state.setProblems)
@@ -143,6 +143,8 @@ export function MainPage() {
   )
 
   const saveAllCodes = useCallback(async () => {
+    // 从 store 获取最新的 codes，避免依赖 codes 状态
+    const codes = useExamStore.getState().codes
     const tasks = Array.from(codes.entries()).map(async ([problemId, codeState]) => {
       markSaving(problemId)
       try {
@@ -159,7 +161,7 @@ export function MainPage() {
     })
 
     await Promise.all(tasks)
-  }, [clearSaving, codes, markSaved, markSaving])
+  }, [clearSaving, markSaved, markSaving])
 
   const refreshProblemList = useCallback(async () => {
     if (!session) {
@@ -536,9 +538,9 @@ export function MainPage() {
     }
   }, [])
 
-  const savedProblemCount = useMemo(
-    () => problems.filter((problem) => codes.get(problem.id)?.savedAt).length,
-    [codes, problems]
+  // 使用 selector 只订阅 savedAt 变化，而不是整个 codes Map
+  const savedProblemCount = useExamStore(
+    (state) => problems.filter((problem) => state.codes.get(problem.id)?.savedAt).length
   )
 
   if (bootstrapping) {
