@@ -70,6 +70,11 @@ export interface ForceSubmitMessage {
   reason: string
 }
 
+export interface NewProblemMessage {
+  message: string
+  problemTitle: string
+}
+
 export interface StudentLoginPayload {
   studentToken: string
   examInfo: ExamInfo

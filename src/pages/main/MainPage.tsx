@@ -378,11 +378,23 @@ export function MainPage() {
           }
           break
         }
+        case 'new_problem': {
+          if (message.data && typeof message.data === 'object') {
+            const data = message.data as { message?: string; problem_title?: string }
+            setSystemNotice({
+              level: 'info',
+              message: data.message || '有新题目添加，请刷新题目列表。',
+            })
+            // 自动刷新题目列表
+            void refreshProblemList()
+          }
+          break
+        }
         default:
           break
       }
     },
-    [leaveExam, saveAllCodes, setExamStatus]
+    [leaveExam, refreshProblemList, saveAllCodes, setExamStatus]
   )
 
   // WebSocket 连接
