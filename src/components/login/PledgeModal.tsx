@@ -72,10 +72,7 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
 
         {/* 底部按钮 */}
         <div className="px-8 py-5 flex justify-end border-t border-slate-100">
-          <GradientButton
-            onClick={onClose}
-            className="px-8 py-3 font-medium"
-          >
+          <GradientButton onClick={onClose} className="px-8 py-3 font-medium">
             我已阅读并同意
           </GradientButton>
         </div>

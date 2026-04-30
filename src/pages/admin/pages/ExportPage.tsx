@@ -148,9 +148,7 @@ export function ExportPage() {
             <List.Item>
               <List.Item.Meta
                 avatar={
-                  <div
-                    className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 text-2xl"
-                  >
+                  <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 text-2xl">
                     {item.icon}
                   </div>
                 }

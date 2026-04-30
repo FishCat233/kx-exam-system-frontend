@@ -11,3 +11,14 @@
 body {
   margin: 0;
 }
+
+/* Remove default button border and outline */
+button {
+  border: none;
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+}

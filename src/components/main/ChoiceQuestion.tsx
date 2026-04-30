@@ -103,9 +103,7 @@ function SingleChoiceEditor({
           onClick={handleSave}
           disabled={!isDirty}
           className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty
-              ? 'btn-primary'
-              : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
+            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,9 +216,7 @@ function MultipleChoiceEditor({
           onClick={handleSave}
           disabled={!isDirty}
           className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty
-              ? 'btn-primary'
-              : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
+            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,7 +258,9 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
         </div>
 
         <SaveStatusIndicator
-          status={codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null}
+          status={
+            codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null
+          }
         />
       </div>
 

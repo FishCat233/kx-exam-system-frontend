@@ -266,10 +266,7 @@ export function StatusBar({
               >
                 取消
               </button>
-              <button
-                onClick={handleConfirmSubmit}
-                className="btn-danger px-4 py-2"
-              >
+              <button onClick={handleConfirmSubmit} className="btn-danger px-4 py-2">
                 确认交卷
               </button>
             </div>

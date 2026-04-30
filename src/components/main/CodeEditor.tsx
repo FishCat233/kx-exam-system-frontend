@@ -116,7 +116,15 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
 
         <div className="flex items-center gap-3">
           <SaveStatusIndicator
-            status={codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null}
+            status={
+              codeState.isSaving
+                ? 'saving'
+                : isDirty
+                  ? 'unsaved'
+                  : codeState.savedAt
+                    ? 'saved'
+                    : null
+            }
             isDark={isDark}
           />
 
