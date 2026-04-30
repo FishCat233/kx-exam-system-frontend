@@ -1,6 +1,6 @@
 import React from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+
+import { GradientButton, MarkdownRenderer } from '../../components/ui'
 
 interface PledgeModalProps {
   isOpen: boolean
@@ -67,62 +67,17 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
 
         {/* 内容区域 */}
         <div className="overflow-auto px-8 py-6">
-          <div className="prose prose-sm max-w-none">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({ children }) => (
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                    {children}
-                  </h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 className="text-xl font-bold text-gray-800 mt-6 mb-3">{children}</h2>
-                ),
-                p: ({ children }) => (
-                  <p className="mb-3 text-gray-700 leading-relaxed">{children}</p>
-                ),
-                li: ({ children }) => (
-                  <li className="mb-2 text-gray-700 leading-relaxed">{children}</li>
-                ),
-                strong: ({ children }) => (
-                  <strong className="font-bold text-gray-900">{children}</strong>
-                ),
-                table: ({ children }) => (
-                  <div className="overflow-x-auto my-4">
-                    <table className="min-w-full border-collapse border border-gray-300 text-sm">
-                      {children}
-                    </table>
-                  </div>
-                ),
-                thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
-                tbody: ({ children }) => <tbody className="bg-white">{children}</tbody>,
-                tr: ({ children }) => (
-                  <tr className="border-b border-gray-200 last:border-b-0">{children}</tr>
-                ),
-                th: ({ children }) => (
-                  <th className="px-4 py-2 text-left font-semibold text-gray-700 border border-gray-300">
-                    {children}
-                  </th>
-                ),
-                td: ({ children }) => (
-                  <td className="px-4 py-2 text-gray-700 border border-gray-300">{children}</td>
-                ),
-              }}
-            >
-              {content || defaultPledgeContent}
-            </ReactMarkdown>
-          </div>
+          <MarkdownRenderer content={content || defaultPledgeContent} />
         </div>
 
         {/* 底部按钮 */}
-        <div className="px-8 py-5 flex justify-end border-t border-gray-100">
-          <button
+        <div className="px-8 py-5 flex justify-end border-t border-slate-100">
+          <GradientButton
             onClick={onClose}
-            className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-600 hover:to-blue-700 transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+            className="px-8 py-3 font-medium"
           >
             我已阅读并同意
-          </button>
+          </GradientButton>
         </div>
       </div>
     </div>

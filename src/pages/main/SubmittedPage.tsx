@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
+import { ContentCard, PageContainer, SectionLabel } from '@/components/ui'
+
 interface SubmittedPageState {
   forced?: boolean
   reason?: string
@@ -23,8 +25,8 @@ export function SubmittedPage() {
   const pageTitle = useMemo(() => (state?.forced ? '考试已结束' : '交卷成功'), [state?.forced])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-      <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+    <PageContainer>
+      <ContentCard className="max-w-2xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600">
           <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -32,9 +34,7 @@ export function SubmittedPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-600">
-            Exam Finished
-          </p>
+          <SectionLabel>Exam Finished</SectionLabel>
           <h1 className="mt-2 text-3xl font-bold text-slate-900">{pageTitle}</h1>
           <p className="mt-3 text-sm leading-6 text-slate-500">
             {state?.forced
@@ -70,12 +70,12 @@ export function SubmittedPage() {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="btn-primary rounded-2xl px-6 py-3 text-sm"
           >
             返回登录页
           </button>
         </div>
-      </div>
-    </div>
+      </ContentCard>
+    </PageContainer>
   )
 }

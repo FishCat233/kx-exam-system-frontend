@@ -136,15 +136,8 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24,
-        }}
-      >
-        <Title level={4} style={{ margin: 0 }}>
+      <div className="flex justify-between items-center mb-6">
+        <Title level={4} className="!mb-0">
           考试仪表盘
         </Title>
         <Space>
@@ -214,10 +207,10 @@ export function DashboardPage() {
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Row gutter={[16, 16]} className="mt-4">
         <Col xs={24} lg={12}>
           <Card title="考试时间信息" loading={loading}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="vertical" className="w-full">
               <div>
                 <Typography.Text type="secondary">开始时间：</Typography.Text>
                 <Typography.Text>{data ? formatTime(data.startTime) : '-'}</Typography.Text>
@@ -231,7 +224,7 @@ export function DashboardPage() {
         </Col>
         <Col xs={24} lg={12}>
           <Card title="交卷统计" loading={loading}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space direction="vertical" className="w-full">
               <div>
                 <Typography.Text type="secondary">已交卷：</Typography.Text>
                 <Typography.Text type="success">{data?.submitCount || 0} 人</Typography.Text>
@@ -256,7 +249,7 @@ export function DashboardPage() {
           </Space>
         }
         loading={loading}
-        style={{ marginTop: 16 }}
+        className="mt-4"
       >
         <Table
           columns={logColumns}

@@ -231,7 +231,7 @@ export function StudentListPage() {
       key: 'loginCode',
       width: 120,
       render: (code: string) => (
-        <Typography.Text copyable style={{ fontFamily: 'monospace' }}>
+        <Typography.Text copyable className="font-mono">
           {code}
         </Typography.Text>
       ),
@@ -332,15 +332,8 @@ export function StudentListPage() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24,
-        }}
-      >
-        <Title level={4} style={{ margin: 0 }}>
+      <div className="flex justify-between items-center mb-6">
+        <Title level={4} className="!mb-0">
           考生管理
         </Title>
         <Space>
@@ -361,7 +354,7 @@ export function StudentListPage() {
             value={searchText}
             onChange={(e) => handleSearch(e.target.value)}
             onSearch={handleSearch}
-            style={{ width: 250 }}
+            className="w-[250px]"
             prefix={<SearchOutlined />}
           />
           <Button icon={<ReloadOutlined />} onClick={loadData} loading={loading}>
@@ -378,7 +371,7 @@ export function StudentListPage() {
         </Space>
       </div>
 
-      <Typography.Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 16 }}>
+      <Typography.Paragraph type="secondary" className="-mt-2 mb-4">
         当前考试：{currentExam?.name || `考试 ${currentExamId}`}
         。可手动添加单个考生，或按“学号,姓名”格式批量导入。
       </Typography.Paragraph>

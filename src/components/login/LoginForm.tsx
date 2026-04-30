@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { GradientButton, InlineAlert } from '../../components/ui'
 import type { LoginFormData } from '../../types'
 
 interface LoginFormProps {
@@ -22,7 +23,7 @@ const UserIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="text-gray-400"
+    className="text-slate-400"
   >
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
@@ -41,7 +42,7 @@ const UserCircleIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="text-gray-400"
+    className="text-slate-400"
   >
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="10" r="3" />
@@ -61,7 +62,7 @@ const KeyIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="text-gray-400"
+    className="text-slate-400"
   >
     <circle cx="7.5" cy="15.5" r="5.5" />
     <path d="m21 2-9.6 9.6" />
@@ -69,26 +70,6 @@ const KeyIcon = () => (
   </svg>
 )
 
-// 警告图标
-const AlertCircleIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" x2="12" y1="8" y2="12" />
-    <line x1="12" x2="12.01" y1="16" y2="16" />
-  </svg>
-)
-
-// 勾选图标
 const CheckIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -183,7 +164,7 @@ export default function LoginForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* 学号输入框 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">学号</label>
+        <label className="block text-sm font-medium text-slate-700 mb-2">学号</label>
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2">
             <UserIcon />
@@ -194,22 +175,17 @@ export default function LoginForm({
             onChange={(e) => handleChange('studentId', e.target.value)}
             placeholder="请输入学号"
             disabled={disabled || loading}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
+            className="input-base pl-10 pr-4 py-3"
           />
         </div>
         {errors.studentId && (
-          <div className="mt-2 flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-            <span className="text-red-500">
-              <AlertCircleIcon />
-            </span>
-            <p className="text-sm text-red-600 font-medium">{errors.studentId}</p>
-          </div>
+          <InlineAlert variant="error" message={errors.studentId} className="mt-2" />
         )}
       </div>
 
       {/* 姓名输入框 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">姓名</label>
+        <label className="block text-sm font-medium text-slate-700 mb-2">姓名</label>
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2">
             <UserCircleIcon />
@@ -220,22 +196,15 @@ export default function LoginForm({
             onChange={(e) => handleChange('name', e.target.value)}
             placeholder="请输入姓名"
             disabled={disabled || loading}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
+            className="input-base pl-10 pr-4 py-3"
           />
         </div>
-        {errors.name && (
-          <div className="mt-2 flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-            <span className="text-red-500">
-              <AlertCircleIcon />
-            </span>
-            <p className="text-sm text-red-600 font-medium">{errors.name}</p>
-          </div>
-        )}
+        {errors.name && <InlineAlert variant="error" message={errors.name} className="mt-2" />}
       </div>
 
       {/* 登录码输入框 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">登录码</label>
+        <label className="block text-sm font-medium text-slate-700 mb-2">登录码</label>
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2">
             <KeyIcon />
@@ -246,16 +215,11 @@ export default function LoginForm({
             onChange={(e) => handleChange('loginCode', e.target.value)}
             placeholder="请输入登录码"
             disabled={disabled || loading}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-700 placeholder:text-gray-400 outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300"
+            className="input-base pl-10 pr-4 py-3"
           />
         </div>
         {errors.loginCode && (
-          <div className="mt-2 flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-            <span className="text-red-500">
-              <AlertCircleIcon />
-            </span>
-            <p className="text-sm text-red-600 font-medium">{errors.loginCode}</p>
-          </div>
+          <InlineAlert variant="error" message={errors.loginCode} className="mt-2" />
         )}
       </div>
 
@@ -269,7 +233,7 @@ export default function LoginForm({
             className={`relative flex items-center justify-center w-5 h-5 rounded-md border-2 transition-all duration-200 ${
               formData.pledgeAgreed
                 ? 'bg-blue-500 border-blue-500'
-                : 'bg-white border-gray-300 hover:border-blue-400'
+                : 'bg-white border-slate-300 hover:border-blue-400'
             }`}
           >
             {formData.pledgeAgreed && (
@@ -279,7 +243,7 @@ export default function LoginForm({
             )}
           </button>
           <label
-            className="text-sm text-gray-700 select-none cursor-pointer"
+            className="text-sm text-slate-700 select-none cursor-pointer"
             onClick={() => handleChange('pledgeAgreed', !formData.pledgeAgreed)}
           >
             我已阅读并同意
@@ -296,33 +260,19 @@ export default function LoginForm({
             </button>
           </label>
         </div>
-        {errors.pledgeAgreed && (
-          <div className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-            <span className="text-red-500">
-              <AlertCircleIcon />
-            </span>
-            <p className="text-sm text-red-600 font-medium">{errors.pledgeAgreed}</p>
-          </div>
-        )}
+        {errors.pledgeAgreed && <InlineAlert variant="error" message={errors.pledgeAgreed} />}
       </div>
 
       {/* 登录按钮 */}
-      {submitError && (
-        <div className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
-          <span className="text-red-500">
-            <AlertCircleIcon />
-          </span>
-          <p className="text-sm text-red-600 font-medium">{submitError}</p>
-        </div>
-      )}
+      {submitError && <InlineAlert variant="error" message={submitError} />}
 
-      <button
+      <GradientButton
         type="submit"
         disabled={!isFormValid || loading}
-        className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold text-base shadow-lg shadow-blue-500/30 outline-none transition-all duration-300 hover:from-blue-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+        className="w-full py-3.5 text-base"
       >
         {loading ? '登录中...' : '登录'}
-      </button>
+      </GradientButton>
     </form>
   )
 }

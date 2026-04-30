@@ -46,7 +46,7 @@ export function StudentFormModal({
       cancelText="取消"
       destroyOnClose
     >
-      <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+      <Form form={form} layout="vertical" autoComplete="off" className="mt-4">
         <Form.Item
           name="student_id"
           label="学号"

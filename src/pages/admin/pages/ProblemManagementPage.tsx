@@ -163,10 +163,10 @@ export function ProblemManagementPage() {
     <div>
       <Card
         title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="flex justify-between items-center">
             <span>
               试题管理 - {currentExam.name}
-              <Tag color="blue" style={{ marginLeft: 8 }}>
+              <Tag color="blue" className="ml-2">
                 {currentExam.subject}
               </Tag>
             </span>
@@ -175,7 +175,7 @@ export function ProblemManagementPage() {
             </Button>
           </div>
         }
-        style={{ marginBottom: 16 }}
+        className="mb-4"
       >
         <Table
           columns={columns}
@@ -210,8 +210,8 @@ export function ProblemManagementPage() {
         width={800}
       >
         {previewProblem && (
-          <div className="markdown-body" style={{ padding: '16px 0' }}>
-            <div style={{ marginBottom: 16 }}>
+          <div className="markdown-body py-4">
+            <div className="mb-4">
               <Tag color={PROBLEM_TYPE_MAP[previewProblem.type].color}>
                 {PROBLEM_TYPE_MAP[previewProblem.type].label}
               </Tag>
@@ -220,41 +220,27 @@ export function ProblemManagementPage() {
 
             {/* 显示选择题选项 */}
             {previewProblem.type !== 'coding' && previewProblem.options && (
-              <div
-                style={{ marginTop: 24, padding: 16, backgroundColor: '#f5f5f5', borderRadius: 8 }}
-              >
-                <h4 style={{ marginBottom: 16 }}>选项：</h4>
-                <Space direction="vertical" style={{ width: '100%' }}>
+              <div className="mt-6 p-4 bg-slate-100 rounded-lg">
+                <h4 className="mb-4">选项：</h4>
+                <Space direction="vertical" className="w-full">
                   {previewProblem.options.map((option) => (
                     <div
                       key={option.id}
+                      className="flex items-center gap-3 p-3 rounded"
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: 12,
                         backgroundColor: option.is_correct ? '#f6ffed' : 'white',
                         border: `1px solid ${option.is_correct ? '#b7eb8f' : '#d9d9d9'}`,
-                        borderRadius: 4,
                       }}
                     >
                       <span
+                        className="w-7 h-7 flex items-center justify-center text-white rounded-full font-bold text-xs"
                         style={{
-                          width: 28,
-                          height: 28,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                           backgroundColor: option.is_correct ? '#52c41a' : '#1890ff',
-                          color: 'white',
-                          borderRadius: '50%',
-                          fontWeight: 'bold',
-                          fontSize: 12,
                         }}
                       >
                         {option.id}
                       </span>
-                      <span style={{ flex: 1 }}>{option.content}</span>
+                      <span className="flex-1">{option.content}</span>
                       {option.is_correct && <Tag color="success">正确答案</Tag>}
                     </div>
                   ))}

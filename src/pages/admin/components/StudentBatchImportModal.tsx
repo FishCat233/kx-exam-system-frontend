@@ -98,11 +98,11 @@ export function StudentBatchImportModal({
       <Alert
         type="info"
         showIcon
-        style={{ marginTop: 16, marginBottom: 16 }}
-        message="每行一条记录，格式为“学号,姓名”"
+        className="mt-4 mb-4"
+        message={'每行一条记录，格式为"学号,姓名"'}
         description={
           <div>
-            <Paragraph style={{ marginBottom: 8 }}>支持英文逗号和中文逗号，例如：</Paragraph>
+            <Paragraph className="mb-2">支持英文逗号和中文逗号，例如：</Paragraph>
             <Text code>20240001,张三</Text>
             <br />
             <Text code>20240002，李四</Text>

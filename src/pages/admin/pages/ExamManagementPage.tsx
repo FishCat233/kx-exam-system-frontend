@@ -195,7 +195,7 @@ export function ExamManagementPage() {
             <Tooltip title="开启考试">
               <Button
                 type="text"
-                icon={<PlayCircleOutlined style={{ color: '#52c41a' }} />}
+                icon={<PlayCircleOutlined className="text-green-500" />}
                 onClick={() => handleStartExam(exam)}
               />
             </Tooltip>
@@ -205,7 +205,7 @@ export function ExamManagementPage() {
             <Tooltip title="结束考试">
               <Button
                 type="text"
-                icon={<StopOutlined style={{ color: '#ff4d4f' }} />}
+                icon={<StopOutlined className="text-red-500" />}
                 onClick={() => handleEndExam(exam)}
               />
             </Tooltip>
@@ -228,10 +228,10 @@ export function ExamManagementPage() {
 
   return (
     <div>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+      <div className="mb-4 flex justify-between">
         <Space>
           <span>状态筛选：</span>
-          <Select value={statusFilter} onChange={setStatusFilter} style={{ width: 120 }}>
+          <Select value={statusFilter} onChange={setStatusFilter} className="w-[120px]">
             <Option value="all">全部</Option>
             <Option value="not_started">未开始</Option>
             <Option value="ongoing">进行中</Option>

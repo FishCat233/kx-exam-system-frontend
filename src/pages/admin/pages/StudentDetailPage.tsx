@@ -100,7 +100,7 @@ export function StudentDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+      <div className="flex justify-center items-center h-[400px]">
         <Spin size="large" tip="加载中..." />
       </div>
     )
@@ -108,14 +108,14 @@ export function StudentDetailPage() {
 
   if (!student) {
     return (
-      <div style={{ marginTop: 100 }}>
+      <div className="mt-[100px]">
         {loadError && (
           <Alert
             type="error"
             showIcon
             message="考生详情加载失败"
             description={loadError}
-            style={{ margin: '0 auto 24px', maxWidth: 640 }}
+            className="mx-auto mb-6 max-w-[640px]"
           />
         )}
         <Empty description={loadError ? '暂时无法查看考生信息' : '未找到考生信息'}>
@@ -129,21 +129,21 @@ export function StudentDetailPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, gap: 16 }}>
+      <div className="flex items-center mb-6 gap-4">
         <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
           返回
         </Button>
-        <Title level={4} style={{ margin: 0 }}>
+        <Title level={4} className="!mb-0">
           考生详情
         </Title>
       </div>
 
-      <Card title="基本信息" style={{ marginBottom: 24 }}>
+      <Card title="基本信息" className="mb-6">
         <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }}>
           <Descriptions.Item label="学号">{student.studentId}</Descriptions.Item>
           <Descriptions.Item label="姓名">{student.name}</Descriptions.Item>
           <Descriptions.Item label="登陆码">
-            <Typography.Text copyable style={{ fontFamily: 'monospace' }}>
+            <Typography.Text copyable className="font-mono">
               {student.loginCode}
             </Typography.Text>
           </Descriptions.Item>
@@ -166,7 +166,7 @@ export function StudentDetailPage() {
         </Descriptions>
       </Card>
 
-      <Card title="操作记录">
+      <Card title="操作记录" className="mb-6">
         {student.logs.length === 0 ? (
           <Empty description="暂无操作记录" />
         ) : (
@@ -175,38 +175,31 @@ export function StudentDetailPage() {
             items={student.logs.map((log) => ({
               dot: (
                 <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
                     backgroundColor:
                       log.level === 'critical'
                         ? '#ff4d4f'
                         : log.level === 'warning'
                           ? '#faad14'
                           : '#52c41a',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: 14,
                   }}
                 >
                   {getOperationIcon(log.operationType)}
                 </div>
               ),
               label: (
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                <Typography.Text type="secondary" className="text-xs">
                   {formatTime(log.timestamp)}
                 </Typography.Text>
               ),
               children: (
-                <div style={{ marginLeft: 16 }}>
-                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                <div className="ml-4">
+                  <Space direction="vertical" size={4} className="w-full">
                     <Typography.Text strong>{log.description}</Typography.Text>
                     <Space>
                       <Tag color={logLevelMap[log.level].color}>{logLevelMap[log.level].text}</Tag>
-                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      <Typography.Text type="secondary" className="text-xs">
                         {log.operationType}
                       </Typography.Text>
                     </Space>

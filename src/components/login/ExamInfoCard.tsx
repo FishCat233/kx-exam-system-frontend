@@ -114,8 +114,8 @@ const InfoItem = ({ icon, label, value }: InfoItemProps) => (
       {icon}
     </div>
     <div className="flex-1">
-      <span className="block text-sm text-gray-500">{label}</span>
-      <span className="block text-base font-medium text-gray-800">{value}</span>
+      <span className="block text-sm text-slate-500">{label}</span>
+      <span className="block text-base font-medium text-slate-800">{value}</span>
     </div>
   </div>
 )

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { SaveStatusIndicator } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 import type { ProblemOption, ProblemType } from '../../types'
 
@@ -13,19 +14,6 @@ interface ChoiceQuestionProps {
 interface ChoiceQuestionEditorProps extends ChoiceQuestionProps {
   isDirty: boolean
   setIsDirty: (dirty: boolean) => void
-}
-
-function getSaveStatusText(savedAt: string | null, isDirty: boolean, isSaving: boolean) {
-  if (isSaving) {
-    return { text: '保存中...', color: 'text-yellow-600' }
-  }
-  if (isDirty) {
-    return { text: '未保存', color: 'text-orange-600' }
-  }
-  if (savedAt) {
-    return { text: '已保存', color: 'text-green-600' }
-  }
-  return null
 }
 
 function SingleChoiceEditor({
@@ -57,7 +45,6 @@ function SingleChoiceEditor({
     setIsDirty(false)
   }, [problemId, selectedOption, onSave, setIsDirty])
 
-  // 监听 Ctrl+S 快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -84,7 +71,7 @@ function SingleChoiceEditor({
               className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                 selectedOption === option.id
                   ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
               }`}
             >
               <input
@@ -93,32 +80,32 @@ function SingleChoiceEditor({
                 value={option.id}
                 checked={selectedOption === option.id}
                 onChange={() => handleSelect(option.id)}
-                className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                className="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500"
               />
               <span
                 className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${
                   selectedOption === option.id
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-slate-200 text-slate-700'
                 }`}
               >
                 {option.id}
               </span>
-              <span className="flex-1 text-gray-800">{option.content}</span>
+              <span className="flex-1 text-slate-800">{option.content}</span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div className="text-sm text-gray-500">请选择一项正确答案</div>
+      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div className="text-sm text-slate-500">请选择一项正确答案</div>
         <button
           onClick={handleSave}
           disabled={!isDirty}
           className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
             isDirty
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'btn-primary'
+              : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +160,6 @@ function MultipleChoiceEditor({
     setIsDirty(false)
   }, [problemId, selectedOptions, onSave, setIsDirty])
 
-  // 监听 Ctrl+S 快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -202,7 +188,7 @@ function MultipleChoiceEditor({
                 className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                    : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
                 }`}
               >
                 <input
@@ -210,31 +196,31 @@ function MultipleChoiceEditor({
                   value={option.id}
                   checked={isSelected}
                   onChange={() => handleToggle(option.id)}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                 />
                 <span
                   className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm ${
-                    isSelected ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                    isSelected ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-700'
                   }`}
                 >
                   {option.id}
                 </span>
-                <span className="flex-1 text-gray-800">{option.content}</span>
+                <span className="flex-1 text-slate-800">{option.content}</span>
               </label>
             )
           })}
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div className="text-sm text-gray-500">已选择 {selectedOptions.size} 项 · 可选择多项</div>
+      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div className="text-sm text-slate-500">已选择 {selectedOptions.size} 项 · 可选择多项</div>
         <button
           onClick={handleSave}
           disabled={!isDirty}
           className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
             isDirty
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'btn-primary'
+              : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,13 +243,11 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
   const getCode = useExamStore((state) => state.getCode)
   const codeState = getCode(problemId)
 
-  const saveStatus = getSaveStatusText(codeState.savedAt, isDirty, codeState.isSaving)
-
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-slate-700">
             {problemType === 'single_choice' ? '单选题' : '多选题'}
           </span>
           <span
@@ -277,46 +261,9 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
           </span>
         </div>
 
-        {saveStatus && (
-          <div className={`flex items-center gap-1.5 text-sm ${saveStatus.color}`}>
-            {codeState.isSaving ? (
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            ) : isDirty ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            )}
-            <span className="hidden sm:inline">{saveStatus.text}</span>
-          </div>
-        )}
+        <SaveStatusIndicator
+          status={codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null}
+        />
       </div>
 
       {problemType === 'single_choice' ? (

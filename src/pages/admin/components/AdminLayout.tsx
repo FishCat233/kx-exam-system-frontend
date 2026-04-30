@@ -183,9 +183,7 @@ export function AdminLayout() {
   const userMenuItems: MenuProps['items'] = [
     {
       key: 'username',
-      label: (
-        <span style={{ color: '#999', fontSize: 12 }}>{adminInfo?.username || '未知用户'}</span>
-      ),
+      label: <span className="text-slate-400 text-xs">{adminInfo?.username || '未知用户'}</span>,
       disabled: true,
     },
     {
@@ -206,27 +204,10 @@ export function AdminLayout() {
   ]
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        theme="light"
-        style={{
-          boxShadow: '2px 0 8px rgba(0,0,0,0.06)',
-        }}
-      >
+    <Layout className="min-h-screen">
+      <Sider trigger={null} collapsible collapsed={collapsed} theme="light" className="shadow-sm">
         <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderBottom: '1px solid #f0f0f0',
-            fontSize: collapsed ? 14 : 18,
-            fontWeight: 'bold',
-            color: '#1890ff',
-          }}
+          className={`h-16 flex items-center justify-center border-b border-slate-200 font-bold text-blue-500 ${collapsed ? 'text-sm' : 'text-lg'}`}
         >
           {collapsed ? '考试' : '考试管理系统'}
         </div>
@@ -235,52 +216,31 @@ export function AdminLayout() {
           selectedKeys={[location.pathname]}
           items={menuItems}
           onClick={handleMenuClick}
-          style={{ borderRight: 0 }}
+          className="!border-r-0"
         />
       </Sider>
       <Layout>
         <Header
-          style={{
-            padding: '0 24px',
-            background: colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          }}
+          style={{ background: colorBgContainer }}
+          className="px-6 flex items-center justify-between shadow-sm"
         >
           <ExamSelector />
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                cursor: 'pointer',
-                padding: '4px 8px',
-                borderRadius: borderRadiusLG,
-                transition: 'background 0.3s',
-              }}
-              className="hover:bg-gray-100"
+              style={{ borderRadius: borderRadiusLG }}
+              className="flex items-center gap-2 cursor-pointer px-2 py-1 transition-colors hover:bg-slate-100"
             >
               <Badge dot color={adminInfo?.is_active ? 'green' : 'red'}>
                 <Avatar icon={<UserOutlined />} />
               </Badge>
-              <span style={{ marginLeft: 8 }}>
-                {adminInfo?.name || adminInfo?.username || '管理员'}
-              </span>
-              <DownOutlined style={{ fontSize: 12 }} />
+              <span className="ml-2">{adminInfo?.name || adminInfo?.username || '管理员'}</span>
+              <DownOutlined className="text-xs" />
             </div>
           </Dropdown>
         </Header>
         <Content
-          style={{
-            margin: 24,
-            padding: 24,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            minHeight: 280,
-          }}
+          style={{ background: colorBgContainer, borderRadius: borderRadiusLG }}
+          className="m-6 p-6 min-h-[280px]"
         >
           <Outlet />
         </Content>

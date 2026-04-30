@@ -99,7 +99,7 @@ export function ExportPage() {
 
   return (
     <div>
-      <Title level={4} style={{ marginBottom: 24 }}>
+      <Title level={4} className="mb-6">
         阅卷导出
       </Title>
 
@@ -109,18 +109,18 @@ export function ExportPage() {
         type="info"
         showIcon
         icon={<InfoCircleOutlined />}
-        style={{ marginBottom: 24 }}
+        className="mb-6"
       />
 
       {!currentExamId ? (
-        <Card style={{ marginBottom: 24 }}>
+        <Card className="mb-6">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="请先在顶部选择一个考试，再执行阅卷导出"
           />
         </Card>
       ) : (
-        <Card title="当前导出对象" style={{ marginBottom: 24 }}>
+        <Card title="当前导出对象" className="mb-6">
           <Space direction="vertical" size="small">
             <Space>
               <Text type="secondary">考试名称：</Text>
@@ -140,7 +140,7 @@ export function ExportPage() {
         </Card>
       )}
 
-      <Card title="导出内容" style={{ marginBottom: 24 }}>
+      <Card title="导出内容" className="mb-6">
         <List
           itemLayout="horizontal"
           dataSource={exportItems}
@@ -149,17 +149,7 @@ export function ExportPage() {
               <List.Item.Meta
                 avatar={
                   <div
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 8,
-                      backgroundColor: '#f0f5ff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#1890ff',
-                      fontSize: 24,
-                    }}
+                    className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 text-2xl"
                   >
                     {item.icon}
                   </div>
@@ -173,13 +163,13 @@ export function ExportPage() {
       </Card>
 
       {exporting && (
-        <Card style={{ marginBottom: 24 }}>
+        <Card className="mb-6">
           <Steps current={currentStep} items={steps} />
         </Card>
       )}
 
       <Card>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Space direction="vertical" size="large" className="w-full">
           <div>
             <Title level={5}>开始导出</Title>
             <Paragraph type="secondary">
@@ -196,7 +186,7 @@ export function ExportPage() {
             loading={exporting}
             disabled={!currentExamId}
             block
-            style={{ height: 48, fontSize: 16 }}
+            className="h-12 text-base"
           >
             {exporting ? '导出中...' : '导出阅卷数据'}
           </Button>
@@ -205,23 +195,23 @@ export function ExportPage() {
 
           <Space direction="vertical" size="small">
             <Text type="secondary">
-              <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
+              <CheckCircleOutlined className="mr-2 text-green-500" />
               导出文件格式：ZIP 压缩包
             </Text>
             <Text type="secondary">
-              <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
+              <CheckCircleOutlined className="mr-2 text-green-500" />
               内含文件：`grading_template.csv`、`students.csv`、`problems.csv`
             </Text>
             <Text type="secondary">
-              <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
+              <CheckCircleOutlined className="mr-2 text-green-500" />
               代码文件格式：按考生目录拆分的 `.c` 源文件
             </Text>
             <Text type="secondary">
-              <CheckCircleOutlined style={{ marginRight: 8, color: '#52c41a' }} />
+              <CheckCircleOutlined className="mr-2 text-green-500" />
               日志文件格式：`operation_logs.csv` 与 `operation_logs.json`
             </Text>
             <Text type="secondary">
-              <AppstoreOutlined style={{ marginRight: 8, color: '#1677ff' }} />
+              <AppstoreOutlined className="mr-2 text-blue-500" />
               建议先确认顶部已切换到正确考试，再进行导出
             </Text>
           </Space>

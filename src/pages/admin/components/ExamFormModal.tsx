@@ -126,7 +126,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
       okText="确认"
       cancelText="取消"
     >
-      <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+      <Form form={form} layout="vertical" autoComplete="off" className="mt-4">
         <Form.Item
           name="name"
           label="考试名称"
@@ -158,7 +158,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         >
           <DatePicker
             showTime
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder="请选择开考时间"
             format="YYYY-MM-DD HH:mm"
             disabled={disabledFields}
@@ -183,7 +183,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         >
           <DatePicker
             showTime
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder="请选择结束时间"
             format="YYYY-MM-DD HH:mm"
             disabled={disabledFields}
@@ -214,7 +214,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         </Form.Item>
 
         {disabledFields && (
-          <div style={{ color: '#faad14', marginBottom: 16 }}>
+          <div className="text-yellow-500 mb-4">
             注意：考试已开始或已结束，只能修改考前承诺书内容。
           </div>
         )}

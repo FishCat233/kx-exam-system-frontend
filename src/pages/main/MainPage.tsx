@@ -557,8 +557,8 @@ export function MainPage() {
 
   if (bootstrapping) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="page-center">
+        <div className="card-base max-w-lg p-8">
           <div className="h-6 w-48 animate-pulse rounded bg-slate-200" />
           <div className="mt-4 h-4 w-full animate-pulse rounded bg-slate-100" />
           <div className="mt-2 h-4 w-4/5 animate-pulse rounded bg-slate-100" />
@@ -584,13 +584,11 @@ export function MainPage() {
 
       {/* 主内容区 */}
       <div className="flex-1 min-h-0 p-3 lg:p-4">
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden card-base rounded-3xl">
           <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 backdrop-blur lg:px-6">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="min-w-0">
-                <div className="text-xs font-medium uppercase tracking-[0.16em] text-blue-600">
-                  Online Exam Workspace
-                </div>
+                <div className="section-label text-xs">Online Exam Workspace</div>
                 <h1 className="mt-1 truncate text-xl font-bold text-slate-900 lg:text-2xl">
                   {examInfo.name}
                 </h1>
@@ -657,12 +655,12 @@ export function MainPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">全屏模式已退出</h3>
-            <p className="text-gray-600 mb-6">您已退出全屏模式，请立即恢复全屏以继续考试。</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">全屏模式已退出</h3>
+            <p className="text-slate-600 mb-6">您已退出全屏模式，请立即恢复全屏以继续考试。</p>
             <button
               onClick={() => void restoreFullscreen()}
               disabled={restoringFullscreen}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              className="btn-primary px-6 py-2"
             >
               {restoringFullscreen ? '恢复中...' : '恢复全屏'}
             </button>

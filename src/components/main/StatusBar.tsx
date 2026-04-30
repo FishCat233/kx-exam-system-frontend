@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
+import { StatusDot } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 import type { WebSocketStatus, ExamStatus } from '../../types'
 
@@ -32,26 +33,39 @@ function getCountdownColor(remainingSeconds: number): string {
   return 'text-blue-600'
 }
 
+const wsColorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
+  connected: 'green',
+  connecting: 'yellow',
+  disconnected: 'red',
+}
+
+const examColorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
+  ongoing: 'green',
+  warning: 'yellow',
+  ending: 'red',
+}
+
 function WsStatusIcon({ status }: { status: WebSocketStatus }) {
   const getStatusConfig = () => {
     switch (status) {
       case 'connected':
-        return { color: 'bg-green-500', animate: '', label: '已连接' }
+        return { label: '已连接', animate: false }
       case 'connecting':
-        return { color: 'bg-yellow-500', animate: 'animate-pulse', label: '连接中' }
+        return { label: '连接中', animate: true }
       case 'disconnected':
-        return { color: 'bg-red-500', animate: 'animate-pulse', label: '已断开' }
+        return { label: '已断开', animate: true }
       default:
-        return { color: 'bg-gray-500', animate: '', label: '未知' }
+        return { label: '未知', animate: false }
     }
   }
 
   const config = getStatusConfig()
+  const color = wsColorMap[status] ?? 'gray'
 
   return (
     <div className="flex items-center gap-2" title={`WebSocket: ${config.label}`}>
-      <div className={`w-2.5 h-2.5 rounded-full ${config.color} ${config.animate}`} />
-      <span className="text-xs text-gray-500 hidden sm:inline">{config.label}</span>
+      <StatusDot color={color} animate={config.animate} />
+      <span className="text-xs text-slate-500 hidden sm:inline">{config.label}</span>
     </div>
   )
 }
@@ -60,41 +74,22 @@ function ExamStatusIcon({ status }: { status: ExamStatus }) {
   const getStatusConfig = () => {
     switch (status) {
       case 'ongoing':
-        return {
-          icon: 'bg-green-500',
-          text: '进行中',
-          textColor: 'text-green-600',
-          animate: '',
-        }
+        return { text: '进行中', textColor: 'text-green-600', animate: false }
       case 'warning':
-        return {
-          icon: 'bg-yellow-500',
-          text: '警告',
-          textColor: 'text-yellow-600',
-          animate: 'animate-pulse',
-        }
+        return { text: '警告', textColor: 'text-yellow-600', animate: true }
       case 'ending':
-        return {
-          icon: 'bg-red-500',
-          text: '即将结束',
-          textColor: 'text-red-600',
-          animate: 'animate-pulse',
-        }
+        return { text: '即将结束', textColor: 'text-red-600', animate: true }
       default:
-        return {
-          icon: 'bg-gray-500',
-          text: '未知',
-          textColor: 'text-gray-600',
-          animate: '',
-        }
+        return { text: '未知', textColor: 'text-slate-600', animate: false }
     }
   }
 
   const config = getStatusConfig()
+  const color = examColorMap[status] ?? 'gray'
 
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-2.5 h-2.5 rounded-full ${config.icon} ${config.animate}`} />
+      <StatusDot color={color} animate={config.animate} />
       <span className={`text-xs font-medium ${config.textColor}`}>{config.text}</span>
     </div>
   )
@@ -126,7 +121,6 @@ export function StatusBar({
     return () => clearInterval(timer)
   }, [updateCountdown])
 
-  // 计算剩余秒数用于颜色判断
   const getRemainingSeconds = useCallback(() => {
     if (!endTime) return 0
     const end = new Date(endTime).getTime()
@@ -148,13 +142,11 @@ export function StatusBar({
 
   return (
     <>
-      <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
-        {/* 左侧：倒计时和状态 */}
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
         <div className="flex items-center gap-4 lg:gap-6">
-          {/* 倒计时 */}
           <div className="flex items-center gap-2">
             <svg
-              className="w-4 h-4 text-gray-400"
+              className="w-4 h-4 text-slate-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -171,21 +163,17 @@ export function StatusBar({
             </span>
           </div>
 
-          {/* 分隔线 */}
-          <div className="hidden sm:block w-px h-6 bg-gray-200" />
+          <div className="hidden sm:block w-px h-6 bg-slate-200" />
 
-          {/* WebSocket 状态 */}
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-gray-400">连接:</span>
+            <span className="text-xs text-slate-400">连接:</span>
             <WsStatusIcon status={wsStatus} />
           </div>
 
-          {/* 分隔线 */}
-          <div className="hidden sm:block w-px h-6 bg-gray-200" />
+          <div className="hidden sm:block w-px h-6 bg-slate-200" />
 
-          {/* 考试状态 */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 hidden sm:inline">状态:</span>
+            <span className="text-xs text-slate-400 hidden sm:inline">状态:</span>
             <ExamStatusIcon status={examStatus} />
           </div>
         </div>
@@ -220,10 +208,10 @@ export function StatusBar({
           <button
             onClick={handleSubmitClick}
             disabled={submitting}
-            className={`px-4 lg:px-6 py-2 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
+            className={`px-4 lg:px-6 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
               submitting
-                ? 'bg-red-300 cursor-not-allowed'
-                : 'bg-red-500 hover:bg-red-600 active:bg-red-700'
+                ? 'bg-red-300 cursor-not-allowed text-white'
+                : 'btn-danger text-sm shadow-sm'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,7 +227,6 @@ export function StatusBar({
         </div>
       </header>
 
-      {/* 交卷确认弹窗 */}
       {showConfirm && !submitting && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
@@ -260,8 +247,8 @@ export function StatusBar({
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800">确认交卷</h3>
-                <p className="text-sm text-gray-500">此操作不可撤销</p>
+                <h3 className="text-lg font-bold text-slate-800">确认交卷</h3>
+                <p className="text-sm text-slate-500">此操作不可撤销</p>
               </div>
             </div>
 
@@ -275,13 +262,13 @@ export function StatusBar({
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
               >
                 取消
               </button>
               <button
                 onClick={handleConfirmSubmit}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium"
+                className="btn-danger px-4 py-2"
               >
                 确认交卷
               </button>

@@ -35,24 +35,10 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
   }
 
   return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      }}
-    >
-      <Card
-        style={{
-          width: 400,
-          borderRadius: 8,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+      <Card className="w-[400px] rounded-lg shadow-lg">
+        <div className="text-center mb-8">
+          <Title level={3} className="!mb-0 text-blue-500">
             考试管理系统
           </Title>
           <Typography.Text type="secondary">管理员登录</Typography.Text>
@@ -86,7 +72,7 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
             <Input.Password prefix={<LockOutlined />} placeholder="请输入密码" />
           </Form.Item>
 
-          <Form.Item style={{ marginBottom: 0 }}>
+          <Form.Item className="!mb-0">
             <Button type="primary" htmlType="submit" loading={loading} block>
               登录
             </Button>

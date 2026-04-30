@@ -8,6 +8,7 @@ import ExamInfoCard from '@/components/login/ExamInfoCard'
 import LoginForm from '@/components/login/LoginForm'
 import OrganizationLogo from '@/components/login/OrganizationLogo'
 import PledgeModal from '@/components/login/PledgeModal'
+import { SectionLabel } from '@/components/ui'
 import type { ExamInfo, LoginFormData } from '@/types'
 import { getStudentSession, saveStudentSession } from '@/utils/studentSession'
 
@@ -174,9 +175,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-600">
-                  Student Login
-                </p>
+                <SectionLabel>Student Login</SectionLabel>
                 <h2 className="text-3xl font-bold text-slate-900">进入考试</h2>
                 <p className="text-sm leading-6 text-slate-500">
                   系统会自动读取当前考试信息，并在登录成功后完成全屏校验与考试初始化。

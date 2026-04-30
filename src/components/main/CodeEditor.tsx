@@ -8,6 +8,7 @@ import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
 import { useCallback, useEffect, useState } from 'react'
 
+import { SaveStatusIndicator } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 
 import { ChoiceQuestion } from './ChoiceQuestion'
@@ -91,66 +92,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSave])
 
-  const getSaveStatus = () => {
-    const codeState = getCode(problemId)
-
-    if (codeState.isSaving) {
-      return {
-        text: '保存中...',
-        color: isDark ? 'text-yellow-400' : 'text-yellow-600',
-        icon: (
-          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-        ),
-      }
-    }
-
-    if (isDirty) {
-      return {
-        text: '未保存',
-        color: isDark ? 'text-orange-400' : 'text-orange-600',
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        ),
-      }
-    }
-
-    if (codeState.savedAt) {
-      return {
-        text: '已保存',
-        color: isDark ? 'text-green-400' : 'text-green-600',
-        icon: (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        ),
-      }
-    }
-
-    return null
-  }
-
-  const saveStatus = getSaveStatus()
+  const codeState = getCode(problemId)
 
   return (
     <div className={`flex flex-col h-full ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
@@ -173,12 +115,10 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {saveStatus && (
-            <div className={`flex items-center gap-1.5 text-sm ${saveStatus.color}`}>
-              {saveStatus.icon}
-              <span className="hidden sm:inline">{saveStatus.text}</span>
-            </div>
-          )}
+          <SaveStatusIndicator
+            status={codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null}
+            isDark={isDark}
+          />
 
           <select
             value={themeKey}
@@ -201,10 +141,10 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
             disabled={!isDirty}
             className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
               isDirty
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                ? 'btn-primary'
                 : isDark
-                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed rounded-lg'
+                  : 'bg-slate-200 text-slate-500 cursor-not-allowed rounded-lg'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,7 +190,6 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
   const [themeKey] = useState<ThemeKey>(getStoredTheme)
   const isDark = THEME_CONFIG[themeKey].isDark
 
-  // 获取当前题目信息
   const currentProblem =
     currentProblemId !== null ? problems.find((p) => p.id === currentProblemId) : null
 
@@ -275,10 +214,8 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
     )
   }
 
-  // 根据题目类型渲染不同的编辑器
   if (currentProblem) {
     if (currentProblem.type === 'single_choice' || currentProblem.type === 'multiple_choice') {
-      // 选择题
       if (currentProblem.options && currentProblem.options.length > 0) {
         return (
           <ChoiceQuestion
@@ -293,6 +230,5 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
     }
   }
 
-  // 默认渲染代码编辑器（编程题或选择题没有选项时）
   return <ProblemCodeEditor key={currentProblemId} problemId={currentProblemId} onSave={onSave} />
 }

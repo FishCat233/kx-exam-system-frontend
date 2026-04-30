@@ -356,22 +356,15 @@ export function AdminManagementPage() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24,
-        }}
-      >
-        <Title level={4} style={{ margin: 0 }}>
+      <div className="flex justify-between items-center mb-6">
+        <Title level={4} className="!mb-0">
           管理员管理
         </Title>
         <Space>
           <Select
             placeholder="筛选状态"
             allowClear
-            style={{ width: 120 }}
+            className="w-[120px]"
             value={isActiveFilter}
             onChange={(value) => setIsActiveFilter(value)}
           >
@@ -383,7 +376,7 @@ export function AdminManagementPage() {
             allowClear
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 250 }}
+            className="w-[250px]"
             prefix={<SearchOutlined />}
           />
           <Button icon={<ReloadOutlined />} onClick={loadData} loading={loading}>
@@ -430,7 +423,7 @@ export function AdminManagementPage() {
         okText="确认"
         cancelText="取消"
       >
-        <div style={{ marginTop: 16 }}>
+        <div className="mt-4">
           <Text>
             正在为管理员 <strong>{passwordModalAdmin?.name || passwordModalAdmin?.username}</strong>{' '}
             重置密码
@@ -439,7 +432,7 @@ export function AdminManagementPage() {
             placeholder="请输入新密码（6-100字符）"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            style={{ marginTop: 16 }}
+            className="mt-4"
           />
         </div>
       </Modal>

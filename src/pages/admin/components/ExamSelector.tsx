@@ -112,13 +112,13 @@ export function ExamSelector() {
 
   return (
     <Space>
-      <BookOutlined style={{ color: '#1890ff' }} />
+      <BookOutlined className="text-blue-500" />
       <Text strong>当前考试：</Text>
       <Select
         value={currentExamId ?? undefined}
         onChange={handleExamChange}
         loading={loading}
-        style={{ minWidth: 280 }}
+        className="min-w-[280px]"
         placeholder="请选择考试"
         optionLabelProp="label"
       >
@@ -128,13 +128,13 @@ export function ExamSelector() {
             value={exam.id}
             label={`${exam.name} (${getStatusText(exam.status)})`}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div className="flex flex-col gap-1">
               <Text strong>{exam.name}</Text>
               <Space size="small">
-                <Text type="secondary" style={{ fontSize: 12 }}>
+                <Text type="secondary" className="text-xs">
                   {exam.subject}
                 </Text>
-                <Text type={getStatusColor(exam.status)} style={{ fontSize: 12 }}>
+                <Text type={getStatusColor(exam.status)} className="text-xs">
                   {getStatusText(exam.status)}
                 </Text>
               </Space>

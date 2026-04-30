@@ -1,3 +1,4 @@
+import { StatusDot } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 import type { ProblemType } from '../../types'
 
@@ -67,11 +68,11 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
   }
 
   return (
-    <div className="w-16 lg:w-56 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0">
+    <div className="w-16 lg:w-56 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
       {/* 标题 - 在窄屏下隐藏 */}
-      <div className="hidden lg:block p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-800 text-sm">题目列表</h3>
-        <p className="text-xs text-gray-500 mt-1">{problems.length} 道题目</p>
+      <div className="hidden lg:block p-4 border-b border-slate-200">
+        <h3 className="font-semibold text-slate-800 text-sm">题目列表</h3>
+        <p className="text-xs text-slate-500 mt-1">{problems.length} 道题目</p>
       </div>
 
       {/* 题目列表 */}
@@ -87,7 +88,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
               className={`w-full text-left px-2 lg:px-4 py-2 transition-all duration-150 ${
                 isActive
                   ? 'bg-blue-50 border-l-3 border-l-blue-500'
-                  : 'hover:bg-gray-100 border-l-3 border-l-transparent'
+                  : 'hover:bg-slate-100 border-l-3 border-l-transparent'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -98,7 +99,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
                       ? 'bg-blue-500 text-white'
                       : isSaved
                         ? 'bg-green-100 text-green-600'
-                        : 'bg-gray-200 text-gray-600'
+                        : 'bg-slate-200 text-slate-600'
                   }`}
                 >
                   {isSaved && !isActive ? <CheckIcon className="w-4 h-4" /> : index + 1}
@@ -109,7 +110,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`text-sm truncate block ${
-                        isActive ? 'text-blue-700 font-medium' : 'text-gray-700'
+                        isActive ? 'text-blue-700 font-medium' : 'text-slate-700'
                       }`}
                     >
                       {problem.title}
@@ -133,7 +134,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
                 {/* 保存标记 - 仅图标 */}
                 {isSaved && (
                   <div className="lg:hidden">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <StatusDot color="green" className="w-2 h-2" />
                   </div>
                 )}
               </div>
@@ -143,8 +144,8 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
       </div>
 
       {/* 底部统计 - 在窄屏下隐藏 */}
-      <div className="hidden lg:block p-4 border-t border-gray-200">
-        <div className="flex items-center justify-between text-xs text-gray-500">
+      <div className="hidden lg:block p-4 border-t border-slate-200">
+        <div className="flex items-center justify-between text-xs text-slate-500">
           <span>已保存</span>
           <span className="font-medium text-green-600">
             {problems.filter((p) => isProblemSaved(p.id)).length}/{problems.length}
