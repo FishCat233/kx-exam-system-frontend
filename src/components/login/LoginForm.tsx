@@ -6,6 +6,7 @@ import type { LoginFormData } from '../../types'
 interface LoginFormProps {
   onSubmit: (data: LoginFormData) => void | Promise<void>
   onPledgeClick: () => void
+  pledgeAgreed: boolean
   loading?: boolean
   disabled?: boolean
   submitError?: string | null
@@ -14,6 +15,7 @@ interface LoginFormProps {
 export default function LoginForm({
   onSubmit,
   onPledgeClick,
+  pledgeAgreed,
   loading = false,
   disabled = false,
   submitError = null,
@@ -27,6 +29,11 @@ export default function LoginForm({
 
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({})
   const [touched, setTouched] = useState<Partial<Record<keyof LoginFormData, boolean>>>({})
+
+  const validatePledge = (): string | undefined => {
+    if (!pledgeAgreed) return '请勾选考前承诺书'
+    return undefined
+  }
 
   const validateField = (field: keyof LoginFormData, value: string | boolean): string | undefined => {
     switch (field) {
@@ -43,8 +50,7 @@ export default function LoginForm({
         if (!/^[a-zA-Z0-9]+$/.test(String(value))) return '登录码必须由数字和字母组成'
         break
       case 'pledgeAgreed':
-        if (!value) return '请勾选考前承诺书'
-        break
+        return validatePledge()
     }
     return undefined
   }
@@ -61,7 +67,7 @@ export default function LoginForm({
     const loginCodeError = validateField('loginCode', formData.loginCode)
     if (loginCodeError) newErrors.loginCode = loginCodeError
     
-    const pledgeError = validateField('pledgeAgreed', formData.pledgeAgreed)
+    const pledgeError = validatePledge()
     if (pledgeError) newErrors.pledgeAgreed = pledgeError
 
     setErrors(newErrors)
@@ -77,7 +83,7 @@ export default function LoginForm({
       pledgeAgreed: true,
     })
     if (validateForm()) {
-      onSubmit(formData)
+      onSubmit({ ...formData, pledgeAgreed })
     }
   }
 
@@ -102,7 +108,7 @@ export default function LoginForm({
     /^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(formData.name) &&
     formData.loginCode.trim() &&
     /^[a-zA-Z0-9]+$/.test(formData.loginCode) &&
-    formData.pledgeAgreed &&
+    pledgeAgreed &&
     !disabled
 
   return (
@@ -178,22 +184,19 @@ export default function LoginForm({
         </div>
 
         <div className="flex items-start gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => handleChange('pledgeAgreed', !formData.pledgeAgreed)}
-            disabled={disabled || loading}
+          <span
             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-all ${
-              formData.pledgeAgreed
+              pledgeAgreed
                 ? 'border-blue-600 bg-blue-600'
-                : 'border-slate-300 bg-white hover:border-blue-400'
+                : 'border-slate-300 bg-white'
             }`}
           >
-            {formData.pledgeAgreed && (
+            {pledgeAgreed && (
               <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             )}
-          </button>
+          </span>
           <label className="cursor-pointer text-sm text-slate-700">
             我已阅读并同意
             <button

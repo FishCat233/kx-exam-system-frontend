@@ -56,6 +56,7 @@ async function requestExamFullscreen(): Promise<void> {
 export default function LoginPage() {
   const navigate = useNavigate()
   const [isPledgeModalOpen, setIsPledgeModalOpen] = useState(false)
+  const [pledgeAgreed, setPledgeAgreed] = useState(false)
   const [examList, setExamList] = useState<ExamInfo[]>([])
   const [loadingExam, setLoadingExam] = useState(true)
   const [loginLoading, setLoginLoading] = useState(false)
@@ -128,6 +129,11 @@ export default function LoginPage() {
     setIsPledgeModalOpen(true)
   }
 
+  const handlePledgeAgree = () => {
+    setPledgeAgreed(true)
+    setIsPledgeModalOpen(false)
+  }
+
   const handleClosePledgeModal = () => {
     setIsPledgeModalOpen(false)
   }
@@ -194,6 +200,7 @@ export default function LoginPage() {
               <LoginForm
                 onSubmit={handleLoginSubmit}
                 onPledgeClick={handlePledgeClick}
+                pledgeAgreed={pledgeAgreed}
                 loading={loginLoading}
                 disabled={!currentExam}
                 submitError={submitError}
@@ -210,6 +217,7 @@ export default function LoginPage() {
         <PledgeModal
           isOpen={isPledgeModalOpen}
           onClose={handleClosePledgeModal}
+          onAgree={handlePledgeAgree}
           content={currentExam?.pledgeContent || ''}
         />
       )}

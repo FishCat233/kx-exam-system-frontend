@@ -5,6 +5,7 @@ import { GradientButton, MarkdownRenderer } from '../../components/ui'
 interface PledgeModalProps {
   isOpen: boolean
   onClose: () => void
+  onAgree: () => void
   content: string
 }
 
@@ -38,7 +39,7 @@ const defaultPledgeContent = `# 考前诚信承诺书
 **签署即表示同意以上所有条款**
 `
 
-export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, content }) => {
+export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, onAgree, content }) => {
   if (!isOpen) return null
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -71,7 +72,7 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
         </div>
 
         <div className="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4">
-          <GradientButton onClick={onClose} className="px-6 py-2.5 text-sm">
+          <GradientButton onClick={onAgree} className="px-6 py-2.5 text-sm">
             我已阅读并同意
           </GradientButton>
         </div>
