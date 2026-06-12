@@ -35,6 +35,10 @@ export function useWebSocket({
       heartbeatRef.current = null
     }
     if (wsRef.current) {
+      wsRef.current.onclose = null
+      wsRef.current.onerror = null
+      wsRef.current.onopen = null
+      wsRef.current.onmessage = null
       wsRef.current.close()
       wsRef.current = null
     }
