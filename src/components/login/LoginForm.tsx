@@ -11,81 +11,6 @@ interface LoginFormProps {
   submitError?: string | null
 }
 
-// 用户图标
-const UserIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-slate-400"
-  >
-    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-)
-
-// 用户圆形图标
-const UserCircleIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-slate-400"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <circle cx="12" cy="10" r="3" />
-    <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
-  </svg>
-)
-
-// 钥匙图标
-const KeyIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-slate-400"
-  >
-    <circle cx="7.5" cy="15.5" r="5.5" />
-    <path d="m21 2-9.6 9.6" />
-    <path d="m15.5 7.5 3 3L22 7l-3-3" />
-  </svg>
-)
-
-const CheckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-
 export default function LoginForm({
   onSubmit,
   onPledgeClick,
@@ -101,35 +26,43 @@ export default function LoginForm({
   })
 
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({})
+  const [touched, setTouched] = useState<Partial<Record<keyof LoginFormData, boolean>>>({})
+
+  const validateField = (field: keyof LoginFormData, value: string | boolean): string | undefined => {
+    switch (field) {
+      case 'studentId':
+        if (!String(value).trim()) return '请输入学号'
+        if (!/^\d+$/.test(String(value))) return '学号必须为纯数字'
+        break
+      case 'name':
+        if (!String(value).trim()) return '请输入姓名'
+        if (!/^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(String(value))) return '姓名必须为中文或英文'
+        break
+      case 'loginCode':
+        if (!String(value).trim()) return '请输入登录码'
+        if (!/^[a-zA-Z0-9]+$/.test(String(value))) return '登录码必须由数字和字母组成'
+        break
+      case 'pledgeAgreed':
+        if (!value) return '请勾选考前承诺书'
+        break
+    }
+    return undefined
+  }
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof LoginFormData, string>> = {}
-
-    // 学号校验：纯数字
-    if (!formData.studentId.trim()) {
-      newErrors.studentId = '请输入学号'
-    } else if (!/^\d+$/.test(formData.studentId)) {
-      newErrors.studentId = '学号必须为纯数字'
-    }
-
-    // 姓名校验：中文或英文
-    if (!formData.name.trim()) {
-      newErrors.name = '请输入姓名'
-    } else if (!/^[\u4e00-\u9fa5a-zA-Z\s]+$/.test(formData.name)) {
-      newErrors.name = '姓名必须为中文或英文'
-    }
-
-    // 登录码校验：数字字母组成
-    if (!formData.loginCode.trim()) {
-      newErrors.loginCode = '请输入登录码'
-    } else if (!/^[a-zA-Z0-9]+$/.test(formData.loginCode)) {
-      newErrors.loginCode = '登录码必须由数字和字母组成'
-    }
-
-    // 承诺书校验：必须勾选
-    if (!formData.pledgeAgreed) {
-      newErrors.pledgeAgreed = '请勾选考前承诺书'
-    }
+    
+    const studentIdError = validateField('studentId', formData.studentId)
+    if (studentIdError) newErrors.studentId = studentIdError
+    
+    const nameError = validateField('name', formData.name)
+    if (nameError) newErrors.name = nameError
+    
+    const loginCodeError = validateField('loginCode', formData.loginCode)
+    if (loginCodeError) newErrors.loginCode = loginCodeError
+    
+    const pledgeError = validateField('pledgeAgreed', formData.pledgeAgreed)
+    if (pledgeError) newErrors.pledgeAgreed = pledgeError
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -137,6 +70,12 @@ export default function LoginForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setTouched({
+      studentId: true,
+      name: true,
+      loginCode: true,
+      pledgeAgreed: true,
+    })
     if (validateForm()) {
       onSubmit(formData)
     }
@@ -144,10 +83,16 @@ export default function LoginForm({
 
   const handleChange = (field: keyof LoginFormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // 清除对应字段的错误
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    if (touched[field]) {
+      const error = validateField(field, value)
+      setErrors((prev) => ({ ...prev, [field]: error }))
     }
+  }
+
+  const handleBlur = (field: keyof LoginFormData) => {
+    setTouched((prev) => ({ ...prev, [field]: true }))
+    const error = validateField(field, formData[field])
+    setErrors((prev) => ({ ...prev, [field]: error }))
   }
 
   const isFormValid =
@@ -161,91 +106,95 @@ export default function LoginForm({
     !disabled
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* 学号输入框 */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">学号</label>
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <UserIcon />
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="space-y-4">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">学号</label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={formData.studentId}
+              onChange={(e) => handleChange('studentId', e.target.value)}
+              onBlur={() => handleBlur('studentId')}
+              placeholder="请输入学号"
+              disabled={disabled || loading}
+              className="input-base h-11 pl-10 pr-4"
+            />
           </div>
-          <input
-            type="text"
-            value={formData.studentId}
-            onChange={(e) => handleChange('studentId', e.target.value)}
-            placeholder="请输入学号"
-            disabled={disabled || loading}
-            className="input-base pl-10 pr-4 py-3"
-          />
+          {errors.studentId && touched.studentId && (
+            <InlineAlert variant="error" message={errors.studentId} className="mt-2" />
+          )}
         </div>
-        {errors.studentId && (
-          <InlineAlert variant="error" message={errors.studentId} className="mt-2" />
-        )}
-      </div>
 
-      {/* 姓名输入框 */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">姓名</label>
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <UserCircleIcon />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">姓名</label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              onBlur={() => handleBlur('name')}
+              placeholder="请输入姓名"
+              disabled={disabled || loading}
+              className="input-base h-11 pl-10 pr-4"
+            />
           </div>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="请输入姓名"
-            disabled={disabled || loading}
-            className="input-base pl-10 pr-4 py-3"
-          />
+          {errors.name && touched.name && (
+            <InlineAlert variant="error" message={errors.name} className="mt-2" />
+          )}
         </div>
-        {errors.name && <InlineAlert variant="error" message={errors.name} className="mt-2" />}
-      </div>
 
-      {/* 登录码输入框 */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">登录码</label>
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <KeyIcon />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">登录码</label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg className="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={formData.loginCode}
+              onChange={(e) => handleChange('loginCode', e.target.value)}
+              onBlur={() => handleBlur('loginCode')}
+              placeholder="请输入登录码"
+              disabled={disabled || loading}
+              className="input-base h-11 pl-10 pr-4"
+            />
           </div>
-          <input
-            type="text"
-            value={formData.loginCode}
-            onChange={(e) => handleChange('loginCode', e.target.value)}
-            placeholder="请输入登录码"
-            disabled={disabled || loading}
-            className="input-base pl-10 pr-4 py-3"
-          />
+          {errors.loginCode && touched.loginCode && (
+            <InlineAlert variant="error" message={errors.loginCode} className="mt-2" />
+          )}
         </div>
-        {errors.loginCode && (
-          <InlineAlert variant="error" message={errors.loginCode} className="mt-2" />
-        )}
-      </div>
 
-      {/* 承诺书勾选框 */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3 pt-2">
           <button
             type="button"
             onClick={() => handleChange('pledgeAgreed', !formData.pledgeAgreed)}
             disabled={disabled || loading}
-            className={`relative flex items-center justify-center w-5 h-5 rounded-md border-2 transition-all duration-200 ${
+            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-all ${
               formData.pledgeAgreed
-                ? 'bg-blue-500 border-blue-500'
-                : 'bg-white border-slate-300 hover:border-blue-400'
+                ? 'border-blue-600 bg-blue-600'
+                : 'border-slate-300 bg-white hover:border-blue-400'
             }`}
           >
             {formData.pledgeAgreed && (
-              <span className="text-white">
-                <CheckIcon />
-              </span>
+              <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
             )}
           </button>
-          <label
-            className="text-sm text-slate-700 select-none cursor-pointer"
-            onClick={() => handleChange('pledgeAgreed', !formData.pledgeAgreed)}
-          >
+          <label className="cursor-pointer text-sm text-slate-700">
             我已阅读并同意
             <button
               type="button"
@@ -254,25 +203,40 @@ export default function LoginForm({
                 onPledgeClick()
               }}
               disabled={disabled || loading}
-              className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium transition-colors"
+              className="ml-1 font-medium text-blue-600 hover:text-blue-700"
             >
               考前承诺书
             </button>
           </label>
         </div>
-        {errors.pledgeAgreed && <InlineAlert variant="error" message={errors.pledgeAgreed} />}
+        {errors.pledgeAgreed && touched.pledgeAgreed && (
+          <InlineAlert variant="error" message={errors.pledgeAgreed} />
+        )}
+
+        {submitError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3">
+            <p className="text-sm text-red-700">{submitError}</p>
+          </div>
+        )}
+
+        <GradientButton
+          type="submit"
+          disabled={!isFormValid || loading}
+          className="h-11 w-full text-base"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              登录中...
+            </span>
+          ) : (
+            '登录'
+          )}
+        </GradientButton>
       </div>
-
-      {/* 登录按钮 */}
-      {submitError && <InlineAlert variant="error" message={submitError} />}
-
-      <GradientButton
-        type="submit"
-        disabled={!isFormValid || loading}
-        className="w-full py-3.5 text-base"
-      >
-        {loading ? '登录中...' : '登录'}
-      </GradientButton>
     </form>
   )
 }

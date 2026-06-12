@@ -6,9 +6,7 @@ import type { WebSocketStatus, ExamStatus } from '../../types'
 
 interface StatusBarProps {
   onRefreshProblems?: () => void
-  onSubmit: () => void
   refreshingProblems?: boolean
-  submitting?: boolean
 }
 
 function calculateCountdown(endTime: string): string {
@@ -95,20 +93,16 @@ function ExamStatusIcon({ status }: { status: ExamStatus }) {
   )
 }
 
-export function StatusBar({
-  onRefreshProblems,
-  onSubmit,
-  refreshingProblems = false,
-  submitting = false,
-}: StatusBarProps) {
+export function StatusBar({ onRefreshProblems, refreshingProblems = false }: StatusBarProps) {
   const endTime = useExamStore((state) => state.endTime)
   const wsStatus = useExamStore((state) => state.wsStatus)
   const examStatus = useExamStore((state) => state.examStatus)
+  const pendingSubmit = useExamStore((state) => state.pendingSubmit)
+  const setPendingSubmit = useExamStore((state) => state.setPendingSubmit)
 
   const [countdown, setCountdown] = useState(() =>
     endTime ? calculateCountdown(endTime) : '00:00:00'
   )
-  const [showConfirm, setShowConfirm] = useState(false)
 
   const updateCountdown = useCallback(() => {
     if (endTime) {
@@ -131,148 +125,92 @@ export function StatusBar({
   const remainingSeconds = getRemainingSeconds()
   const countdownColor = getCountdownColor(remainingSeconds)
 
-  const handleSubmitClick = () => {
-    setShowConfirm(true)
-  }
-
-  const handleConfirmSubmit = () => {
-    setShowConfirm(false)
-    onSubmit()
-  }
+  const isSubmitting = pendingSubmit
 
   return (
-    <>
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
-        <div className="flex items-center gap-4 lg:gap-6">
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className={`text-xl lg:text-2xl font-mono font-bold ${countdownColor}`}>
-              {countdown}
-            </span>
-          </div>
-
-          <div className="hidden sm:block w-px h-6 bg-slate-200" />
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-slate-400">连接:</span>
-            <WsStatusIcon status={wsStatus} />
-          </div>
-
-          <div className="hidden sm:block w-px h-6 bg-slate-200" />
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 hidden sm:inline">状态:</span>
-            <ExamStatusIcon status={examStatus} />
-          </div>
+    <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
+      <div className="flex items-center gap-4 lg:gap-6">
+        <div className="flex items-center gap-2">
+          <svg
+            className="w-4 h-4 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span className={`text-xl lg:text-2xl font-mono font-bold ${countdownColor}`}>
+            {countdown}
+          </span>
         </div>
+
+        <div className="hidden sm:block w-px h-6 bg-slate-200" />
+
+        <div className="hidden sm:flex items-center gap-2">
+          <span className="text-xs text-slate-400">连接:</span>
+          <WsStatusIcon status={wsStatus} />
+        </div>
+
+        <div className="hidden sm:block w-px h-6 bg-slate-200" />
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onRefreshProblems}
-            disabled={refreshingProblems || submitting || !onRefreshProblems}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
-              refreshingProblems || submitting || !onRefreshProblems
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300'
-            }`}
-          >
-            <svg
-              className={`w-4 h-4 ${refreshingProblems ? 'animate-spin' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m14.836 2A8.001 8.001 0 005.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-14.84-2m14.84 2H15"
-              />
-            </svg>
-            <span>{refreshingProblems ? '刷新中...' : '刷新题目'}</span>
-          </button>
-
-          <button
-            onClick={handleSubmitClick}
-            disabled={submitting}
-            className={`px-4 lg:px-6 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
-              submitting
-                ? 'bg-red-300 cursor-not-allowed text-white'
-                : 'btn-danger text-sm shadow-sm'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{submitting ? '交卷中...' : '交卷'}</span>
-          </button>
+          <span className="text-xs text-slate-400 hidden sm:inline">状态:</span>
+          <ExamStatusIcon status={examStatus} />
         </div>
-      </header>
+      </div>
 
-      {showConfirm && !submitting && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-                <svg
-                  className="w-5 h-5 text-red-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">确认交卷</h3>
-                <p className="text-sm text-slate-500">此操作不可撤销</p>
-              </div>
-            </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onRefreshProblems}
+          disabled={refreshingProblems || isSubmitting || !onRefreshProblems}
+          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
+            refreshingProblems || isSubmitting || !onRefreshProblems
+              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300'
+          }`}
+        >
+          <svg
+            className={`w-4 h-4 ${refreshingProblems ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m14.836 2A8.001 8.001 0 005.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-14.84-2m14.84 2H15"
+            />
+          </svg>
+          <span>{refreshingProblems ? '刷新中...' : '刷新题目'}</span>
+        </button>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-yellow-800">
-                <span className="font-medium">警告：</span>
-                交卷后将无法继续答题，请确认已完成所有题目。未保存的代码将不会提交。
-              </p>
-            </div>
-
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
-              >
-                取消
-              </button>
-              <button onClick={handleConfirmSubmit} className="btn-danger px-4 py-2">
-                确认交卷
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+        <button
+          onClick={() => setPendingSubmit(true)}
+          disabled={isSubmitting}
+          className={`px-4 lg:px-6 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
+            isSubmitting
+              ? 'bg-red-300 cursor-not-allowed text-white'
+              : 'btn-danger text-sm shadow-sm'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>{isSubmitting ? '交卷中...' : '交卷'}</span>
+        </button>
+      </div>
+    </header>
   )
 }

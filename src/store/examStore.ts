@@ -19,6 +19,9 @@ interface ExamState {
   examInfo: ExamInfo | null
   endTime: string | null
 
+  // WebSocket 地址
+  wsUrl: string | null
+
   // 题目相关
   problems: Problem[]
   currentProblemId: number | null
@@ -32,18 +35,19 @@ interface ExamState {
   // 考试状态
   examStatus: ExamStatus
 
-  // 防作弊监控
-  tabSwitchCount: number
-  lastTabSwitchTime: string | null
+  // 交卷信号
+  pendingSubmit: boolean
 
   // 操作方法
   setExamInfo: (examInfo: ExamInfo) => void
   setEndTime: (endTime: string) => void
+  setWsUrl: (wsUrl: string) => void
   setProblems: (problems: Problem[]) => void
   syncProblems: (problems: Problem[]) => void
   setCurrentProblemId: (problemId: number) => void
   setWsStatus: (status: WebSocketStatus) => void
   setExamStatus: (status: ExamStatus) => void
+  setPendingSubmit: (pending: boolean) => void
 
   // 代码操作
   getCode: (problemId: number) => CodeState
@@ -52,10 +56,6 @@ interface ExamState {
   markSaved: (problemId: number, savedAt?: string) => void
   clearSaving: (problemId: number) => void
   hydrateCodes: (snapshots: CodeSnapshot[]) => void
-
-  // 防作弊操作
-  incrementTabSwitchCount: () => void
-  resetTabSwitchCount: () => void
 
   // 重置状态
   reset: () => void
@@ -73,13 +73,13 @@ int main() {
 const initialState = {
   examInfo: null,
   endTime: null,
+  wsUrl: null,
   problems: [],
   currentProblemId: null,
   codes: new Map<number, CodeState>(),
   wsStatus: 'disconnected' as WebSocketStatus,
   examStatus: 'ongoing' as ExamStatus,
-  tabSwitchCount: 0,
-  lastTabSwitchTime: null,
+  pendingSubmit: false,
 }
 
 export const useExamStore = create<ExamState>((set, get) => ({
@@ -88,6 +88,8 @@ export const useExamStore = create<ExamState>((set, get) => ({
   setExamInfo: (examInfo) => set({ examInfo }),
 
   setEndTime: (endTime) => set({ endTime }),
+
+  setWsUrl: (wsUrl) => set({ wsUrl }),
 
   setProblems: (problems) => {
     set({ problems })
@@ -137,6 +139,8 @@ export const useExamStore = create<ExamState>((set, get) => ({
   setWsStatus: (wsStatus) => set({ wsStatus }),
 
   setExamStatus: (examStatus) => set({ examStatus }),
+
+  setPendingSubmit: (pending) => set({ pendingSubmit: pending }),
 
   getCode: (problemId) => {
     const state = get()
@@ -210,18 +214,6 @@ export const useExamStore = create<ExamState>((set, get) => ({
 
     set({ codes: newCodes })
   },
-
-  incrementTabSwitchCount: () =>
-    set((state) => ({
-      tabSwitchCount: state.tabSwitchCount + 1,
-      lastTabSwitchTime: new Date().toISOString(),
-    })),
-
-  resetTabSwitchCount: () =>
-    set({
-      tabSwitchCount: 0,
-      lastTabSwitchTime: null,
-    }),
 
   reset: () => set(initialState),
 }))

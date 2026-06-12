@@ -49,30 +49,29 @@ export const PledgeModal: React.FC<PledgeModalProps> = ({ isOpen, onClose, conte
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
-        {/* 标题栏 */}
-        <div className="flex justify-between items-center bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-2xl">
-          <h3 className="text-xl font-bold text-white">考前承诺书</h3>
+      <div className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-4">
+          <h3 className="text-lg font-semibold text-slate-900">考前承诺书</h3>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white text-3xl leading-none transition-colors duration-200"
+            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
             aria-label="关闭"
           >
-            ×
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        {/* 内容区域 */}
-        <div className="overflow-auto px-8 py-6">
+        <div className="max-h-[60vh] overflow-auto px-6 py-5">
           <MarkdownRenderer content={content || defaultPledgeContent} />
         </div>
 
-        {/* 底部按钮 */}
-        <div className="px-8 py-5 flex justify-end border-t border-slate-100">
-          <GradientButton onClick={onClose} className="px-8 py-3 font-medium">
+        <div className="flex justify-end border-t border-slate-200 bg-slate-50 px-6 py-4">
+          <GradientButton onClick={onClose} className="px-6 py-2.5 text-sm">
             我已阅读并同意
           </GradientButton>
         </div>

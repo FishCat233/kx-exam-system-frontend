@@ -133,92 +133,77 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-slate-100">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl items-center justify-center px-4 py-8 md:px-8">
-        <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-300/50 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="relative hidden min-h-[720px] overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.16),transparent_28%)]" />
-            <div className="relative">
-              <OrganizationLogo />
-            </div>
-            <div className="relative space-y-6">
-              <div className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm backdrop-blur">
-                GUET SAST C 语言考试系统
-              </div>
-              <div className="space-y-4">
-                <h1 className="max-w-xl text-4xl font-bold leading-tight">
-                  专注、稳定、可恢复的在线考试体验
-                </h1>
-                <p className="max-w-lg text-base leading-7 text-blue-50/90">
-                  登录后将进行全屏预检并接入实时监考状态。请提前确认浏览器权限、网络环境与输入信息无误。
-                </p>
-              </div>
-              <div className="grid gap-4 rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
-                <div>
-                  <div className="text-sm text-blue-100">登录前须知</div>
-                  <div className="mt-2 text-sm leading-6 text-white/90">
-                    1. 使用监考老师提供的学号、姓名与登录码。
-                    <br />
-                    2. 登录成功后必须允许浏览器进入全屏。
-                    <br />
-                    3. 切屏、退出全屏和连接中断都会被记录。
-                  </div>
-                </div>
+    <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-8 md:px-8">
+        <div className="w-full max-w-md space-y-6">
+          <OrganizationLogo />
+
+          <div className="space-y-2 text-center">
+            <SectionLabel>Student Login</SectionLabel>
+            <h1 className="text-3xl font-bold text-slate-900">进入考试</h1>
+            <p className="text-sm text-slate-500">
+              请使用监考老师提供的学号、姓名与登录码登录
+            </p>
+          </div>
+
+          {loadingExam ? (
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+              <div className="flex items-center justify-center py-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
               </div>
             </div>
-          </section>
-
-          <section className="flex min-h-[720px] flex-col justify-center p-6 md:p-10">
-            <div className="mx-auto w-full max-w-md space-y-6">
-              <div className="lg:hidden">
-                <OrganizationLogo />
-              </div>
-
-              <div className="space-y-2">
-                <SectionLabel>Student Login</SectionLabel>
-                <h2 className="text-3xl font-bold text-slate-900">进入考试</h2>
-                <p className="text-sm leading-6 text-slate-500">
-                  系统会自动读取当前考试信息，并在登录成功后完成全屏校验与考试初始化。
-                </p>
-              </div>
-
-              {loadingExam ? (
-                <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                  <div className="h-6 w-40 animate-pulse rounded bg-slate-200" />
-                  <div className="h-20 animate-pulse rounded-xl bg-slate-200" />
-                  <div className="h-52 animate-pulse rounded-xl bg-slate-200" />
-                </div>
-              ) : pageError && !currentExam ? (
-                <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
-                  <h3 className="text-base font-semibold text-red-700">考试信息不可用</h3>
-                  <p className="mt-2 text-sm leading-6 text-red-600">{pageError}</p>
-                  <button
-                    type="button"
-                    onClick={loadExams}
-                    className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+          ) : pageError && !currentExam ? (
+            <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+              <div className="flex flex-col items-center gap-4 py-4 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                  <svg
+                    className="h-6 w-6 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    重新加载
-                  </button>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
                 </div>
-              ) : (
-                <>
-                  {currentExam && <ExamInfoCard examInfo={currentExam} />}
-                  {pageError && (
-                    <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-700">
-                      {pageError}
-                    </div>
-                  )}
-                  <LoginForm
-                    onSubmit={handleLoginSubmit}
-                    onPledgeClick={handlePledgeClick}
-                    loading={loginLoading}
-                    disabled={!currentExam}
-                    submitError={submitError}
-                  />
-                </>
-              )}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">考试信息不可用</h3>
+                  <p className="mt-2 text-sm text-slate-600">{pageError}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={loadExams}
+                  className="mt-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                >
+                  重新加载
+                </button>
+              </div>
             </div>
-          </section>
+          ) : (
+            <div className="space-y-4">
+              {currentExam && <ExamInfoCard examInfo={currentExam} />}
+              {pageError && (
+                <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-700">
+                  {pageError}
+                </div>
+              )}
+              <LoginForm
+                onSubmit={handleLoginSubmit}
+                onPledgeClick={handlePledgeClick}
+                loading={loginLoading}
+                disabled={!currentExam}
+                submitError={submitError}
+              />
+            </div>
+          )}
+
+          <div className="text-center text-xs text-slate-400">
+            GUET SAST C 语言考试系统
+          </div>
         </div>
       </div>
       {isPledgeModalOpen && (

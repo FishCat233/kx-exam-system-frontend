@@ -52,6 +52,7 @@ function mapProblemSummaries(problems: StudentLoginApiResponse['problems']): Pro
     id: problem.id,
     title: problem.title,
     orderNum: problem.order_num,
+    type: 'coding' as const,
   }))
 }
 
