@@ -41,6 +41,10 @@ export const API_ENDPOINTS = {
   DASHBOARD: (examId: number) => `/api/admin/dashboard/${examId}`,
   // 导出
   EXPORT: (examId: number) => `/api/admin/exams/${examId}/export`,
+  // 考生侧
+  STUDENT: {
+    EXAM_PROBLEMS: '/api/student/exam/problems',
+  },
   // 考试
   EXAM: {
     LIST: '/api/exams',

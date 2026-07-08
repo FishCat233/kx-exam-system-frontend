@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 
 import { fetchStudentCode } from '@/api/studentCode'
-import { fetchPublicExamDetail } from '@/api/studentExam'
+import { fetchStudentExamProblems } from '@/api/studentExam'
 import { useExamStore } from '@/store/examStore'
 import type { StudentExamSession } from '@/types'
 import { getStudentSession } from '@/utils/studentSession'
@@ -60,7 +60,7 @@ export function ExamBootstrap({ children }: ExamBootstrapProps) {
 
       // a. 拉取最新 exam detail
       try {
-        const examDetail = await fetchPublicExamDetail(storedSession.examInfo.id)
+        const examDetail = await fetchStudentExamProblems()
         problemsToLoad =
           examDetail.problems.length > 0 ? examDetail.problems : storedSession.problems
         if (cancelled) return

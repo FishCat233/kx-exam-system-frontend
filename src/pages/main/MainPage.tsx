@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { fetchStudentCode, saveStudentCode } from '@/api'
-import { fetchPublicExamDetail } from '@/api/studentExam'
+import { fetchStudentExamProblems } from '@/api/studentExam'
 
 import { CodeEditor } from '../../components/main/CodeEditor'
 import { ExamBootstrap } from '../../components/main/ExamBootstrap'
@@ -76,7 +76,7 @@ function MainPageInner() {
 
     setRefreshingProblems(true)
     try {
-      const examDetail = await fetchPublicExamDetail(state.examInfo.id)
+      const examDetail = await fetchStudentExamProblems()
       const nextProblems = examDetail.problems.length > 0 ? examDetail.problems : state.problems
       const existingIds = new Set(state.problems.map((p) => p.id))
       const newIds = nextProblems.filter((p) => !existingIds.has(p.id)).map((p) => p.id)
