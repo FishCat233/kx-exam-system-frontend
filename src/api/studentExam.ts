@@ -11,7 +11,6 @@ interface PublicExamResponse {
   start_time: string
   end_time: string
   status: string
-  pledge_content?: string | null
 }
 
 interface StudentExamProblemsResponse {
@@ -23,7 +22,6 @@ interface StudentExamProblemsResponse {
     start_time: string
     end_time: string
     status: string
-    pledge_content: string | null
   }
   problems: Array<{
     id: number
@@ -47,7 +45,6 @@ function mapExamInfo(exam: PublicExamResponse): ExamInfo {
     startTime: exam.start_time,
     endTime: exam.end_time,
     status: exam.status,
-    pledgeContent: exam.pledge_content ?? '',
   }
 }
 

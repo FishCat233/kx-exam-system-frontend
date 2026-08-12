@@ -6,7 +6,6 @@ export interface ExamInfo {
   startTime: string
   endTime: string
   status?: string
-  pledgeContent?: string
 }
 
 export interface LoginFormData {

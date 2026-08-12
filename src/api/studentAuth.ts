@@ -20,7 +20,6 @@ interface StudentLoginApiResponse {
     start_time: string
     end_time: string
     status: string
-    pledge_content?: string | null
   }
   problems: Array<{
     id: number
@@ -43,7 +42,6 @@ function mapExamInfo(exam: StudentLoginApiResponse['exam_info']): ExamInfo {
     startTime: exam.start_time,
     endTime: exam.end_time,
     status: exam.status,
-    pledgeContent: exam.pledge_content ?? '',
   }
 }
 
