@@ -73,7 +73,7 @@ export async function fetchStudentExamProblems(): Promise<{
   problems: Problem[]
 }> {
   const result = await http.get<StudentExamProblemsResponse>(
-    API_ENDPOINTS.STUDENT.EXAM_PROBLEMS,
+    API_ENDPOINTS.STUDENT_SIDE.EXAM_PROBLEMS,
     { authMode: 'student' }
   )
 

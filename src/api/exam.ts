@@ -41,12 +41,6 @@ export async function fetchExamList(): Promise<Exam[]> {
   return result.map(mapExamResponse)
 }
 
-// 获取考试详情
-export async function fetchExamDetail(examId: number): Promise<Exam> {
-  const result = await http.get<ExamApiResponse>(API_ENDPOINTS.EXAM.DETAIL(examId))
-  return mapExamResponse(result)
-}
-
 // 创建考试
 export async function createExam(data: CreateExamRequest): Promise<Exam> {
   const result = await http.post<ExamApiResponse>(API_ENDPOINTS.EXAM.CREATE, data)

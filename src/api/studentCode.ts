@@ -30,12 +30,12 @@ export async function saveStudentCode(
   }
 }
 
-export async function submitStudentExam(problemId: number): Promise<{
+export async function submitStudentExam(): Promise<{
   submitTime: string
   status: string
 }> {
   const result = await http.post<{ submit_time: string; status: string }>(
-    API_ENDPOINTS.CODE.SUBMIT(problemId),
+    API_ENDPOINTS.CODE.SUBMIT,
     undefined,
     { authMode: 'student' }
   )

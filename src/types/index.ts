@@ -37,7 +37,7 @@ export interface Problem {
 export interface ProblemSummary {
   id: number
   title: string
-  type: ProblemType
+  type?: ProblemType
   orderNum: number
 }
 

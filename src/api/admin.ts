@@ -55,11 +55,6 @@ export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
   return http.get<Admin[]>(`${API_ENDPOINTS.ADMIN.LIST}${params}`)
 }
 
-// 获取管理员详情
-export async function fetchAdminDetail(id: number): Promise<Admin> {
-  return http.get<Admin>(API_ENDPOINTS.ADMIN.DETAIL(id))
-}
-
 // 创建管理员
 export async function createAdmin(
   data: CreateAdminRequest

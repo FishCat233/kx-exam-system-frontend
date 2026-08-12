@@ -52,7 +52,6 @@ function mapProblemSummaries(problems: StudentLoginApiResponse['problems']): Pro
     id: problem.id,
     title: problem.title,
     orderNum: problem.order_num,
-    type: 'coding' as const,
   }))
 }
 
@@ -121,7 +120,7 @@ export async function buildStudentExamSession(
         examId: loginPayload.examInfo.id,
         title: problem.title,
         content: '题目内容加载中，请稍候...',
-        type: problem.type,
+        type: problem.type ?? 'coding',
         options: null,
         orderNum: problem.orderNum,
       })
