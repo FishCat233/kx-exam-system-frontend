@@ -194,11 +194,7 @@ export function StatusBar({ onRefreshProblems, refreshingProblems = false }: Sta
         <button
           onClick={() => setPendingSubmit(true)}
           disabled={isSubmitting}
-          className={`px-4 lg:px-6 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
-            isSubmitting
-              ? 'bg-red-300 cursor-not-allowed text-white'
-              : 'btn-danger text-sm shadow-sm'
-          }`}
+          className="btn-danger px-4 lg:px-6 py-2 text-sm shadow-sm flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

@@ -16,7 +16,7 @@ const variantConfig = {
     text: 'text-yellow-700',
   },
   info: {
-    container: 'flex items-center gap-1.5 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg',
+    container: 'alert-info',
     icon: 'text-blue-500',
     text: 'text-blue-700',
   },

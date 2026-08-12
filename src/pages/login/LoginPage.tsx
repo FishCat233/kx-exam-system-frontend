@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import screenfull from 'screenfull'
 
 import { buildStudentExamSession, loginStudent, reportStudentFullscreen } from '@/api'
 import { fetchPublicExamList } from '@/api/studentExam'
@@ -10,6 +9,7 @@ import OrganizationLogo from '@/components/login/OrganizationLogo'
 import PledgeModal from '@/components/login/PledgeModal'
 import { SectionLabel } from '@/components/ui'
 import type { ExamInfo, LoginFormData } from '@/types'
+import { requestFullscreenMode } from '@/utils/fullscreen'
 import { getStudentSession, saveStudentSession } from '@/utils/studentSession'
 
 function selectPreferredExam(exams: ExamInfo[]): ExamInfo | null {
@@ -37,20 +37,6 @@ function selectPreferredExam(exams: ExamInfo[]): ExamInfo | null {
     }
     return new Date(left.startTime).getTime() - new Date(right.startTime).getTime()
   })[0]
-}
-
-async function requestExamFullscreen(): Promise<void> {
-  if (screenfull.isEnabled) {
-    await screenfull.request(document.documentElement)
-    return
-  }
-
-  if (document.documentElement.requestFullscreen) {
-    await document.documentElement.requestFullscreen()
-    return
-  }
-
-  throw new Error('当前浏览器不支持全屏模式')
 }
 
 export default function LoginPage() {
@@ -102,7 +88,7 @@ export default function LoginPage() {
       const loginPayload = await loginStudent(currentExam.id, data)
 
       try {
-        await requestExamFullscreen()
+        await requestFullscreenMode()
       } catch (error) {
         const reason = error instanceof Error ? error.message : '全屏失败'
         try {
@@ -147,19 +133,17 @@ export default function LoginPage() {
           <div className="space-y-2 text-center">
             <SectionLabel>Student Login</SectionLabel>
             <h1 className="text-3xl font-bold text-slate-900">进入考试</h1>
-            <p className="text-sm text-slate-500">
-              请使用监考老师提供的学号、姓名与登录码登录
-            </p>
+            <p className="text-sm text-slate-500">请使用监考老师提供的学号、姓名与登录码登录</p>
           </div>
 
           {loadingExam ? (
-            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+            <div className="space-y-4 card-base p-6 shadow-xl shadow-slate-200/50">
               <div className="flex items-center justify-center py-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
               </div>
             </div>
           ) : pageError && !currentExam ? (
-            <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+            <div className="card-base border-red-200 p-6 shadow-xl shadow-slate-200/50">
               <div className="flex flex-col items-center gap-4 py-4 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
                   <svg
@@ -183,7 +167,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={loadExams}
-                  className="mt-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                  className="btn-primary mt-2 rounded-xl px-6 py-2.5 text-sm"
                 >
                   重新加载
                 </button>
@@ -208,9 +192,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className="text-center text-xs text-slate-400">
-            GUET SAST C 语言考试系统
-          </div>
+          <div className="text-center text-xs text-slate-400">GUET SAST C 语言考试系统</div>
         </div>
       </div>
       {isPledgeModalOpen && (

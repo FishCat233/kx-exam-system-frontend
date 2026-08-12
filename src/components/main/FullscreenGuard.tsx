@@ -1,21 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import screenfull from 'screenfull'
+
+import { requestFullscreenMode } from '@/utils/fullscreen'
 
 import { useWebSocketContext } from './WebSocketContext'
-
-async function requestFullscreenMode(): Promise<void> {
-  if (screenfull.isEnabled) {
-    await screenfull.request(document.documentElement)
-    return
-  }
-
-  if (document.documentElement.requestFullscreen) {
-    await document.documentElement.requestFullscreen()
-    return
-  }
-
-  throw new Error('当前浏览器不支持全屏模式')
-}
 
 export function FullscreenGuard() {
   const { sendMessage } = useWebSocketContext()

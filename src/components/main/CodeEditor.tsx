@@ -195,7 +195,7 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
 export function CodeEditor({ onSave }: CodeEditorProps) {
   const currentProblemId = useExamStore((state) => state.currentProblemId)
   const problems = useExamStore((state) => state.problems)
-  const [themeKey] = useState<ThemeKey>(getStoredTheme)
+  const themeKey = getStoredTheme()
   const isDark = THEME_CONFIG[themeKey].isDark
 
   const currentProblem =

@@ -19,19 +19,35 @@ function formatDateTime(value: string): string {
 function getStatusConfig(status?: string): { text: string; className: string; dotColor: string } {
   switch (status) {
     case 'ongoing':
-      return { text: '进行中', className: 'bg-green-50 text-green-700 border-green-200', dotColor: 'bg-green-500' }
+      return {
+        text: '进行中',
+        className: 'bg-green-50 text-green-700 border-green-200',
+        dotColor: 'bg-green-500',
+      }
     case 'not_started':
-      return { text: '未开始', className: 'bg-blue-50 text-blue-700 border-blue-200', dotColor: 'bg-blue-500' }
+      return {
+        text: '未开始',
+        className: 'bg-blue-50 text-blue-700 border-blue-200',
+        dotColor: 'bg-blue-500',
+      }
     case 'ended':
-      return { text: '已结束', className: 'bg-slate-100 text-slate-600 border-slate-200', dotColor: 'bg-slate-400' }
+      return {
+        text: '已结束',
+        className: 'bg-slate-100 text-slate-600 border-slate-200',
+        dotColor: 'bg-slate-400',
+      }
     default:
-      return { text: '待确认', className: 'bg-slate-50 text-slate-600 border-slate-200', dotColor: 'bg-slate-400' }
+      return {
+        text: '待确认',
+        className: 'bg-slate-50 text-slate-600 border-slate-200',
+        dotColor: 'bg-slate-400',
+      }
   }
 }
 
 function formatCountdown(seconds: number): string {
   if (seconds <= 0) return '已结束'
-  
+
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60
@@ -70,13 +86,15 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
   }, [examInfo])
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="card-base p-6 shadow-xl shadow-slate-200/50">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex-1">
           <h2 className="text-xl font-bold text-slate-900">{examInfo.name}</h2>
           <p className="mt-1 text-sm text-slate-500">{examInfo.subject}</p>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${status.className}`}>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${status.className}`}
+        >
           <span className={`h-1.5 w-1.5 rounded-full ${status.dotColor}`} />
           {status.text}
         </span>
@@ -96,7 +114,12 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
       <div className="space-y-3">
         <div className="flex items-center gap-3 text-sm">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-            <svg className="h-4 w-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 text-slate-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
@@ -109,7 +132,12 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
 
         <div className="flex items-center gap-3 text-sm">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-            <svg className="h-4 w-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 text-slate-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8" y1="2" x2="8" y2="6" />
@@ -118,13 +146,20 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
           </div>
           <div className="flex-1">
             <span className="text-slate-500">开始</span>
-            <span className="ml-2 font-medium text-slate-900">{formatDateTime(examInfo.startTime)}</span>
+            <span className="ml-2 font-medium text-slate-900">
+              {formatDateTime(examInfo.startTime)}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3 text-sm">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-            <svg className="h-4 w-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-4 w-4 text-slate-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
               <line x1="8" y1="2" x2="8" y2="6" />
@@ -135,7 +170,9 @@ function ExamInfoCard({ examInfo }: ExamInfoCardProps) {
           </div>
           <div className="flex-1">
             <span className="text-slate-500">结束</span>
-            <span className="ml-2 font-medium text-slate-900">{formatDateTime(examInfo.endTime)}</span>
+            <span className="ml-2 font-medium text-slate-900">
+              {formatDateTime(examInfo.endTime)}
+            </span>
           </div>
         </div>
       </div>
