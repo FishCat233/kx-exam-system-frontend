@@ -29,7 +29,16 @@ npx eslint .                # 代码检查
 
 ## 部署
 
-前端随系统整体部署，编排在后端仓库的 `docker-compose.yml` 中。镜像由 release-please 发版时自动构建推送到 GHCR，Caddy 容器将 `/api` 与 `/ws` 反代到 backend。
+前端作为系统的一部分部署，编排在后端仓库的 `docker-compose.yml`，无需单独部署：
+
+```bash
+git clone --depth 1 https://github.com/FishCat233/kx-exam-system-backend.git
+cd kx-exam-system-backend
+cp .env.example .env   # 填 SECRET_KEY、SUPER_ADMIN_PASSWORD、WS_HOST
+docker compose pull && docker compose up -d
+```
+
+镜像由 release-please 发版时自动构建推送到 GHCR，Caddy 容器将 `/api` 与 `/ws` 反代到 backend，浏览器只访问 80 端口。
 
 ## 文档
 
