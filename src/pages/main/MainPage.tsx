@@ -14,7 +14,6 @@ import { SubmitFlow } from '../../components/main/SubmitFlow'
 import { SystemNotice } from '../../components/main/SystemNotice'
 import { TabSwitchDetector } from '../../components/main/TabSwitchDetector'
 import { WebSocketProvider } from '../../components/main/WebSocketProvider'
-import { SectionLabel } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 import { getStudentSession, saveStudentSession } from '../../utils/studentSession'
 
@@ -28,6 +27,7 @@ function getExamUiStatus(endTime: string): 'ongoing' | 'warning' | 'ending' {
 
 function MainPageInner() {
   const problems = useExamStore((state) => state.problems)
+  const examInfo = useExamStore((state) => state.examInfo)
   const setCurrentProblemId = useExamStore((state) => state.setCurrentProblemId)
   const markSaving = useExamStore((state) => state.markSaving)
   const markSaved = useExamStore((state) => state.markSaved)
@@ -119,23 +119,21 @@ function MainPageInner() {
         }
       >
         <div className="flex-1 min-h-0 p-3 lg:p-4">
-          <div className="flex h-full min-h-0 flex-col overflow-hidden card-base rounded-3xl">
-            <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 backdrop-blur lg:px-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div className="min-w-0">
-                  <SectionLabel className="text-xs">Kexie Online Exam</SectionLabel>
-                  <h1 className="mt-1 truncate text-xl font-bold text-slate-900 lg:text-2xl">
-                    考试中
-                  </h1>
-                  <p className="mt-1 text-sm text-slate-500">
-                    共 {problems.length} 题 · 已保存 {savedProblemCount}/{problems.length}
-                  </p>
-                </div>
-              </div>
+          <div className="flex h-full min-h-0 flex-col overflow-hidden card-base">
+            <div className="flex items-center justify-between gap-4 border-b border-kx-surface0 bg-white px-4 py-2 lg:px-6">
+              <h1 className="min-w-0 truncate text-sm font-medium text-kx-text">
+                {examInfo?.name}
+              </h1>
+              <p className="shrink-0 text-xs text-kx-subtext">
+                共 <span className="data-mono">{problems.length}</span> 题 · 已保存{' '}
+                <span className="data-mono text-kx-green">
+                  {savedProblemCount}/{problems.length}
+                </span>
+              </p>
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col xl:flex-row">
-              <div className="flex min-h-0 border-b border-slate-200 xl:w-[52%] xl:border-b-0 xl:border-r">
+              <div className="flex min-h-0 border-b border-kx-surface0 xl:w-[52%] xl:border-b-0 xl:border-r">
                 <ProblemNav onSelectProblem={handleSelectProblem} />
                 <ProblemContent />
               </div>

@@ -14,45 +14,42 @@ const useMarkdownComponents = () =>
   useMemo(
     () => ({
       h1: ({ children }: { children?: ReactNode }) => (
-        <h1 className="text-2xl font-bold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-100">
+        <h1 className="mt-8 mb-4 pb-2 border-b border-kx-surface0 text-2xl font-bold text-kx-text">
           {children}
         </h1>
       ),
       h2: ({ children }: { children?: ReactNode }) => (
-        <h2 className="text-lg font-bold text-slate-800 mt-8 mb-4 pb-2 border-b border-slate-100">
+        <h2 className="mt-8 mb-4 pb-2 border-b border-kx-surface0 text-lg font-bold text-kx-text">
           {children}
         </h2>
       ),
       h3: ({ children }: { children?: ReactNode }) => (
-        <h3 className="text-base font-semibold text-slate-800 mt-6 mb-3">{children}</h3>
+        <h3 className="mt-6 mb-3 text-base font-semibold text-kx-text">{children}</h3>
       ),
       p: ({ children }: { children?: ReactNode }) => (
-        <p className="text-slate-700 leading-relaxed mb-4">{children}</p>
+        <p className="text-kx-text leading-relaxed mb-4">{children}</p>
       ),
       ul: ({ children }: { children?: ReactNode }) => (
-        <ul className="list-disc list-inside text-slate-700 mb-4 space-y-1">{children}</ul>
+        <ul className="mb-4 list-outside list-disc space-y-1 pl-5 text-kx-text">{children}</ul>
       ),
       ol: ({ children }: { children?: ReactNode }) => (
-        <ol className="list-decimal list-inside text-slate-700 mb-4 space-y-1">{children}</ol>
+        <ol className="mb-4 list-outside list-decimal space-y-1 pl-5 text-kx-text">{children}</ol>
       ),
-      li: ({ children }: { children?: ReactNode }) => <li className="ml-2">{children}</li>,
+      li: ({ children }: { children?: ReactNode }) => <li>{children}</li>,
       code: ({ children, className }: { children?: ReactNode; className?: string }) => {
         const match = /language-(\w+)/.exec(className || '')
         const isInline = !className
 
         if (isInline) {
           return (
-            <code className="px-1.5 py-0.5 bg-slate-100 text-slate-800 rounded text-sm font-mono">
+            <code className="rounded bg-kx-mantle px-1.5 py-0.5 font-mono text-sm text-kx-text">
               {children}
             </code>
           )
         }
 
         return (
-          <div className="my-4 rounded-lg overflow-hidden">
-            <div className="bg-slate-800 px-4 py-2 text-xs text-slate-400 flex items-center justify-between">
-              <span>{match ? match[1] : 'code'}</span>
-            </div>
+          <div className="my-4 overflow-hidden rounded-md border border-kx-surface0">
             <SyntaxHighlighter
               language={match ? match[1] : 'text'}
               style={vscDarkPlus}
@@ -61,6 +58,7 @@ const useMarkdownComponents = () =>
                 padding: '1rem',
                 fontSize: '0.875rem',
                 lineHeight: '1.5',
+                background: '#181825',
               }}
             >
               {String(children).replace(/\n$/, '')}
@@ -70,36 +68,34 @@ const useMarkdownComponents = () =>
       },
       pre: ({ children }: { children?: ReactNode }) => <>{children}</>,
       blockquote: ({ children }: { children?: ReactNode }) => (
-        <blockquote className="border-l-4 border-blue-200 pl-4 py-2 my-4 bg-blue-50 rounded-r">
+        <blockquote className="my-4 border-l border-kx-teal bg-kx-mantle py-2 pl-4">
           {children}
         </blockquote>
       ),
       strong: ({ children }: { children?: ReactNode }) => (
-        <strong className="font-semibold text-slate-900">{children}</strong>
+        <strong className="font-semibold text-kx-text">{children}</strong>
       ),
       table: ({ children }: { children?: ReactNode }) => (
         <div className="overflow-x-auto my-4">
-          <table className="min-w-full border-collapse border border-slate-300 text-sm">
+          <table className="min-w-full border-collapse border border-kx-surface0 text-sm">
             {children}
           </table>
         </div>
       ),
       thead: ({ children }: { children?: ReactNode }) => (
-        <thead className="bg-slate-100">{children}</thead>
+        <thead className="bg-kx-mantle">{children}</thead>
       ),
-      tbody: ({ children }: { children?: ReactNode }) => (
-        <tbody className="bg-white">{children}</tbody>
-      ),
+      tbody: ({ children }: { children?: ReactNode }) => <tbody>{children}</tbody>,
       tr: ({ children }: { children?: ReactNode }) => (
-        <tr className="border-b border-slate-200 last:border-b-0">{children}</tr>
+        <tr className="border-b border-kx-surface0 last:border-b-0">{children}</tr>
       ),
       th: ({ children }: { children?: ReactNode }) => (
-        <th className="px-4 py-2 text-left font-semibold text-slate-700 border border-slate-300">
+        <th className="px-4 py-2 text-left font-semibold text-kx-text border border-kx-surface0">
           {children}
         </th>
       ),
       td: ({ children }: { children?: ReactNode }) => (
-        <td className="px-4 py-2 text-slate-700 border border-slate-300">{children}</td>
+        <td className="px-4 py-2 text-kx-text border border-kx-surface0">{children}</td>
       ),
     }),
     []
@@ -109,7 +105,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
   const components = useMarkdownComponents()
 
   return (
-    <div className={`prose prose-slate max-w-none ${className ?? ''}`}>
+    <div className={`max-w-none ${className ?? ''}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </ReactMarkdown>

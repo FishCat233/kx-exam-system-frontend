@@ -1,3 +1,30 @@
+:root {
+  --kx-white: #ffffff;
+  --kx-base: #eff1f5;
+  --kx-mantle: #e6e9ef;
+  --kx-crust: #dce0e8;
+  --kx-surface0: #ccd0da;
+  --kx-surface1: #bcc0cc;
+  --kx-text: #4c4f69;
+  --kx-subtext: #6c6f85;
+  --kx-blue: #209fb5;
+  --kx-teal: #179299;
+  --kx-dark: #181825;
+  --kx-red: #d20f39;
+  --kx-green: #40a02b;
+  --kx-yellow: #df8e1d;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  box-sizing: border-box;
+}
+
 #root {
   width: 100%;
   max-width: 100%;
@@ -10,6 +37,9 @@
 
 body {
   margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: var(--kx-text);
+  background-color: var(--kx-white);
 }
 
 /* Remove default button border and outline */
@@ -21,4 +51,117 @@ button {
 button:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
+}
+
+/* 实心按钮：主色底白字，hover 加深 */
+.btn-primary,
+.btn-danger {
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-primary {
+  border: 1px solid var(--kx-blue);
+  background-color: var(--kx-blue);
+  color: #fff;
+}
+
+.btn-danger {
+  border: 1px solid var(--kx-red);
+  background-color: var(--kx-red);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background-color: var(--kx-dark);
+  border-color: var(--kx-dark);
+}
+
+.btn-danger:hover,
+.btn-danger:focus-visible {
+  background-color: var(--kx-dark);
+  border-color: var(--kx-dark);
+}
+
+/* 镂空按钮：1px 细边框，hover 填充主色 */
+.btn-outline {
+  border-radius: 6px;
+  border: 1px solid var(--kx-blue);
+  background-color: transparent;
+  color: var(--kx-blue);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  background-color: var(--kx-blue);
+  color: #fff;
+  border-color: var(--kx-blue);
+}
+
+.btn-primary:disabled,
+.btn-danger:disabled {
+  border-color: var(--kx-mantle);
+  background-color: var(--kx-mantle);
+  color: var(--kx-subtext);
+  cursor: not-allowed;
+}
+
+.btn-outline:disabled {
+  border-color: var(--kx-surface0);
+  color: var(--kx-surface0);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+.btn-primary:focus-visible,
+.btn-outline:focus-visible,
+.btn-danger:focus-visible {
+  outline: 2px solid var(--kx-blue);
+  outline-offset: 2px;
+}
+
+/* 状态点：圆形，闪烁用边框/填充切换而非透明度 */
+.status-dot {
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  background-color: currentColor;
+}
+
+.status-dot--flash {
+  animation: kx-status-flash 1s steps(1) infinite;
+}
+
+@keyframes kx-status-flash {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary,
+  .btn-outline,
+  .btn-danger {
+    transition: none;
+  }
+
+  .status-dot--flash {
+    animation: none;
+  }
 }

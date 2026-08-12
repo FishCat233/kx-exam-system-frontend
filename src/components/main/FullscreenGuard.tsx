@@ -50,15 +50,10 @@ export function FullscreenGuard() {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg
-            className="w-8 h-8 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+    <div className="fixed inset-0 bg-kx-dark/70 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg border border-kx-surface0 p-8 max-w-md w-full mx-4 text-center">
+        <div className="w-16 h-16 bg-kx-red rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -67,14 +62,10 @@ export function FullscreenGuard() {
             />
           </svg>
         </div>
-        <h3 className="text-xl font-bold text-slate-800 mb-2">全屏模式已退出</h3>
-        <p className="text-slate-600 mb-4">您已退出全屏模式，请立即恢复全屏以继续考试。</p>
+        <h3 className="text-xl font-bold text-kx-text mb-2">全屏模式已退出</h3>
+        <p className="text-kx-text mb-4">您已退出全屏模式，请立即恢复全屏以继续考试。</p>
 
-        {restoreError && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
-            {restoreError}
-          </div>
-        )}
+        {restoreError && <div className="mb-4 alert-error text-sm text-kx-red">{restoreError}</div>}
 
         <button
           onClick={() => void restoreFullscreen()}

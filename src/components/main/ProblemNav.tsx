@@ -1,17 +1,9 @@
-import { StatusDot } from '../../components/ui'
+import { SectionLabel, StatusDot } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 import type { ProblemType } from '../../types'
 
 interface ProblemNavProps {
   onSelectProblem: (problemId: number) => void
-}
-
-function CheckIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  )
 }
 
 function ProblemTypeIcon({ type }: { type: ProblemType }) {
@@ -57,6 +49,12 @@ const PROBLEM_TYPE_LABEL: Record<ProblemType, string> = {
   multiple_choice: '多选',
 }
 
+const PROBLEM_TYPE_TAG: Record<ProblemType, string> = {
+  coding: 'border-kx-blue text-kx-blue',
+  single_choice: 'border-kx-green text-kx-green',
+  multiple_choice: 'border-kx-yellow text-kx-yellow',
+}
+
 export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
   const problems = useExamStore((state) => state.problems)
   const currentProblemId = useExamStore((state) => state.currentProblemId)
@@ -68,14 +66,14 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
   }
 
   return (
-    <div className="w-16 lg:w-56 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
-      {/* 标题 - 在窄屏下隐藏 */}
-      <div className="hidden lg:block p-4 border-b border-slate-200">
-        <h3 className="font-semibold text-slate-800 text-sm">题目列表</h3>
-        <p className="text-xs text-slate-500 mt-1">{problems.length} 道题目</p>
+    <div className="w-16 lg:w-56 bg-white border-r border-kx-surface0 flex flex-col shrink-0">
+      <div className="hidden lg:block p-4 border-b border-kx-surface0">
+        <SectionLabel className="text-sm text-kx-text">题目列表</SectionLabel>
+        <p className="text-xs text-kx-subtext mt-1">
+          共 <span className="data-mono">{problems.length}</span> 道题目
+        </p>
       </div>
 
-      {/* 题目列表 */}
       <div className="flex-1 overflow-y-auto py-2">
         {problems.map((problem, index) => {
           const isActive = currentProblemId === problem.id
@@ -85,69 +83,60 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
             <button
               key={problem.id}
               onClick={() => onSelectProblem(problem.id)}
-              className={`w-full text-left px-2 lg:px-4 py-2 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-kx-blue ${
+              title={problem.title}
+              className={`group mx-2 w-[calc(100%-1rem)] lg:mx-3 lg:w-[calc(100%-1.5rem)] text-left px-2 lg:px-3 py-2 rounded-md border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kx-blue ${
                 isActive
-                  ? 'bg-blue-50 border-l-3 border-l-blue-500'
-                  : 'hover:bg-slate-100 border-l-3 border-l-transparent'
+                  ? 'bg-kx-blue border-kx-blue'
+                  : 'border-transparent hover:bg-kx-base hover:border-kx-surface0 hover:translate-x-0.5'
               }`}
             >
               <div className="flex items-center gap-2">
-                {/* 题号 */}
                 <div
-                  className={`w-7 h-7 rounded-full text-xs flex items-center justify-center font-medium shrink-0 ${
+                  className={`w-7 h-7 data-mono text-xs flex items-center justify-center font-medium shrink-0 rounded-md transition-colors duration-200 ${
                     isActive
-                      ? 'bg-blue-500 text-white'
-                      : isSaved
-                        ? 'bg-green-100 text-green-600'
-                        : 'bg-slate-200 text-slate-600'
+                      ? 'bg-white text-kx-blue'
+                      : 'bg-kx-base text-kx-text group-hover:bg-kx-mantle'
                   }`}
                 >
-                  {isSaved && !isActive ? <CheckIcon className="w-4 h-4" /> : index + 1}
+                  {String(index + 1).padStart(2, '0')}
                 </div>
 
-                {/* 题目标题 - 在窄屏下隐藏 */}
                 <div className="hidden lg:block flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`text-sm truncate block ${
-                        isActive ? 'text-blue-700 font-medium' : 'text-slate-700'
+                        isActive ? 'text-white font-medium' : 'text-kx-text'
                       }`}
                     >
                       {problem.title}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded ${
-                        problem.type === 'coding'
-                          ? 'bg-blue-100 text-blue-600'
-                          : problem.type === 'single_choice'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-orange-100 text-orange-600'
+                      className={`inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 text-[10px] ${
+                        isActive ? 'border-white/60 text-white' : PROBLEM_TYPE_TAG[problem.type]
                       }`}
                       title={PROBLEM_TYPE_LABEL[problem.type]}
                     >
                       <ProblemTypeIcon type={problem.type} />
                     </span>
                   </div>
-                  {isSaved && <span className="text-xs text-green-600">已保存</span>}
                 </div>
 
-                {/* 保存标记 - 仅图标 */}
-                {isSaved && (
-                  <div className="lg:hidden">
-                    <StatusDot color="green" className="w-2 h-2" />
-                  </div>
-                )}
+                {isSaved &&
+                  (isActive ? (
+                    <span aria-hidden="true" className="w-2.5 h-2.5 status-dot text-white" />
+                  ) : (
+                    <StatusDot color="green" />
+                  ))}
               </div>
             </button>
           )
         })}
       </div>
 
-      {/* 底部统计 - 在窄屏下隐藏 */}
-      <div className="hidden lg:block p-4 border-t border-slate-200">
-        <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="hidden lg:block p-4 border-t border-kx-surface0">
+        <div className="flex items-center justify-between text-xs text-kx-subtext">
           <span>已保存</span>
-          <span className="font-medium text-green-600">
+          <span className="data-mono font-medium text-kx-green">
             {problems.filter((p) => isProblemSaved(p.id)).length}/{problems.length}
           </span>
         </div>

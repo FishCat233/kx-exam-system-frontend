@@ -105,46 +105,40 @@ export function SubmitFlow() {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
-        <div className="bg-white rounded-2xl p-8 max-w-[420px] w-[90%] shadow-2xl text-center">
+      <div className="fixed inset-0 bg-kx-dark/70 flex items-center justify-center z-[9999]">
+        <div className="bg-white rounded-lg border border-kx-surface0 p-8 max-w-[420px] w-[90%] text-center">
           {showConfirm && !error && (
             <>
-              <h2 className="text-xl font-bold text-slate-900">确认交卷</h2>
-              <p className="mt-2 text-sm text-slate-400">此操作不可撤销</p>
+              <h2 className="text-xl font-bold text-kx-text">确认交卷</h2>
+              <p className="mt-2 text-sm text-kx-subtext">此操作不可撤销</p>
 
-              <div className="mt-5 mb-5 px-3 py-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 leading-relaxed">
+              <div className="mt-5 mb-5 rounded-md border border-kx-yellow bg-kx-yellow/10 px-3 py-3 text-sm text-kx-yellow leading-relaxed">
                 ⚠️ 交卷后将无法继续答题，请确认已完成所有题目。
                 <br />
                 未保存的代码将不会提交。
               </div>
 
               <div className="mt-2 flex gap-3 justify-center">
-                <button
-                  className="px-6 py-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-sm cursor-pointer"
-                  onClick={handleCancel}
-                >
+                <button className="btn-outline px-6 py-2 text-sm" onClick={handleCancel}>
                   取消
                 </button>
-                <button className="btn-primary px-6 py-2 text-sm" onClick={handleSubmit}>
+                <button className="btn-danger px-6 py-2 text-sm" onClick={handleSubmit}>
                   确认交卷
                 </button>
               </div>
             </>
           )}
 
-          {submitting && <p className="text-base text-blue-600 m-0">正在交卷中...</p>}
+          {submitting && <p className="text-base text-kx-blue m-0">正在交卷中...</p>}
 
           {error && !submitting && (
             <>
-              <p className="text-sm text-red-500 mb-4">{error}</p>
+              <p className="text-sm text-kx-red mb-4">{error}</p>
               <div className="mt-2 flex gap-3 justify-center">
-                <button
-                  className="px-6 py-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-sm cursor-pointer"
-                  onClick={handleCancel}
-                >
+                <button className="btn-outline px-6 py-2 text-sm" onClick={handleCancel}>
                   取消
                 </button>
-                <button className="btn-primary px-6 py-2 text-sm" onClick={handleSubmit}>
+                <button className="btn-danger px-6 py-2 text-sm" onClick={handleSubmit}>
                   重试
                 </button>
               </div>

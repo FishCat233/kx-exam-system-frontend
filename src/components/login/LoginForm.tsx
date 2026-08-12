@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { GradientButton, InlineAlert } from '../../components/ui'
+import { InlineAlert } from '../../components/ui'
 import type { LoginFormData } from '../../types'
 
 interface LoginFormProps {
@@ -8,6 +8,37 @@ interface LoginFormProps {
   loading?: boolean
   disabled?: boolean
   submitError?: string | null
+}
+
+type FieldKey = keyof LoginFormData
+
+function inputClass(error?: string): string {
+  return error ? 'input-login border-kx-red' : 'input-login border-kx-surface1'
+}
+
+function FieldError({ message }: { message?: string }) {
+  return (
+    <p
+      className={`mt-1.5 flex h-4 items-center gap-1 text-xs font-medium text-kx-red ${
+        message ? '' : 'invisible'
+      }`}
+      aria-live="polite"
+    >
+      <svg
+        className="h-3.5 w-3.5 shrink-0"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+          clipRule="evenodd"
+        />
+      </svg>
+      {message}
+    </p>
+  )
 }
 
 export default function LoginForm({
@@ -22,13 +53,10 @@ export default function LoginForm({
     loginCode: '',
   })
 
-  const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({})
-  const [touched, setTouched] = useState<Partial<Record<keyof LoginFormData, boolean>>>({})
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({})
+  const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({})
 
-  const validateField = (
-    field: keyof LoginFormData,
-    value: string | boolean
-  ): string | undefined => {
+  const validateField = (field: FieldKey, value: string | boolean): string | undefined => {
     switch (field) {
       case 'studentId':
         if (!String(value).trim()) return '请输入学号'
@@ -47,7 +75,7 @@ export default function LoginForm({
   }
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof LoginFormData, string>> = {}
+    const newErrors: Partial<Record<FieldKey, string>> = {}
 
     const studentIdError = validateField('studentId', formData.studentId)
     if (studentIdError) newErrors.studentId = studentIdError
@@ -74,7 +102,7 @@ export default function LoginForm({
     }
   }
 
-  const handleChange = (field: keyof LoginFormData, value: string | boolean) => {
+  const handleChange = (field: FieldKey, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (touched[field]) {
       const error = validateField(field, value)
@@ -82,7 +110,7 @@ export default function LoginForm({
     }
   }
 
-  const handleBlur = (field: keyof LoginFormData) => {
+  const handleBlur = (field: FieldKey) => {
     setTouched((prev) => ({ ...prev, [field]: true }))
     const error = validateField(field, formData[field])
     setErrors((prev) => ({ ...prev, [field]: error }))
@@ -97,142 +125,85 @@ export default function LoginForm({
     /^[a-zA-Z0-9]+$/.test(formData.loginCode) &&
     !disabled
 
+  const fieldError = (field: FieldKey): string | undefined =>
+    touched[field] ? errors[field] : undefined
+
   return (
-    <form onSubmit={handleSubmit} className="card-base p-6 shadow-xl shadow-slate-200/50">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-6">
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">学号</label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={formData.studentId}
-              onChange={(e) => handleChange('studentId', e.target.value)}
-              onBlur={() => handleBlur('studentId')}
-              placeholder="请输入学号"
-              disabled={disabled || loading}
-              className="input-base h-11 pl-10 pr-4"
-            />
-          </div>
-          {errors.studentId && touched.studentId && (
-            <InlineAlert variant="error" message={errors.studentId} className="mt-2" />
-          )}
+          <label htmlFor="student-id" className="mb-1.5 block text-sm font-medium text-kx-text">
+            学号
+          </label>
+          <input
+            id="student-id"
+            type="text"
+            value={formData.studentId}
+            onChange={(e) => handleChange('studentId', e.target.value)}
+            onBlur={() => handleBlur('studentId')}
+            placeholder="请输入学号"
+            disabled={disabled || loading}
+            aria-invalid={Boolean(fieldError('studentId'))}
+            className={`${inputClass(fieldError('studentId'))} data-mono`}
+          />
+          <FieldError message={fieldError('studentId')} />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">姓名</label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              onBlur={() => handleBlur('name')}
-              placeholder="请输入姓名"
-              disabled={disabled || loading}
-              className="input-base h-11 pl-10 pr-4"
-            />
-          </div>
-          {errors.name && touched.name && (
-            <InlineAlert variant="error" message={errors.name} className="mt-2" />
-          )}
+          <label htmlFor="student-name" className="mb-1.5 block text-sm font-medium text-kx-text">
+            姓名
+          </label>
+          <input
+            id="student-name"
+            type="text"
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            onBlur={() => handleBlur('name')}
+            placeholder="请输入姓名"
+            disabled={disabled || loading}
+            aria-invalid={Boolean(fieldError('name'))}
+            className={inputClass(fieldError('name'))}
+          />
+          <FieldError message={fieldError('name')} />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">登录码</label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={formData.loginCode}
-              onChange={(e) => handleChange('loginCode', e.target.value)}
-              onBlur={() => handleBlur('loginCode')}
-              placeholder="请输入登录码"
-              disabled={disabled || loading}
-              className="input-base h-11 pl-10 pr-4"
-            />
-          </div>
-          {errors.loginCode && touched.loginCode && (
-            <InlineAlert variant="error" message={errors.loginCode} className="mt-2" />
-          )}
+          <label htmlFor="login-code" className="mb-1.5 block text-sm font-medium text-kx-text">
+            登录码
+          </label>
+          <input
+            id="login-code"
+            type="text"
+            value={formData.loginCode}
+            onChange={(e) => handleChange('loginCode', e.target.value)}
+            onBlur={() => handleBlur('loginCode')}
+            placeholder="请输入登录码"
+            disabled={disabled || loading}
+            aria-invalid={Boolean(fieldError('loginCode'))}
+            className={`${inputClass(fieldError('loginCode'))} data-mono`}
+          />
+          <FieldError message={fieldError('loginCode')} />
         </div>
 
-        {submitError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3">
-            <p className="text-sm text-red-700">{submitError}</p>
-          </div>
-        )}
+        {submitError && <InlineAlert variant="error" message={submitError} />}
 
-        <GradientButton
+        <button
           type="submit"
           disabled={!isFormValid || loading}
-          className="h-11 w-full text-base"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-kx-blue text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-kx-teal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-kx-blue/25 disabled:cursor-not-allowed disabled:bg-kx-mantle disabled:text-kx-subtext disabled:hover:bg-kx-mantle"
         >
           {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+            <>
+              <span
+                className="inline-block h-4 w-4 animate-spin border-2 border-current border-t-transparent"
+                aria-hidden="true"
+              />
               登录中...
-            </span>
+            </>
           ) : (
             '登录'
           )}
-        </GradientButton>
+        </button>
       </div>
     </form>
   )

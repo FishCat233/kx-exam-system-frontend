@@ -7,6 +7,7 @@ import { material } from '@uiw/codemirror-theme-material'
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
 import { useCallback, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 
 import { SaveStatusIndicator } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
@@ -97,21 +98,19 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
   const codeState = getCode(problemId)
 
   return (
-    <div className={`flex flex-col h-full ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <div className="flex flex-col h-full">
       <div
-        className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+        className={`flex items-center justify-between px-4 py-3 border-b ${
+          isDark ? 'bg-kx-dark border-kx-surface0/40' : 'bg-white border-kx-surface0'
+        }`}
       >
         <div className="flex items-center gap-3">
-          <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            代码编辑器
-          </span>
-          <span
-            className={`px-2 py-0.5 text-xs rounded font-medium ${isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`}
-          >
+          <span className={`text-sm ${isDark ? 'text-kx-crust' : 'text-kx-text'}`}>代码编辑器</span>
+          <span className="rounded border border-kx-blue px-2 py-0.5 text-xs font-medium text-kx-blue">
             C
           </span>
-          <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>|</span>
-          <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+          <span className={`text-xs ${isDark ? 'text-kx-subtext' : 'text-kx-subtext'}`}>|</span>
+          <span className={`data-mono text-xs ${isDark ? 'text-kx-subtext' : 'text-kx-subtext'}`}>
             Ctrl+S 保存
           </span>
         </div>
@@ -133,10 +132,10 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
           <select
             value={themeKey}
             onChange={(e) => handleThemeChange(e.target.value as ThemeKey)}
-            className={`px-2 py-1.5 text-xs rounded-lg border outline-none transition-colors cursor-pointer ${
+            className={`px-2 py-1.5 text-xs rounded-md border outline-none transition-colors cursor-pointer focus:border-kx-blue ${
               isDark
-                ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
-                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+                ? 'bg-kx-dark border-kx-surface0/40 text-kx-crust'
+                : 'bg-white border-kx-surface1 text-kx-text'
             }`}
           >
             {Object.entries(THEME_CONFIG).map(([key, { label }]) => (
@@ -149,12 +148,14 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
           <button
             onClick={handleSave}
             disabled={!isDirty}
-            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
+            className={`px-4 py-1.5 text-sm font-medium flex items-center gap-2 ${
               isDirty
                 ? 'btn-primary'
-                : isDark
-                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed rounded-lg'
-                  : 'bg-slate-200 text-slate-500 cursor-not-allowed rounded-lg'
+                : `rounded-md border cursor-not-allowed ${
+                    isDark
+                      ? 'bg-kx-dark border-kx-surface0/40 text-kx-subtext'
+                      : 'bg-kx-base border-kx-surface0 text-kx-subtext'
+                  }`
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,42 +204,53 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
   const currentProblem =
     currentProblemId !== null ? problems.find((p) => p.id === currentProblemId) : null
 
+  let inner: ReactNode
+
   if (currentProblemId === null) {
-    return (
-      <div className={`flex flex-col h-full ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    inner = (
+      <div className="flex flex-col h-full">
         <div
-          className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}
+          className={`flex items-center justify-between px-4 py-3 border-b ${
+            isDark ? 'bg-kx-dark border-kx-surface0/40' : 'bg-white border-kx-surface0'
+          }`}
         >
           <div className="flex items-center gap-2">
-            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              答题区域
-            </span>
+            <span className={`text-sm ${isDark ? 'text-kx-crust' : 'text-kx-text'}`}>答题区域</span>
           </div>
         </div>
-        <div
-          className={`flex-1 flex items-center justify-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
-        >
+        <div className="flex-1 flex items-center justify-center text-kx-subtext">
           <p>请选择题目开始答题</p>
         </div>
       </div>
     )
+  } else if (
+    currentProblem &&
+    (currentProblem.type === 'single_choice' || currentProblem.type === 'multiple_choice') &&
+    currentProblem.options &&
+    currentProblem.options.length > 0
+  ) {
+    inner = (
+      <ChoiceQuestion
+        key={currentProblemId}
+        problemId={currentProblemId}
+        problemType={currentProblem.type}
+        options={currentProblem.options}
+        onSave={onSave}
+      />
+    )
+  } else {
+    inner = (
+      <ProblemCodeEditor key={currentProblemId} problemId={currentProblemId} onSave={onSave} />
+    )
   }
 
-  if (currentProblem) {
-    if (currentProblem.type === 'single_choice' || currentProblem.type === 'multiple_choice') {
-      if (currentProblem.options && currentProblem.options.length > 0) {
-        return (
-          <ChoiceQuestion
-            key={currentProblemId}
-            problemId={currentProblemId}
-            problemType={currentProblem.type}
-            options={currentProblem.options}
-            onSave={onSave}
-          />
-        )
-      }
-    }
-  }
-
-  return <ProblemCodeEditor key={currentProblemId} problemId={currentProblemId} onSave={onSave} />
+  return (
+    <div
+      className={`flex flex-col h-full rounded-lg border border-kx-surface0 overflow-hidden ${
+        isDark ? 'bg-kx-dark' : 'bg-white'
+      }`}
+    >
+      {inner}
+    </div>
+  )
 }

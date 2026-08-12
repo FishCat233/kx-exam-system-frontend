@@ -26,9 +26,9 @@ function calculateCountdown(endTime: string): string {
 }
 
 function getCountdownColor(remainingSeconds: number): string {
-  if (remainingSeconds < 300) return 'text-red-600'
-  if (remainingSeconds < 600) return 'text-orange-500'
-  return 'text-blue-600'
+  if (remainingSeconds < 300) return 'text-kx-red'
+  if (remainingSeconds < 600) return 'text-kx-yellow'
+  return 'text-kx-blue'
 }
 
 const wsColorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
@@ -63,7 +63,7 @@ function WsStatusIcon({ status }: { status: WebSocketStatus }) {
   return (
     <div className="flex items-center gap-2" title={`WebSocket: ${config.label}`}>
       <StatusDot color={color} animate={config.animate} />
-      <span className="text-xs text-slate-500 hidden sm:inline">{config.label}</span>
+      <span className="text-xs text-kx-text hidden sm:inline">{config.label}</span>
     </div>
   )
 }
@@ -72,13 +72,13 @@ function ExamStatusIcon({ status }: { status: ExamStatus }) {
   const getStatusConfig = () => {
     switch (status) {
       case 'ongoing':
-        return { text: '进行中', textColor: 'text-green-600', animate: false }
+        return { text: '进行中', animate: false }
       case 'warning':
-        return { text: '警告', textColor: 'text-yellow-600', animate: true }
+        return { text: '警告', animate: true }
       case 'ending':
-        return { text: '即将结束', textColor: 'text-red-600', animate: true }
+        return { text: '即将结束', animate: true }
       default:
-        return { text: '未知', textColor: 'text-slate-600', animate: false }
+        return { text: '未知', animate: false }
     }
   }
 
@@ -88,7 +88,7 @@ function ExamStatusIcon({ status }: { status: ExamStatus }) {
   return (
     <div className="flex items-center gap-2">
       <StatusDot color={color} animate={config.animate} />
-      <span className={`text-xs font-medium ${config.textColor}`}>{config.text}</span>
+      <span className="text-xs font-medium text-kx-text hidden sm:inline">{config.text}</span>
     </div>
   )
 }
@@ -126,54 +126,34 @@ export function StatusBar({ onRefreshProblems, refreshingProblems = false }: Sta
   const countdownColor = getCountdownColor(remainingSeconds)
 
   const isSubmitting = pendingSubmit
+  const buttonsDisabled = refreshingProblems || isSubmitting || !onRefreshProblems
 
   return (
-    <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
-      <div className="flex items-center gap-4 lg:gap-6">
+    <header className="h-16 shrink-0 bg-white border-b border-kx-surface0 grid grid-cols-3 items-center px-4 lg:px-6">
+      <div className="flex items-center gap-4 lg:gap-6 justify-self-start">
         <div className="flex items-center gap-2">
-          <svg
-            className="w-4 h-4 text-slate-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className={`text-xl lg:text-2xl font-mono font-bold ${countdownColor}`}>
-            {countdown}
-          </span>
-        </div>
-
-        <div className="hidden sm:block w-px h-6 bg-slate-200" />
-
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="text-xs text-slate-400">连接:</span>
+          <span className="text-xs text-kx-subtext hidden sm:inline">连接</span>
           <WsStatusIcon status={wsStatus} />
         </div>
-
-        <div className="hidden sm:block w-px h-6 bg-slate-200" />
-
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 hidden sm:inline">状态:</span>
+          <span className="text-xs text-kx-subtext hidden sm:inline">状态</span>
           <ExamStatusIcon status={examStatus} />
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-[10px] uppercase tracking-wide text-kx-subtext">剩余时间</span>
+        <span className={`data-mono text-2xl lg:text-3xl font-bold leading-none ${countdownColor}`}>
+          {countdown}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 justify-self-end">
         <button
           type="button"
           onClick={onRefreshProblems}
-          disabled={refreshingProblems || isSubmitting || !onRefreshProblems}
-          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
-            refreshingProblems || isSubmitting || !onRefreshProblems
-              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300'
-          }`}
+          disabled={buttonsDisabled}
+          className="btn-outline px-3 py-2 text-sm flex items-center gap-2"
         >
           <svg
             className={`w-4 h-4 ${refreshingProblems ? 'animate-spin' : ''}`}
@@ -194,7 +174,7 @@ export function StatusBar({ onRefreshProblems, refreshingProblems = false }: Sta
         <button
           onClick={() => setPendingSubmit(true)}
           disabled={isSubmitting}
-          className="btn-danger px-4 lg:px-6 py-2 text-sm shadow-sm flex items-center gap-2"
+          className="btn-danger px-4 lg:px-6 py-2 text-sm flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

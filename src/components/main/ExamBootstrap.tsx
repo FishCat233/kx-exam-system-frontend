@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 
 import { fetchStudentCode } from '@/api/studentCode'
 import { fetchStudentExamProblems } from '@/api/studentExam'
+import { InlineAlert } from '@/components/ui'
 import { useExamStore } from '@/store/examStore'
 import { getStudentSession } from '@/utils/studentSession'
 
@@ -107,12 +108,12 @@ export function ExamBootstrap({ children }: ExamBootstrapProps) {
 
   if (bootstrapping) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
-          <div className="mb-6 h-6 w-48 animate-pulse rounded bg-gray-200" />
-          <div className="mb-4 h-4 w-full animate-pulse rounded bg-gray-200" />
-          <div className="mb-4 h-4 w-4/5 animate-pulse rounded bg-gray-200" />
-          <div className="h-64 animate-pulse rounded-2xl bg-gray-200" />
+      <div className="page-center">
+        <div className="w-full max-w-2xl card-base p-8">
+          <div className="mb-6 h-6 w-48 rounded-md bg-kx-surface0" />
+          <div className="mb-4 h-4 w-full rounded-md bg-kx-surface0" />
+          <div className="mb-4 h-4 w-4/5 rounded-md bg-kx-surface0" />
+          <div className="h-64 rounded-lg bg-kx-surface0" />
         </div>
       </div>
     )
@@ -120,22 +121,14 @@ export function ExamBootstrap({ children }: ExamBootstrapProps) {
 
   if (bootstrapError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {bootstrapError}
-          </div>
+      <div className="page-center">
+        <div className="w-full max-w-md card-base p-8">
+          <InlineAlert variant="error" message={bootstrapError} />
           <div className="mt-6 flex gap-3">
-            <button
-              onClick={handleRetry}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
+            <button onClick={handleRetry} className="btn-primary px-4 py-2 text-sm">
               重试
             </button>
-            <button
-              onClick={handleBackToLogin}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <button onClick={handleBackToLogin} className="btn-outline px-4 py-2 text-sm">
               返回登录
             </button>
           </div>
