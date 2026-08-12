@@ -16,6 +16,57 @@ interface ChoiceQuestionEditorProps extends ChoiceQuestionProps {
   setIsDirty: (dirty: boolean) => void
 }
 
+function useCtrlSave(onSave: () => void, enabled: boolean) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (enabled) {
+          onSave()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [enabled, onSave])
+}
+
+function ChoiceSaveBar({
+  hint,
+  isDirty,
+  onSave,
+}: {
+  hint: string
+  isDirty: boolean
+  onSave: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+      <div className="text-sm text-slate-500">{hint}</div>
+      <button
+        onClick={onSave}
+        disabled={!isDirty}
+        className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
+          isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
+        }`}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+          />
+        </svg>
+        保存答案
+      </button>
+    </div>
+  )
+}
+
 function SingleChoiceEditor({
   problemId,
   options,
@@ -45,21 +96,7 @@ function SingleChoiceEditor({
     setIsDirty(false)
   }, [problemId, selectedOption, onSave, setIsDirty])
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        if (isDirty) {
-          handleSave()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isDirty, handleSave])
+  useCtrlSave(handleSave, isDirty)
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -97,26 +134,7 @@ function SingleChoiceEditor({
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <div className="text-sm text-slate-500">请选择一项正确答案</div>
-        <button
-          onClick={handleSave}
-          disabled={!isDirty}
-          className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-            />
-          </svg>
-          保存答案
-        </button>
-      </div>
+      <ChoiceSaveBar hint="请选择一项正确答案" isDirty={isDirty} onSave={handleSave} />
     </div>
   )
 }
@@ -158,21 +176,7 @@ function MultipleChoiceEditor({
     setIsDirty(false)
   }, [problemId, selectedOptions, onSave, setIsDirty])
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        if (isDirty) {
-          handleSave()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isDirty, handleSave])
+  useCtrlSave(handleSave, isDirty)
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -210,26 +214,11 @@ function MultipleChoiceEditor({
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <div className="text-sm text-slate-500">已选择 {selectedOptions.size} 项 · 可选择多项</div>
-        <button
-          onClick={handleSave}
-          disabled={!isDirty}
-          className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-            />
-          </svg>
-          保存答案
-        </button>
-      </div>
+      <ChoiceSaveBar
+        hint={`已选择 ${selectedOptions.size} 项 · 可选择多项`}
+        isDirty={isDirty}
+        onSave={handleSave}
+      />
     </div>
   )
 }

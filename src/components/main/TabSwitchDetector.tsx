@@ -11,7 +11,7 @@ export function TabSwitchDetector() {
   const countRef = useRef(0)
 
   const increment = useCallback(
-    (reason: string) => {
+    (isVisible: boolean, reason: string) => {
       const now = Date.now()
       if (now - lastTriggerRef.current < 500) {
         return
@@ -24,8 +24,7 @@ export function TabSwitchDetector() {
       sendMessage({
         type: 'visibility_change',
         data: {
-          is_visible: false,
-          timestamp: new Date().toISOString(),
+          is_visible: isVisible,
           reason,
         },
       })
@@ -40,12 +39,16 @@ export function TabSwitchDetector() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        increment('visibility_change')
+        increment(false, 'visibility_change')
       }
     }
 
     const handleWindowBlur = () => {
-      increment('window_blur')
+      // 页面已不可见时 blur 只是切屏的伴生事件，交给 visibilitychange 处理，避免重复计数
+      if (document.hidden) {
+        return
+      }
+      increment(false, 'window_blur')
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)

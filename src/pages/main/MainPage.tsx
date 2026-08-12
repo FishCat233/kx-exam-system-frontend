@@ -13,10 +13,10 @@ import { StatusBar } from '../../components/main/StatusBar'
 import { SubmitFlow } from '../../components/main/SubmitFlow'
 import { SystemNotice } from '../../components/main/SystemNotice'
 import { TabSwitchDetector } from '../../components/main/TabSwitchDetector'
-import { useWebSocketContext } from '../../components/main/WebSocketContext'
 import { WebSocketProvider } from '../../components/main/WebSocketProvider'
+import { SectionLabel } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
-import { saveStudentSession } from '../../utils/studentSession'
+import { getStudentSession, saveStudentSession } from '../../utils/studentSession'
 
 function getExamUiStatus(endTime: string): 'ongoing' | 'warning' | 'ending' {
   const remainingMs = new Date(endTime).getTime() - Date.now()
@@ -38,10 +38,7 @@ function MainPageInner() {
   const setExamStatus = useExamStore((state) => state.setExamStatus)
   const hydrateCodes = useExamStore((state) => state.hydrateCodes)
 
-  const { sendMessage } = useWebSocketContext()
-
   const [refreshingProblems, setRefreshingProblems] = useState(false)
-
   const savedProblemCount = useExamStore(
     (state) => problems.filter((p) => state.codes.get(p.id)?.savedAt).length
   )
@@ -59,15 +56,11 @@ function MainPageInner() {
       try {
         const result = await saveStudentCode(problemId, code)
         markSaved(problemId, result.savedAt)
-        sendMessage({
-          type: 'code_save',
-          data: { problem_id: problemId, saved_at: result.savedAt },
-        })
       } catch {
         clearSaving(problemId)
       }
     },
-    [markSaving, markSaved, clearSaving, sendMessage]
+    [markSaving, markSaved, clearSaving]
   )
 
   const handleRefreshProblems = useCallback(async () => {
@@ -96,12 +89,13 @@ function MainPageInner() {
         hydrateCodes(snapshots)
       }
 
-      // 更新 sessionStorage
+      // 更新 sessionStorage（保留原有 token）
       const current = useExamStore.getState()
+      const existing = getStudentSession()
       if (current.examInfo) {
         saveStudentSession({
-          studentToken: '',
-          websocketToken: '',
+          studentToken: existing?.studentToken ?? '',
+          websocketToken: existing?.websocketToken ?? '',
           wsUrl: current.wsUrl ?? '',
           examInfo: current.examInfo,
           problems: current.problems,
@@ -127,7 +121,7 @@ function MainPageInner() {
             <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 backdrop-blur lg:px-6">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div className="min-w-0">
-                  <div className="section-label text-xs">Kexie Online Exam</div>
+                  <SectionLabel className="text-xs">Kexie Online Exam</SectionLabel>
                   <h1 className="mt-1 truncate text-xl font-bold text-slate-900 lg:text-2xl">
                     考试中
                   </h1>

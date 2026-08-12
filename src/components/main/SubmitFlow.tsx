@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import screenfull from 'screenfull'
 
 import { submitStudentExam } from '@/api'
 import { useCodeSync } from '@/hooks/useCodeSync'
 import { useExamStore } from '@/store/examStore'
+import { exitFullscreenMode } from '@/utils/fullscreen'
 import { clearStudentSession } from '@/utils/studentSession'
 
 import { useWebSocketContext } from './WebSocketContext'
@@ -15,24 +15,15 @@ export function SubmitFlow() {
   const reset = useExamStore((s) => s.reset)
   const examInfo = useExamStore((s) => s.examInfo)
   const problems = useExamStore((s) => s.problems)
-  const currentProblemId = useExamStore((s) => s.currentProblemId)
 
-  const { subscribe, disconnect, sendMessage } = useWebSocketContext()
-  const { saveAllCodes } = useCodeSync({ sendMessage })
+  const { subscribe, disconnect } = useWebSocketContext()
+  const { saveAllCodes } = useCodeSync()
   const navigate = useNavigate()
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const showConfirm = pendingSubmit && !submitting
-
-  const exitFullscreenMode = useCallback(async () => {
-    if (screenfull.isEnabled && screenfull.isFullscreen) {
-      await screenfull.exit()
-    } else if (document.fullscreenElement) {
-      await document.exitFullscreen()
-    }
-  }, [])
 
   const leaveExam = useCallback(
     async (forced: boolean, reason: string | undefined, submitTime: string) => {
@@ -53,7 +44,7 @@ export function SubmitFlow() {
         },
       })
     },
-    [reset, exitFullscreenMode, navigate, examInfo]
+    [reset, navigate, examInfo]
   )
 
   const handleCancel = useCallback(() => {
@@ -74,7 +65,7 @@ export function SubmitFlow() {
 
       await saveAllCodes()
 
-      const result = await submitStudentExam(currentProblemId ?? problems[0].id)
+      const result = await submitStudentExam()
 
       disconnect()
       await leaveExam(false, undefined, result.submitTime)
@@ -83,7 +74,7 @@ export function SubmitFlow() {
       setError(message)
       setSubmitting(false)
     }
-  }, [problems, currentProblemId, saveAllCodes, disconnect, leaveExam])
+  }, [problems, saveAllCodes, disconnect, leaveExam])
 
   // 订阅 WS force_submit
   useEffect(() => {
@@ -108,150 +99,59 @@ export function SubmitFlow() {
     return unsubscribe
   }, [subscribe, saveAllCodes, disconnect, leaveExam])
 
-  if (!showConfirm && !error) {
+  if (!showConfirm && !error && !submitting) {
     return null
   }
 
   return (
     <>
-      <div style={styles.overlay}>
-        <div style={styles.card}>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+        <div className="bg-white rounded-2xl p-8 max-w-[420px] w-[90%] shadow-2xl text-center">
           {showConfirm && !error && (
             <>
-              <h2 style={styles.title}>确认交卷</h2>
-              <p style={styles.subtitle}>此操作不可撤销</p>
+              <h2 className="text-xl font-bold text-slate-900">确认交卷</h2>
+              <p className="mt-2 text-sm text-slate-400">此操作不可撤销</p>
 
-              <div style={styles.warning}>
+              <div className="mt-5 mb-5 px-3 py-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 leading-relaxed">
                 ⚠️ 交卷后将无法继续答题，请确认已完成所有题目。
                 <br />
                 未保存的代码将不会提交。
               </div>
 
-              <div style={styles.actions}>
-                <button style={styles.cancelBtn} onClick={handleCancel}>
+              <div className="mt-2 flex gap-3 justify-center">
+                <button
+                  className="px-6 py-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-sm cursor-pointer"
+                  onClick={handleCancel}
+                >
                   取消
                 </button>
-                <button style={styles.confirmBtn} onClick={handleSubmit}>
+                <button className="btn-primary px-6 py-2 text-sm" onClick={handleSubmit}>
                   确认交卷
                 </button>
               </div>
             </>
           )}
 
-          {submitting && (
-            <div style={styles.centered}>
-              <p style={styles.submittingText}>正在交卷中...</p>
-            </div>
-          )}
+          {submitting && <p className="text-base text-blue-600 m-0">正在交卷中...</p>}
 
           {error && !submitting && (
-            <div style={styles.errorCard}>
-              <p style={styles.errorText}>{error}</p>
-              <div style={styles.actions}>
-                <button style={styles.cancelBtn} onClick={handleCancel}>
+            <>
+              <p className="text-sm text-red-500 mb-4">{error}</p>
+              <div className="mt-2 flex gap-3 justify-center">
+                <button
+                  className="px-6 py-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-sm cursor-pointer"
+                  onClick={handleCancel}
+                >
                   取消
                 </button>
-                <button style={styles.retryBtn} onClick={handleSubmit}>
+                <button className="btn-primary px-6 py-2 text-sm" onClick={handleSubmit}>
                   重试
                 </button>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
     </>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: '32px 40px',
-    maxWidth: 420,
-    width: '90%',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-    textAlign: 'center',
-  },
-  title: {
-    margin: 0,
-    fontSize: 20,
-    fontWeight: 700,
-    color: '#1a1a1a',
-  },
-  subtitle: {
-    margin: '8px 0 0',
-    fontSize: 14,
-    color: '#999',
-  },
-  warning: {
-    margin: '20px 0',
-    padding: 12,
-    backgroundColor: '#fff7e6',
-    border: '1px solid #ffd666',
-    borderRadius: 8,
-    fontSize: 14,
-    color: '#ad6800',
-    lineHeight: 1.6,
-  },
-  actions: {
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  cancelBtn: {
-    padding: '8px 24px',
-    borderRadius: 6,
-    border: '1px solid #d9d9d9',
-    backgroundColor: '#fff',
-    color: '#595959',
-    fontSize: 14,
-    cursor: 'pointer',
-  },
-  confirmBtn: {
-    padding: '8px 24px',
-    borderRadius: 6,
-    border: 'none',
-    backgroundColor: '#1677ff',
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-  centered: {
-    textAlign: 'center',
-  },
-  submittingText: {
-    fontSize: 16,
-    color: '#1677ff',
-    margin: 0,
-  },
-  errorCard: {
-    textAlign: 'center',
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#ff4d4f',
-    marginBottom: 16,
-  },
-  retryBtn: {
-    padding: '8px 24px',
-    borderRadius: 6,
-    border: 'none',
-    backgroundColor: '#1677ff',
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
 }

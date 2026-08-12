@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router'
 import { fetchStudentCode } from '@/api/studentCode'
 import { fetchStudentExamProblems } from '@/api/studentExam'
 import { useExamStore } from '@/store/examStore'
-import type { StudentExamSession } from '@/types'
 import { getStudentSession } from '@/utils/studentSession'
 
 interface ExamBootstrapProps {
@@ -36,9 +35,6 @@ export function ExamBootstrap({ children }: ExamBootstrapProps) {
   const [bootstrapping, setBootstrapping] = useState(true)
   const [bootstrapError, setBootstrapError] = useState<string | null>(null)
 
-   
-  const [_session, _setSession] = useState<StudentExamSession | null>(null)
-
   useEffect(() => {
     let cancelled = false
 
@@ -48,49 +44,43 @@ export function ExamBootstrap({ children }: ExamBootstrapProps) {
       return
     }
 
-    _setSession(storedSession)
     setExamInfo(storedSession.examInfo)
     setProblems(storedSession.problems)
     setEndTime(storedSession.examInfo.endTime)
     setExamStatus(getExamUiStatus(storedSession.examInfo.endTime))
     setWsUrl(storedSession.wsUrl)
 
-    async function hydrate() {
-      let problemsToLoad = storedSession.problems
-
+    const hydrate = async () => {
       // a. 拉取最新 exam detail
       try {
         const examDetail = await fetchStudentExamProblems()
-        problemsToLoad =
-          examDetail.problems.length > 0 ? examDetail.problems : storedSession.problems
         if (cancelled) return
         setExamInfo(examDetail.examInfo)
-        syncProblems(problemsToLoad)
+        syncProblems(examDetail.problems)
         setEndTime(examDetail.examInfo.endTime)
         setExamStatus(getExamUiStatus(examDetail.examInfo.endTime))
-      } catch {
-        setBootstrapError('考试信息加载失败，请检查网络后重试。')
-        setBootstrapping(false)
-        return
-      }
 
-      // b. 拉取代码快照
-      if (problemsToLoad.length > 0) {
-        try {
-          const snapshots = await Promise.all(
-            problemsToLoad.map((p) =>
-              fetchStudentCode(p.id).then((r) => ({
-                problemId: p.id,
-                code: r.code,
-                savedAt: r.savedAt,
-              }))
+        // b. 拉取代码快照
+        if (examDetail.problems.length > 0) {
+          try {
+            const snapshots = await Promise.all(
+              examDetail.problems.map((p) =>
+                fetchStudentCode(p.id).then((r) => ({
+                  problemId: p.id,
+                  code: r.code,
+                  savedAt: r.savedAt,
+                }))
+              )
             )
-          )
-          if (cancelled) return
-          hydrateCodes(snapshots)
-        } catch {
-          // 静默降级，使用默认代码
+            if (cancelled) return
+            hydrateCodes(snapshots)
+          } catch {
+            // 静默降级，使用默认代码
+          }
         }
+      } catch {
+        if (cancelled) return
+        setBootstrapError('考试信息加载失败，请检查网络后重试。')
       }
 
       if (!cancelled) {

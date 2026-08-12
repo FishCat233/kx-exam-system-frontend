@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 import { useExamStore } from '../store/examStore'
 import type { WebSocketMessage } from '../types'
@@ -18,7 +18,6 @@ export function useWebSocket({
   onConnect,
   onDisconnect,
 }: UseWebSocketOptions) {
-  const [status, setStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected')
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -68,8 +67,6 @@ export function useWebSocket({
       ) {
         return
       }
-
-      setStatus('connecting')
       setWsStatus('connecting')
 
       const wsUrl = token
@@ -80,7 +77,6 @@ export function useWebSocket({
         const ws = new WebSocket(wsUrl)
 
         ws.onopen = () => {
-          setStatus('connected')
           setWsStatus('connected')
           reconnectCountRef.current = 0
           optionsRef.current.onConnect?.()
@@ -109,7 +105,6 @@ export function useWebSocket({
         }
 
         ws.onclose = (event) => {
-          setStatus('disconnected')
           setWsStatus('disconnected')
           optionsRef.current.onDisconnect?.()
 
@@ -126,13 +121,11 @@ export function useWebSocket({
         }
 
         ws.onerror = () => {
-          setStatus('disconnected')
           setWsStatus('disconnected')
         }
 
         wsRef.current = ws
       } catch {
-        setStatus('disconnected')
         setWsStatus('disconnected')
       }
     }
@@ -145,7 +138,6 @@ export function useWebSocket({
   }, [url, token, disconnect, setWsStatus])
 
   return {
-    status,
     sendMessage,
     disconnect,
   }

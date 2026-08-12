@@ -34,28 +34,44 @@ let nextId = 1
 export function SystemNotice() {
   const { subscribe } = useWebSocketContext()
   const [notices, setNotices] = useState<Notice[]>([])
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
 
   const dismiss = useCallback((id: number) => {
+    const timer = timersRef.current.get(id)
+    if (timer) {
+      clearTimeout(timer)
+      timersRef.current.delete(id)
+    }
     setNotices((prev) => prev.filter((n) => n.id !== id))
   }, [])
 
-  const addNotice = useCallback((notice: Omit<Notice, 'id'>) => {
-    const id = nextId++
-    setNotices((prev) => {
-      const filtered = prev.filter((n) => n.message !== notice.message)
-      return [...filtered, { ...notice, id }]
-    })
+  const addNotice = useCallback(
+    (notice: Omit<Notice, 'id'>) => {
+      const id = nextId++
+      setNotices((prev) => {
+        const duplicated = prev.find((n) => n.message === notice.message)
+        if (duplicated) {
+          const oldTimer = timersRef.current.get(duplicated.id)
+          if (oldTimer) {
+            clearTimeout(oldTimer)
+            timersRef.current.delete(duplicated.id)
+          }
+        }
+        const filtered = prev.filter((n) => n.message !== notice.message)
+        return [...filtered, { ...notice, id }]
+      })
 
-    // 自动消失（error 不自动消）
-    if (notice.level !== 'error') {
-      timerRef.current = setTimeout(() => {
-        setNotices((prev) => prev.filter((n) => n.id !== id))
-      }, 6000)
-    }
-  }, [])
+      // 自动消失（error 不自动消）
+      if (notice.level !== 'error') {
+        const timer = setTimeout(() => dismiss(id), 6000)
+        timersRef.current.set(id, timer)
+      }
+    },
+    [dismiss]
+  )
 
   useEffect(() => {
+    const timers = timersRef.current
     const unsub = subscribe((message: WebSocketMessage) => {
       switch (message.type) {
         case 'warning': {
@@ -90,9 +106,8 @@ export function SystemNotice() {
 
     return () => {
       unsub()
-      if (timerRef.current) {
-        clearTimeout(timerRef.current)
-      }
+      timers.forEach((timer) => clearTimeout(timer))
+      timers.clear()
     }
   }, [subscribe, addNotice])
 
