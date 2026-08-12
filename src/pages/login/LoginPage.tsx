@@ -6,7 +6,6 @@ import { fetchPublicExamList } from '@/api/studentExam'
 import ExamInfoCard from '@/components/login/ExamInfoCard'
 import LoginForm from '@/components/login/LoginForm'
 import OrganizationLogo from '@/components/login/OrganizationLogo'
-import PledgeModal from '@/components/login/PledgeModal'
 import { SectionLabel } from '@/components/ui'
 import type { ExamInfo, LoginFormData } from '@/types'
 import { requestFullscreenMode } from '@/utils/fullscreen'
@@ -41,8 +40,6 @@ function selectPreferredExam(exams: ExamInfo[]): ExamInfo | null {
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [isPledgeModalOpen, setIsPledgeModalOpen] = useState(false)
-  const [pledgeAgreed, setPledgeAgreed] = useState(false)
   const [examList, setExamList] = useState<ExamInfo[]>([])
   const [loadingExam, setLoadingExam] = useState(true)
   const [loginLoading, setLoginLoading] = useState(false)
@@ -111,19 +108,6 @@ export default function LoginPage() {
     }
   }
 
-  const handlePledgeClick = () => {
-    setIsPledgeModalOpen(true)
-  }
-
-  const handlePledgeAgree = () => {
-    setPledgeAgreed(true)
-    setIsPledgeModalOpen(false)
-  }
-
-  const handleClosePledgeModal = () => {
-    setIsPledgeModalOpen(false)
-  }
-
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-8 md:px-8">
@@ -183,8 +167,6 @@ export default function LoginPage() {
               )}
               <LoginForm
                 onSubmit={handleLoginSubmit}
-                onPledgeClick={handlePledgeClick}
-                pledgeAgreed={pledgeAgreed}
                 loading={loginLoading}
                 disabled={!currentExam}
                 submitError={submitError}
@@ -195,14 +177,6 @@ export default function LoginPage() {
           <div className="text-center text-xs text-slate-400">GUET SAST C 语言考试系统</div>
         </div>
       </div>
-      {isPledgeModalOpen && (
-        <PledgeModal
-          isOpen={isPledgeModalOpen}
-          onClose={handleClosePledgeModal}
-          onAgree={handlePledgeAgree}
-          content={currentExam?.pledgeContent || ''}
-        />
-      )}
     </div>
   )
 }

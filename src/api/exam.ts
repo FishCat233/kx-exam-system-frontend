@@ -13,7 +13,6 @@ export interface ExamApiResponse {
   actual_start_time?: string
   actual_end_time?: string
   status: string
-  pledge_content: string
   created_at: string
   updated_at: string
 }
@@ -29,7 +28,6 @@ function mapExamResponse(data: ExamApiResponse): Exam {
     actual_start_time: data.actual_start_time,
     actual_end_time: data.actual_end_time,
     status: data.status as Exam['status'],
-    pledge_content: data.pledge_content,
     created_at: data.created_at,
     updated_at: data.updated_at,
   }

@@ -13,7 +13,6 @@ export interface LoginFormData {
   studentId: string
   name: string
   loginCode: string
-  pledgeAgreed: boolean
 }
 
 export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'

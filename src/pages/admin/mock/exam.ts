@@ -10,8 +10,6 @@ export const MOCK_EXAMS: Exam[] = [
     end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
     actual_start_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     status: 'ongoing',
-    pledge_content:
-      '# 考前承诺书\n\n我承诺：\n1. 独立完成考试，不抄袭他人代码\n2. 不与他人交流考试内容\n3. 不使用任何外部资料\n4. 遵守考试纪律',
     created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   },
@@ -23,7 +21,6 @@ export const MOCK_EXAMS: Exam[] = [
     start_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     end_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000).toISOString(),
     status: 'not_started',
-    pledge_content: '# 考前承诺书\n\n我承诺：\n1. 独立完成考试\n2. 不抄袭他人代码\n3. 遵守考试纪律',
     created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -39,7 +36,6 @@ export const MOCK_EXAMS: Exam[] = [
       Date.now() - 30 * 24 * 60 * 60 * 1000 + 120 * 60 * 1000
     ).toISOString(),
     status: 'ended',
-    pledge_content: '# 考前承诺书\n\n我承诺诚信考试。',
     created_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
   },
@@ -63,7 +59,6 @@ export async function createExam(
     start_time: data.start_time,
     end_time: data.end_time,
     status: 'not_started',
-    pledge_content: data.pledge_content,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
@@ -97,7 +92,6 @@ export async function updateExam(
     ...(data.duration && { duration: data.duration }),
     ...(data.start_time && { start_time: data.start_time }),
     ...(data.end_time && { end_time: data.end_time }),
-    ...(data.pledge_content && { pledge_content: data.pledge_content }),
     ...(data.status && { status: data.status }),
     updated_at: new Date().toISOString(),
   }

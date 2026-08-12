@@ -45,14 +45,9 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         subject: exam.subject,
         start_time: dayjs(exam.start_time),
         end_time: dayjs(exam.end_time),
-        pledge_content: exam.pledge_content,
       })
     } else if (visible) {
       form.resetFields()
-      form.setFieldsValue({
-        pledge_content:
-          '# 考前承诺书\n\n我承诺：\n1. 独立完成考试，不抄袭他人代码\n2. 不与他人交流考试内容\n3. 不使用任何外部资料\n4. 遵守考试纪律',
-      })
     }
   }, [visible, exam, form])
 
@@ -69,10 +64,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
       }
 
       if (isEditing && exam) {
-        // 如果不是未开始状态，只允许修改部分字段
-        const updateData: UpdateExamRequest = isNotStarted
-          ? formattedValues
-          : { pledge_content: formattedValues.pledge_content }
+        const updateData: UpdateExamRequest = isNotStarted ? formattedValues : {}
 
         const result = API_CONFIG.USE_MOCK
           ? await mockExam.updateExam(exam.id, updateData)
@@ -201,23 +193,6 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
             disabled
           />
         </Form.Item>
-
-        <Form.Item
-          name="pledge_content"
-          label="考前承诺书"
-          rules={[
-            { required: true, message: '请输入考前承诺书' },
-            { min: 1, message: '考前承诺书不能为空' },
-          ]}
-        >
-          <Input.TextArea rows={8} placeholder="请输入考前承诺书（支持 Markdown 格式）" />
-        </Form.Item>
-
-        {disabledFields && (
-          <div className="text-yellow-500 mb-4">
-            注意：考试已开始或已结束，只能修改考前承诺书内容。
-          </div>
-        )}
       </Form>
     </Modal>
   )
