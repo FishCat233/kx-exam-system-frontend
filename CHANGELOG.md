@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.3](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.0.2...kx-exam-system-frontend-v0.0.3) (2026-08-12)
+
+
+### 📝 Documentation
+
+* README License 段补充 AGPLv3 使用条款提示 ([ac8e470](https://github.com/FishCat233/kx-exam-system-frontend/commit/ac8e4709a8d775d517c284c92928f895853f40d2))
+* 重写 README，改为速读入口并去重 ([f52459c](https://github.com/FishCat233/kx-exam-system-frontend/commit/f52459cc6dddb86a91bf14c4aa1ea49ecc36423b))
+
+
+### 🤖 CI
+
+* release-please 显式空 tag-prefix，统一 v* 版本号 ([85eaeee](https://github.com/FishCat233/kx-exam-system-frontend/commit/85eaeee3607b91e01545ef3166569fd1bce38037))
+
+
+### 🧰 Chores
+
+* 许可证从 GPLv2 转为 AGPLv3 ([da18f8b](https://github.com/FishCat233/kx-exam-system-frontend/commit/da18f8b36ecb43f1868cab81a8807a526e325483))
+* 许可证从 MIT 转为 GPLv2 ([283499a](https://github.com/FishCat233/kx-exam-system-frontend/commit/283499afd3910534b3d250bd597ffbd05ca85ffb))
+
 ## [0.0.2](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.0.1...kx-exam-system-frontend-v0.0.2) (2026-08-12)
 
 
