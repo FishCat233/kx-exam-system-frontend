@@ -85,7 +85,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
             <button
               key={problem.id}
               onClick={() => onSelectProblem(problem.id)}
-              className={`w-full text-left px-2 lg:px-4 py-2 transition-all duration-150 ${
+              className={`w-full text-left px-2 lg:px-4 py-2 transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-kx-blue ${
                 isActive
                   ? 'bg-blue-50 border-l-3 border-l-blue-500'
                   : 'hover:bg-slate-100 border-l-3 border-l-transparent'

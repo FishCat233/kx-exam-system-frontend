@@ -129,7 +129,7 @@ export function SystemNotice() {
               <button
                 type="button"
                 onClick={() => dismiss(notice.id)}
-                className="text-slate-400 transition hover:text-slate-600"
+                className="text-slate-400 transition hover:text-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
               >
                 ×
               </button>
