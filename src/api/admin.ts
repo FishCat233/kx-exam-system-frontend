@@ -18,7 +18,9 @@ export async function loginAdmin(
   data: AdminLoginRequest
 ): Promise<{ success: boolean; data?: AdminLoginResponse; message?: string }> {
   try {
-    const result = await http.post<AdminLoginResponse>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, data)
+    const result = await http.post<AdminLoginResponse>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, data, {
+      authMode: 'none',
+    })
     return { success: true, data: result }
   } catch (error) {
     return {
