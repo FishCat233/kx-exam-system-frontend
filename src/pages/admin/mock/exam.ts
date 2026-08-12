@@ -1,6 +1,6 @@
 import type { Exam, CreateExamRequest, UpdateExamRequest } from '../types/admin'
 
-const mockExams: Exam[] = [
+export const MOCK_EXAMS: Exam[] = [
   {
     id: 1,
     name: '2024年春季C语言期末考试',
@@ -47,7 +47,7 @@ const mockExams: Exam[] = [
 
 export async function fetchExamList(): Promise<Exam[]> {
   await new Promise((resolve) => setTimeout(resolve, 300))
-  return [...mockExams]
+  return [...MOCK_EXAMS]
 }
 
 export async function createExam(
@@ -68,7 +68,7 @@ export async function createExam(
     updated_at: new Date().toISOString(),
   }
 
-  mockExams.push(newExam)
+  MOCK_EXAMS.push(newExam)
 
   return {
     success: true,
@@ -82,7 +82,7 @@ export async function updateExam(
 ): Promise<{ success: boolean; exam?: Exam; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
-  const index = mockExams.findIndex((e) => e.id === id)
+  const index = MOCK_EXAMS.findIndex((e) => e.id === id)
   if (index === -1) {
     return {
       success: false,
@@ -91,7 +91,7 @@ export async function updateExam(
   }
 
   const updatedExam: Exam = {
-    ...mockExams[index],
+    ...MOCK_EXAMS[index],
     ...(data.name && { name: data.name }),
     ...(data.subject && { subject: data.subject }),
     ...(data.duration && { duration: data.duration }),
@@ -110,7 +110,7 @@ export async function updateExam(
     updatedExam.actual_end_time = new Date().toISOString()
   }
 
-  mockExams[index] = updatedExam
+  MOCK_EXAMS[index] = updatedExam
 
   return {
     success: true,
@@ -121,7 +121,7 @@ export async function updateExam(
 export async function deleteExam(id: number): Promise<{ success: boolean; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
-  const index = mockExams.findIndex((e) => e.id === id)
+  const index = MOCK_EXAMS.findIndex((e) => e.id === id)
   if (index === -1) {
     return {
       success: false,
@@ -129,7 +129,7 @@ export async function deleteExam(id: number): Promise<{ success: boolean; messag
     }
   }
 
-  mockExams.splice(index, 1)
+  MOCK_EXAMS.splice(index, 1)
 
   return {
     success: true,

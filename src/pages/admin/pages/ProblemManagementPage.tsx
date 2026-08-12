@@ -1,10 +1,10 @@
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons'
 import { Table, Button, Space, message, Modal, Card, Alert, Tag } from 'antd'
 import { useEffect, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
 
 import { API_CONFIG } from '@/api/config'
 import { fetchProblemList, deleteProblem } from '@/api/problem'
+import { MarkdownRenderer } from '@/components/ui'
 
 import { ProblemFormModal } from '../components/ProblemFormModal'
 import { useExam } from '../contexts/ExamContext'
@@ -210,13 +210,13 @@ export function ProblemManagementPage() {
         width={800}
       >
         {previewProblem && (
-          <div className="markdown-body py-4">
+          <div className="py-4">
             <div className="mb-4">
               <Tag color={PROBLEM_TYPE_MAP[previewProblem.type].color}>
                 {PROBLEM_TYPE_MAP[previewProblem.type].label}
               </Tag>
             </div>
-            <ReactMarkdown>{previewProblem.content}</ReactMarkdown>
+            <MarkdownRenderer content={previewProblem.content} />
 
             {/* 显示选择题选项 */}
             {previewProblem.type !== 'coding' && previewProblem.options && (

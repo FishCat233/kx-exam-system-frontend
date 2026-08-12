@@ -226,7 +226,7 @@ export function StudentListPage() {
       width: 100,
     },
     {
-      title: '登陆码',
+      title: '登录码',
       dataIndex: 'loginCode',
       key: 'loginCode',
       width: 120,
@@ -349,7 +349,7 @@ export function StudentListPage() {
             批量导入
           </Button>
           <Search
-            placeholder="搜索学号/姓名/登陆码"
+            placeholder="搜索学号/姓名/登录码"
             allowClear
             value={searchText}
             onChange={(e) => handleSearch(e.target.value)}

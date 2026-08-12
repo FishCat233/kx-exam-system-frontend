@@ -27,6 +27,23 @@ const { Header, Sider, Content } = Layout
 
 type MenuItem = Required<MenuProps>['items'][number]
 
+const TOP_LEVEL_MENU_KEYS = [
+  '/admin/dashboard',
+  '/admin/export',
+  '/admin/students',
+  '/admin/exams',
+  '/admin/admins',
+  '/admin/problems',
+]
+
+function getSelectedKey(pathname: string): string {
+  const matches = TOP_LEVEL_MENU_KEYS.filter(
+    (key) => pathname === key || pathname.startsWith(`${key}/`)
+  )
+  if (matches.length === 0) return pathname
+  return matches.reduce((longest, key) => (key.length > longest.length ? key : longest))
+}
+
 function ChangePasswordModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -213,7 +230,7 @@ export function AdminLayout() {
         </div>
         <Menu
           mode="inline"
-          selectedKeys={[location.pathname]}
+          selectedKeys={[getSelectedKey(location.pathname)]}
           items={menuItems}
           onClick={handleMenuClick}
           className="!border-r-0"

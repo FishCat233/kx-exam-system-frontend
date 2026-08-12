@@ -6,38 +6,11 @@ import { API_CONFIG } from '@/api/config'
 import { fetchExamList } from '@/api/exam'
 
 import { useExam } from '../contexts/ExamContext'
+import { MOCK_EXAMS } from '../mock/exam'
 import type { Exam } from '../types/admin'
 
 const { Text } = Typography
 const { Option } = Select
-
-// Mock 考试数据
-const MOCK_EXAMS: Exam[] = [
-  {
-    id: 1,
-    name: '2024年春季C语言期末考试',
-    subject: 'C语言程序设计',
-    duration: 120,
-    start_time: new Date(Date.now() - 3600000).toISOString(),
-    end_time: new Date(Date.now() + 3600000).toISOString(),
-    status: 'ongoing',
-    pledge_content: '# 考前承诺书\n\n我承诺诚信考试。',
-    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: '2024年秋季C语言期中考试',
-    subject: 'C语言程序设计',
-    duration: 90,
-    start_time: new Date(Date.now() + 86400000).toISOString(),
-    end_time: new Date(Date.now() + 90000000).toISOString(),
-    status: 'not_started',
-    pledge_content: '# 考前承诺书\n\n我承诺诚信考试。',
-    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-]
 
 export function ExamSelector() {
   const { setCurrentExam, currentExamId } = useExam()
