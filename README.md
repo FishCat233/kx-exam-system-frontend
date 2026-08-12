@@ -62,7 +62,7 @@ xmn-exam-system-frontend/
 │   ├── main.tsx              # 应用入口
 │   ├── App.tsx               # 根组件，路由配置
 │   ├── pages/                # 页面组件
-│   │   ├── LoginPage.tsx     # 考生登录页（学号+姓名+登录码+承诺书）
+│   │   ├── LoginPage.tsx     # 考生登录页（学号+姓名+登录码）
 │   │   ├── MainPage.tsx      # 考试主页面（力扣风格布局）
 │   │   ├── AdminLoginPage.tsx # 管理登录页
 │   │   ├── DashboardPage.tsx  # 仪表盘
@@ -93,7 +93,7 @@ xmn-exam-system-frontend/
 
 | 页面       | 路由    | 说明                                             |
 | ---------- | ------- | ------------------------------------------------ |
-| 登录页     | `/`     | 学号 + 姓名 + 登录码 + 考前承诺书 + 全屏预检     |
+| 登录页     | `/`     | 学号 + 姓名 + 登录码 + 全屏预检     |
 | 考试主页面 | `/exam` | 力扣风格布局：左侧题目 + 右侧编辑器 + 顶部状态栏 |
 
 **隐形监控**：页面静默监听 `visibilitychange` 和 `fullscreenchange` 事件，通过 WebSocket 实时上报切屏/退出全屏行为，不对考生展示任何 UI 提示。
