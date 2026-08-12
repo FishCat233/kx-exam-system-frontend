@@ -39,7 +39,7 @@ function getStoredTheme(): ThemeKey {
 }
 
 interface CodeEditorProps {
-  onSave: (problemId: number, code: string) => void
+  onSave: (problemId: number, code: string) => Promise<boolean>
 }
 
 interface ProblemCodeEditorProps extends CodeEditorProps {
@@ -75,9 +75,11 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     [problemId, updateCode]
   )
 
-  const handleSave = useCallback(() => {
-    onSave(problemId, localCode)
-    setIsDirty(false)
+  const handleSave = useCallback(async () => {
+    const ok = await onSave(problemId, localCode)
+    if (ok) {
+      setIsDirty(false)
+    }
   }, [problemId, localCode, onSave])
 
   useEffect(() => {

@@ -51,13 +51,15 @@ function MainPageInner() {
   )
 
   const handleSaveCode = useCallback(
-    async (problemId: number, code: string) => {
+    async (problemId: number, code: string): Promise<boolean> => {
       markSaving(problemId)
       try {
         const result = await saveStudentCode(problemId, code)
         markSaved(problemId, result.savedAt)
+        return true
       } catch {
         clearSaving(problemId)
+        return false
       }
     },
     [markSaving, markSaved, clearSaving]
