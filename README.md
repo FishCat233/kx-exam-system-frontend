@@ -41,4 +41,4 @@ npx eslint .                # 代码检查
 
 ## License
 
-GPLv2
+AGPLv3
