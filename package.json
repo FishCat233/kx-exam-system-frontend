@@ -2,6 +2,7 @@
   "name": "kx-exam-system-frontend",
   "private": true,
   "version": "0.0.2",
+  "license": "GPL-2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
