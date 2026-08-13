@@ -6,7 +6,7 @@ export type LogLevel = 'normal' | 'warning' | 'critical'
 
 export type AdminRole = 'super_admin' | 'admin'
 
-export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'
+export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice' | 'fill_blank'
 
 export interface ProblemOption {
   id: string

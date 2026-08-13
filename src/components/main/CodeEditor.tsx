@@ -12,6 +12,7 @@ import type { ReactNode } from 'react'
 import { SaveStatusIndicator } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 
+import { BlankQuestion } from './BlankQuestion'
 import { ChoiceQuestion } from './ChoiceQuestion'
 
 type ThemeKey = 'githubLight' | 'githubDark' | 'oneDark' | 'vscodeDark' | 'dracula' | 'material'
@@ -234,6 +235,15 @@ export function CodeEditor({ onSave }: CodeEditorProps) {
           <p>请选择题目开始答题</p>
         </div>
       </div>
+    )
+  } else if (currentProblem && currentProblem.type === 'fill_blank') {
+    inner = (
+      <BlankQuestion
+        key={currentProblemId}
+        problemId={currentProblemId}
+        content={currentProblem.content}
+        onSave={onSave}
+      />
     )
   } else if (
     currentProblem &&

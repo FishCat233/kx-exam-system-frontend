@@ -44,6 +44,18 @@ const mockProblems: Map<number, Problem[]> = new Map([
         created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
       },
+      {
+        id: 4,
+        exam_id: 1,
+        title: '补全循环变量',
+        content:
+          '# 补全循环变量\n\n补全下面的代码，让循环从 0 计数到 9：\n\n```c\nfor (int ____ = 0; ____ < 10; ____++) {\n    printf("%d", ____);\n}\n```',
+        type: 'fill_blank',
+        options: null,
+        order_num: 4,
+        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      },
     ],
   ],
   [

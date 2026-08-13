@@ -31,6 +31,18 @@ function ProblemTypeIcon({ type }: { type: ProblemType }) {
       </svg>
     )
   }
+  if (type === 'fill_blank') {
+    return (
+      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+        />
+      </svg>
+    )
+  }
   return (
     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -47,12 +59,14 @@ const PROBLEM_TYPE_LABEL: Record<ProblemType, string> = {
   coding: '编程',
   single_choice: '单选',
   multiple_choice: '多选',
+  fill_blank: '填空',
 }
 
 const PROBLEM_TYPE_TAG: Record<ProblemType, string> = {
   coding: 'border-kx-blue text-kx-blue',
   single_choice: 'border-kx-green text-kx-green',
   multiple_choice: 'border-kx-yellow text-kx-yellow',
+  fill_blank: 'border-kx-teal text-kx-teal',
 }
 
 export function ProblemNav({ onSelectProblem }: ProblemNavProps) {

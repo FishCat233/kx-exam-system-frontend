@@ -1,5 +1,16 @@
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
-import { Modal, Form, Input, InputNumber, message, Radio, Button, Space, Checkbox } from 'antd'
+import {
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Radio,
+  Button,
+  Space,
+  Checkbox,
+  Alert,
+} from 'antd'
 import { useEffect, useState } from 'react'
 
 import { API_CONFIG } from '@/api/config'
@@ -26,6 +37,7 @@ const PROBLEM_TYPE_OPTIONS = [
   { label: '编程题', value: 'coding' },
   { label: '单选题', value: 'single_choice' },
   { label: '多选题', value: 'multiple_choice' },
+  { label: '填空题', value: 'fill_blank' },
 ]
 
 export function ProblemFormModal({
@@ -40,6 +52,9 @@ export function ProblemFormModal({
   const [problemType, setProblemType] = useState<ProblemType>('coding')
   const [options, setOptions] = useState<ProblemOption[]>([])
   const isEditing = !!problem
+
+  const watchedContent = Form.useWatch('content', form)
+  const blankCount = (watchedContent?.match(/____/g) || []).length
 
   useEffect(() => {
     if (visible && problem) {
@@ -64,11 +79,16 @@ export function ProblemFormModal({
     form.setFieldsValue({ type: value })
 
     // 切换到选择题时，如果选项为空，自动添加两个空选项
-    if (value !== 'coding' && options.length === 0) {
+    const isChoice = value === 'single_choice' || value === 'multiple_choice'
+    if (isChoice && options.length === 0) {
       setOptions([
         { id: 'A', content: '', is_correct: false },
         { id: 'B', content: '', is_correct: false },
       ])
+    }
+    // 切换到非选择题时，清空选项
+    if (!isChoice) {
+      setOptions([])
     }
   }
 
@@ -112,6 +132,14 @@ export function ProblemFormModal({
       return true
     }
 
+    if (problemType === 'fill_blank') {
+      if (blankCount < 1) {
+        message.error('填空题内容中至少需要 1 个空位（用连续的 4 个下划线 ____ 表示）')
+        return false
+      }
+      return true
+    }
+
     if (options.length < 2) {
       message.error('选择题至少需要2个选项')
       return false
@@ -151,7 +179,7 @@ export function ProblemFormModal({
 
       const submitData = {
         ...values,
-        options: problemType === 'coding' ? undefined : options,
+        options: problemType === 'coding' || problemType === 'fill_blank' ? undefined : options,
       }
 
       if (isEditing && problem) {
@@ -199,7 +227,8 @@ export function ProblemFormModal({
     onClose()
   }
 
-  const isChoiceProblem = problemType !== 'coding'
+  const isChoiceProblem = problemType === 'single_choice' || problemType === 'multiple_choice'
+  const isFillBlank = problemType === 'fill_blank'
 
   return (
     <Modal
@@ -260,12 +289,30 @@ export function ProblemFormModal({
           <Input.TextArea
             rows={isChoiceProblem ? 6 : 12}
             placeholder={
-              isChoiceProblem
-                ? '请输入题目内容（支持 Markdown 格式）\n\n示例：\n# 题目描述\n\n这是一道选择题...'
-                : '请输入题目内容（支持 Markdown 格式）\n\n示例：\n# 题目描述\n\n编写一个程序...\n\n## 输入\n输入一行...\n\n## 输出\n输出一行...\n\n## 样例\n输入：`1 2`\n输出：`3`'
+              isFillBlank
+                ? '请输入题目内容（支持 Markdown 格式）\n\n空位请用 4 个连续下划线 ____ 表示：\n\n示例：\n# 补全代码\n\n```c\nint main() {\n    int ____ = 0;\n    return ____;\n}\n```'
+                : isChoiceProblem
+                  ? '请输入题目内容（支持 Markdown 格式）\n\n示例：\n# 题目描述\n\n这是一道选择题...'
+                  : '请输入题目内容（支持 Markdown 格式）\n\n示例：\n# 题目描述\n\n编写一个程序...\n\n## 输入\n输入一行...\n\n## 输出\n输出一行...\n\n## 样例\n输入：`1 2`\n输出：`3`'
             }
           />
         </Form.Item>
+
+        {/* 填空题空位提示 */}
+        {isFillBlank && (
+          <Form.Item label="空位设置">
+            <Alert
+              type="info"
+              showIcon
+              message={
+                blankCount > 0
+                  ? `检测到 ${blankCount} 个空位，考生将按顺序填写 ${blankCount} 个答案`
+                  : '题目内容中未检测到空位'
+              }
+              description="在题目内容中用 4 个连续下划线（____）标记空位，考生端会自动生成对应数量的答案输入框。"
+            />
+          </Form.Item>
+        )}
 
         {/* 选择题选项编辑区域 */}
         {isChoiceProblem && (

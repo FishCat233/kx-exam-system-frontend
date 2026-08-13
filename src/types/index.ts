@@ -14,7 +14,7 @@ export interface LoginFormData {
   loginCode: string
 }
 
-export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'
+export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice' | 'fill_blank'
 
 export interface ProblemOption {
   id: string

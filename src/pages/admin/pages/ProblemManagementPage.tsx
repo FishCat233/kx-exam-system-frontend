@@ -17,6 +17,7 @@ const PROBLEM_TYPE_MAP: Record<ProblemType, { label: string; color: string }> = 
   coding: { label: '编程题', color: 'blue' },
   single_choice: { label: '单选题', color: 'green' },
   multiple_choice: { label: '多选题', color: 'orange' },
+  fill_blank: { label: '填空题', color: 'purple' },
 }
 
 export function ProblemManagementPage() {
