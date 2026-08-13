@@ -38,7 +38,7 @@ export function TabSwitchDetector() {
 
   useEffect(() => {
     if (!showWarning) return
-    const timer = setTimeout(() => setShowWarning(false), 5000)
+    const timer = setTimeout(() => setShowWarning(false), 10000)
     return () => clearTimeout(timer)
   }, [showWarning, tabSwitchCount])
 
