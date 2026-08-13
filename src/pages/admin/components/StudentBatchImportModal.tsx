@@ -1,4 +1,4 @@
-import { Alert, Form, Input, Modal, Typography } from 'antd'
+import { Alert, Form, Input, Modal, Typography, message } from 'antd'
 import { useEffect } from 'react'
 
 import type { StudentCreateRequest } from '@/api/student'
@@ -25,7 +25,7 @@ function parseStudentLines(rawText: string): StudentCreateRequest[] {
   const students = lines.map((line, index) => {
     const normalizedLine = line.replace(/，/g, ',')
     const parts = normalizedLine
-      .split(',')
+      .split(/[,\t]+/)
       .map((part) => part.trim())
       .filter(Boolean)
 
@@ -72,9 +72,22 @@ export function StudentBatchImportModal({
   }, [visible, form])
 
   const handleOk = async () => {
-    const values = await form.validateFields()
-    const students = parseStudentLines(values.studentsText)
-    await onSubmit(students)
+    let students: StudentCreateRequest[]
+    try {
+      const values = await form.validateFields()
+      students = parseStudentLines(values.studentsText)
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(error.message)
+      }
+      return
+    }
+    try {
+      await onSubmit(students)
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '批量导入失败')
+      return
+    }
     form.resetFields()
   }
 
@@ -102,7 +115,9 @@ export function StudentBatchImportModal({
         message={'每行一条记录，格式为"学号,姓名"'}
         description={
           <div>
-            <Paragraph className="mb-2">支持英文逗号和中文逗号，例如：</Paragraph>
+            <Paragraph className="mb-2">
+              支持英文逗号、中文逗号和 Tab（Excel 粘贴），例如：
+            </Paragraph>
             <Text code>20240001,张三</Text>
             <br />
             <Text code>20240002，李四</Text>

@@ -82,6 +82,29 @@ function fetchWithTimeout(url: string, options: RequestInit, timeout: number): P
   ])
 }
 
+// 从非信封格式的错误响应体（如 FastAPI 原生 {detail} 校验错误）中提取可读信息
+function extractErrorMessage(data: unknown): string {
+  if (typeof data !== 'object' || data === null) {
+    return ''
+  }
+  const record = data as Record<string, unknown>
+  if (typeof record.detail === 'string') {
+    return record.detail
+  }
+  if (Array.isArray(record.detail)) {
+    return record.detail
+      .map((item) =>
+        typeof (item as { msg?: unknown })?.msg === 'string' ? (item as { msg: string }).msg : ''
+      )
+      .filter(Boolean)
+      .join('；')
+  }
+  if (typeof record.message === 'string') {
+    return record.message
+  }
+  return ''
+}
+
 // 核心请求函数
 export async function request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
   const { timeout = API_CONFIG.TIMEOUT, headers = {}, authMode = 'admin', ...restConfig } = config
@@ -139,7 +162,7 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
     }
 
     // 解析响应体
-    let data: ApiResponse<T>
+    let data: unknown
     try {
       data = await response.json()
     } catch {
@@ -150,16 +173,30 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
       return response as unknown as T
     }
 
-    // 处理业务错误（后端返回的 code 不为 200）
-    if (data.code !== 200) {
-      // 如果是 401，处理未授权
-      if (data.code === 401) {
-        handleUnauthorized(authMode)
+    // 响应不是 { code, message, data } 信封格式（如 FastAPI 原生校验错误），按 HTTP 状态处理
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      typeof (data as { code?: unknown }).code !== 'number'
+    ) {
+      if (!response.ok) {
+        throw new ApiError(response.status, extractErrorMessage(data) || `HTTP ${response.status}`)
       }
-      throw new ApiError(data.code, data.message, data.data)
+      return data as T
     }
 
-    return data.data
+    const envelope = data as ApiResponse<T>
+
+    // 处理业务错误（后端返回的 code 不为 200）
+    if (envelope.code !== 200) {
+      // 如果是 401，处理未授权
+      if (envelope.code === 401) {
+        handleUnauthorized(authMode)
+      }
+      throw new ApiError(envelope.code, envelope.message, envelope.data)
+    }
+
+    return envelope.data
   } catch (error) {
     if (error instanceof ApiError) {
       throw error
