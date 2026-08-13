@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.3](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.2...kx-exam-system-frontend-v0.1.3) (2026-08-13)
+
+
+### ✨ Features
+
+* **dashboard:** 最近异常卡片标注 30 分钟窗口，表格限高滚动 ([b641195](https://github.com/FishCat233/kx-exam-system-frontend/commit/b641195a04211e9d1262fb59ec06e3598763a153))
+
+
+### 🐛 Fixes
+
+* **admin:** 修复批量导入考生失败时无提示，支持 Tab 分隔 ([f4a05d7](https://github.com/FishCat233/kx-exam-system-frontend/commit/f4a05d7da6fcce67270243a0857e9bfdcf2d2ab7))
+* **deploy:** 修复 Caddyfile log 指令位置错误，完善缓存响应头 ([72fae38](https://github.com/FishCat233/kx-exam-system-frontend/commit/72fae381c4b78ffe3a37f39dbf2c016bca18660e))
+
+
+### ⚡ Performance
+
+* 路由懒加载与代码分割，首屏体积从 967KB 降至 85KB ([31b79fe](https://github.com/FishCat233/kx-exam-system-frontend/commit/31b79fe67ebecae5ba990826b44d18b76b9f4561))
+
 ## [0.1.2](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.1...kx-exam-system-frontend-v0.1.2) (2026-08-13)
 
 
