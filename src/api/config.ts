@@ -17,6 +17,10 @@ export const API_ENDPOINTS = {
     SAVE: (problemId: number) => `/api/code/${problemId}`,
     SUBMIT: '/api/code/submit',
   },
+  // WebSocket 兜底上报
+  WS: {
+    REPORT: '/api/ws/report',
+  },
   // 管理员相关
   ADMIN: {
     LIST: '/api/admin/admins',

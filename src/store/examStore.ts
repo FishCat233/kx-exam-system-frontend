@@ -32,6 +32,9 @@ interface ExamState {
   // WebSocket 状态
   wsStatus: WebSocketStatus
 
+  // 是否曾经成功建立过 WebSocket 连接（决定是否解锁答题）
+  wsHasConnected: boolean
+
   // 考试状态
   examStatus: ExamStatus
 
@@ -46,6 +49,7 @@ interface ExamState {
   syncProblems: (problems: Problem[]) => void
   setCurrentProblemId: (problemId: number) => void
   setWsStatus: (status: WebSocketStatus) => void
+  setWsHasConnected: (connected: boolean) => void
   setExamStatus: (status: ExamStatus) => void
   setPendingSubmit: (pending: boolean) => void
 
@@ -78,6 +82,7 @@ const initialState = {
   currentProblemId: null,
   codes: new Map<number, CodeState>(),
   wsStatus: 'disconnected' as WebSocketStatus,
+  wsHasConnected: false,
   examStatus: 'ongoing' as ExamStatus,
   pendingSubmit: false,
 }
@@ -137,6 +142,8 @@ export const useExamStore = create<ExamState>((set, get) => ({
   setCurrentProblemId: (problemId) => set({ currentProblemId: problemId }),
 
   setWsStatus: (wsStatus) => set({ wsStatus }),
+
+  setWsHasConnected: (connected) => set({ wsHasConnected: connected }),
 
   setExamStatus: (examStatus) => set({ examStatus }),
 

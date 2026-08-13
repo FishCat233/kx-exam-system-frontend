@@ -14,6 +14,8 @@ import { SubmitFlow } from '../../components/main/SubmitFlow'
 import { SystemNotice } from '../../components/main/SystemNotice'
 import { TabSwitchDetector } from '../../components/main/TabSwitchDetector'
 import { WebSocketProvider } from '../../components/main/WebSocketProvider'
+import { WsGate } from '../../components/main/WsGate'
+import { WsReconnectNotice } from '../../components/main/WsReconnectNotice'
 import { useExamStore } from '../../store/examStore'
 import { getStudentSession, saveStudentSession } from '../../utils/studentSession'
 
@@ -110,44 +112,47 @@ function MainPageInner() {
 
   return (
     <>
-      <ExamShell
-        statusBar={
-          <StatusBar
-            onRefreshProblems={handleRefreshProblems}
-            refreshingProblems={refreshingProblems}
-          />
-        }
-      >
-        <div className="flex-1 min-h-0 p-3 lg:p-4">
-          <div className="flex h-full min-h-0 flex-col overflow-hidden card-base">
-            <div className="flex items-center justify-between gap-4 border-b border-kx-surface0 bg-white px-4 py-2 lg:px-6">
-              <h1 className="min-w-0 truncate text-sm font-medium text-kx-text">
-                {examInfo?.name}
-              </h1>
-              <p className="shrink-0 text-xs text-kx-subtext">
-                共 <span className="data-mono">{problems.length}</span> 题 · 已保存{' '}
-                <span className="data-mono text-kx-green">
-                  {savedProblemCount}/{problems.length}
-                </span>
-              </p>
-            </div>
-
-            <div className="flex-1 min-h-0 flex flex-col xl:flex-row">
-              <div className="flex min-h-0 border-b border-kx-surface0 xl:w-[52%] xl:border-b-0 xl:border-r">
-                <ProblemNav onSelectProblem={handleSelectProblem} />
-                <ProblemContent />
+      <WsGate>
+        <ExamShell
+          statusBar={
+            <StatusBar
+              onRefreshProblems={handleRefreshProblems}
+              refreshingProblems={refreshingProblems}
+            />
+          }
+        >
+          <div className="flex-1 min-h-0 p-3 lg:p-4">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden card-base">
+              <div className="flex items-center justify-between gap-4 border-b border-kx-surface0 bg-white px-4 py-2 lg:px-6">
+                <h1 className="min-w-0 truncate text-sm font-medium text-kx-text">
+                  {examInfo?.name}
+                </h1>
+                <p className="shrink-0 text-xs text-kx-subtext">
+                  共 <span className="data-mono">{problems.length}</span> 题 · 已保存{' '}
+                  <span className="data-mono text-kx-green">
+                    {savedProblemCount}/{problems.length}
+                  </span>
+                </p>
               </div>
-              <div className="min-h-0 xl:w-[48%]">
-                <CodeEditor onSave={handleSaveCode} />
+
+              <div className="flex-1 min-h-0 flex flex-col xl:flex-row">
+                <div className="flex min-h-0 border-b border-kx-surface0 xl:w-[52%] xl:border-b-0 xl:border-r">
+                  <ProblemNav onSelectProblem={handleSelectProblem} />
+                  <ProblemContent />
+                </div>
+                <div className="min-h-0 xl:w-[48%]">
+                  <CodeEditor onSave={handleSaveCode} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </ExamShell>
-      <SystemNotice />
-      <FullscreenGuard />
-      <TabSwitchDetector />
-      <SubmitFlow />
+        </ExamShell>
+        <SystemNotice />
+        <FullscreenGuard />
+        <TabSwitchDetector />
+        <SubmitFlow />
+      </WsGate>
+      <WsReconnectNotice />
     </>
   )
 }

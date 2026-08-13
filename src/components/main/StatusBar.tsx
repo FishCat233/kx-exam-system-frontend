@@ -35,6 +35,7 @@ const wsColorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
   connected: 'green',
   connecting: 'yellow',
   disconnected: 'red',
+  failed: 'red',
 }
 
 const examColorMap: Record<string, 'green' | 'yellow' | 'red' | 'gray'> = {
@@ -52,6 +53,8 @@ function WsStatusIcon({ status }: { status: WebSocketStatus }) {
         return { label: '连接中', animate: true }
       case 'disconnected':
         return { label: '已断开', animate: true }
+      case 'failed':
+        return { label: '连接失败', animate: true }
       default:
         return { label: '未知', animate: false }
     }

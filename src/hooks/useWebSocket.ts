@@ -9,7 +9,11 @@ interface UseWebSocketOptions {
   onMessage?: (message: WebSocketMessage) => void
   onConnect?: () => void
   onDisconnect?: () => void
+  onReconnectFailed?: () => void
 }
+
+const MAX_RECONNECT_ATTEMPTS = 5
+const RECONNECT_DELAY_MS = 3000
 
 export function useWebSocket({
   url,
@@ -17,15 +21,18 @@ export function useWebSocket({
   onMessage,
   onConnect,
   onDisconnect,
+  onReconnectFailed,
 }: UseWebSocketOptions) {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const optionsRef = useRef({ onMessage, onConnect, onDisconnect })
+  const optionsRef = useRef({ onMessage, onConnect, onDisconnect, onReconnectFailed })
+  const connectRef = useRef<() => void>(() => {})
   const setWsStatus = useExamStore((state) => state.setWsStatus)
+  const setWsHasConnected = useExamStore((state) => state.setWsHasConnected)
 
   useEffect(() => {
-    optionsRef.current = { onMessage, onConnect, onDisconnect }
+    optionsRef.current = { onMessage, onConnect, onDisconnect, onReconnectFailed }
   })
 
   const disconnect = useCallback(() => {
@@ -78,6 +85,7 @@ export function useWebSocket({
 
         ws.onopen = () => {
           setWsStatus('connected')
+          setWsHasConnected(true)
           reconnectCountRef.current = 0
           optionsRef.current.onConnect?.()
 
@@ -105,7 +113,6 @@ export function useWebSocket({
         }
 
         ws.onclose = (event) => {
-          setWsStatus('disconnected')
           optionsRef.current.onDisconnect?.()
 
           if (heartbeatRef.current) {
@@ -113,10 +120,17 @@ export function useWebSocket({
             heartbeatRef.current = null
           }
 
-          // 自动重连（最多5次）
-          if (reconnectCountRef.current < 5 && !event.wasClean) {
+          if (!event.wasClean && reconnectCountRef.current < MAX_RECONNECT_ATTEMPTS) {
+            // 自动重连（最多 5 次）
+            setWsStatus('disconnected')
             reconnectCountRef.current += 1
-            setTimeout(connect, 3000)
+            setTimeout(connect, RECONNECT_DELAY_MS)
+          } else if (!event.wasClean) {
+            // 重连耗尽，通过 HTTP 兜底上报
+            setWsStatus('failed')
+            optionsRef.current.onReconnectFailed?.()
+          } else {
+            setWsStatus('disconnected')
           }
         }
 
@@ -126,19 +140,29 @@ export function useWebSocket({
 
         wsRef.current = ws
       } catch {
-        setWsStatus('disconnected')
+        // 构造异常（如 URL 非法），不会触发 onclose，直接兜底上报
+        setWsStatus('failed')
+        optionsRef.current.onReconnectFailed?.()
       }
     }
 
+    connectRef.current = connect
     connect()
 
     return () => {
       disconnect()
     }
-  }, [url, token, disconnect, setWsStatus])
+  }, [url, token, disconnect, setWsStatus, setWsHasConnected])
+
+  // 手动重连：重置重连计数后重新发起连接
+  const reconnect = useCallback(() => {
+    reconnectCountRef.current = 0
+    connectRef.current()
+  }, [])
 
   return {
     sendMessage,
     disconnect,
+    reconnect,
   }
 }

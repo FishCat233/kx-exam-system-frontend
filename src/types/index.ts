@@ -47,7 +47,7 @@ export interface StudentCode {
 
 export type ExamStatus = 'ongoing' | 'warning' | 'ending'
 
-export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting'
+export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting' | 'failed'
 
 export interface WebSocketMessage {
   type: string

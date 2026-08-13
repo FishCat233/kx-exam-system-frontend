@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useCallback, useRef } from 'react'
 
+import { reportWsFailure } from '../../api/studentWs'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import { useExamStore } from '../../store/examStore'
 import type { WebSocketMessage } from '../../types'
@@ -31,12 +32,20 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     }
   }, [])
 
-  const { sendMessage, disconnect } = useWebSocket({
+  // WS 连不上时通过 HTTP 兜底上报，让后台能看到 critical 日志
+  const handleReconnectFailed = useCallback(() => {
+    reportWsFailure('重连失败').catch(() => {
+      // 上报失败无计可施，静默忽略
+    })
+  }, [])
+
+  const { sendMessage, disconnect, reconnect } = useWebSocket({
     url: wsUrl ?? '',
     onMessage: handleMessage,
+    onReconnectFailed: handleReconnectFailed,
   })
 
-  const contextValue = { sendMessage, subscribe, disconnect }
+  const contextValue = { sendMessage, subscribe, disconnect, reconnect }
 
   return <WebSocketContext.Provider value={contextValue}>{children}</WebSocketContext.Provider>
 }
