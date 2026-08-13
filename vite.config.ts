@@ -1,8 +1,11 @@
+import { readFileSync } from 'fs'
 import path from 'path'
 
 import react from '@vitejs/plugin-react'
 import UnoCSS from 'unocss/vite'
 import { defineConfig, loadEnv } from 'vite'
+
+const packageJson = JSON.parse(readFileSync(path.resolve(__dirname, './package.json'), 'utf-8'))
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -12,6 +15,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), UnoCSS()],
+    define: {
+      __APP_VERSION__: JSON.stringify(packageJson.version),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

@@ -174,7 +174,7 @@ export default function LoginPage() {
       </div>
 
       <footer className="mt-6 space-y-1 text-center text-xs text-white/70">
-        <div>GUET SAST 考试系统</div>
+        <div>GUET SAST 考试系统 (v{__APP_VERSION__})</div>
         <div>桂电三院科协 © 2026 :: Site Powered by ❤️.</div>
       </footer>
     </div>
