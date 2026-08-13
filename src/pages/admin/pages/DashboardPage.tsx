@@ -244,7 +244,7 @@ export function DashboardPage() {
         title={
           <Space>
             <WarningOutlined />
-            <span>最近异常记录</span>
+            <span>最近 30 分钟异常记录</span>
             <Tag color="red">{data?.recentLogs.length || 0}</Tag>
           </Space>
         }
@@ -257,7 +257,7 @@ export function DashboardPage() {
           rowKey="id"
           pagination={false}
           size="small"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 360 }}
         />
       </Card>
     </div>
