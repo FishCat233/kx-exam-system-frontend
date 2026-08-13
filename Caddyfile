@@ -3,7 +3,15 @@
 }
 
 :80 {
+    # 访问日志（站点级指令，不能放在 handle 内）
+    log {
+        output stdout
+        format json
+    }
+
     handle /api/* {
+        # API 响应禁止缓存，避免考试数据陈旧
+        header Cache-Control "no-store"
         reverse_proxy backend:8000
     }
 
@@ -17,17 +25,14 @@
         # 启用 gzip 压缩
         encode gzip
 
+        # index.html 每次回源验证：发布后旧页面引用的 hash 文件已被删除，缓存会白屏
+        header /index.html Cache-Control "no-cache"
+
         # 静态文件服务
         file_server
 
         # SPA 路由回退 - 所有路由都返回 index.html
         try_files {path} /index.html
-
-        # 日志
-        log {
-            output stdout
-            format json
-        }
 
         # 安全响应头
         header {
