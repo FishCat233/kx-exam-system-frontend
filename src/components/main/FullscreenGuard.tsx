@@ -17,7 +17,7 @@ export function FullscreenGuard() {
       await requestFullscreenMode()
     } catch (error) {
       setRestoreError(
-        error instanceof Error ? error.message : '恢复全屏失败，请手动按 F11 进入全屏。'
+        error instanceof Error ? error.message : '恢复全屏失败，请重试或联系监考老师。'
       )
     } finally {
       setRestoring(false)
@@ -44,6 +44,24 @@ export function FullscreenGuard() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
   }, [sendMessage])
+
+  // F11 拦截：浏览器窗口全屏对 Fullscreen API 不可见，统一重定向为 API 全屏
+  useEffect(() => {
+    const handleF11Keydown = (event: KeyboardEvent) => {
+      if (event.code !== 'F11') {
+        return
+      }
+      event.preventDefault()
+      if (!document.fullscreenElement && !restoring) {
+        void restoreFullscreen()
+      }
+    }
+
+    window.addEventListener('keydown', handleF11Keydown)
+    return () => {
+      window.removeEventListener('keydown', handleF11Keydown)
+    }
+  }, [restoreFullscreen, restoring])
 
   if (isFullscreen) {
     return null
