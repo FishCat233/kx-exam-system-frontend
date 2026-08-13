@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react'
 
 import { fetchStudentCode, saveStudentCode } from '@/api'
-import { fetchPublicExamDetail } from '@/api/studentExam'
+import { fetchStudentExamProblems } from '@/api/studentExam'
 
+import { AutoSaveBackup } from '../../components/main/AutoSaveBackup'
 import { CodeEditor } from '../../components/main/CodeEditor'
 import { ExamBootstrap } from '../../components/main/ExamBootstrap'
 import { ExamShell } from '../../components/main/ExamShell'
@@ -13,10 +14,11 @@ import { StatusBar } from '../../components/main/StatusBar'
 import { SubmitFlow } from '../../components/main/SubmitFlow'
 import { SystemNotice } from '../../components/main/SystemNotice'
 import { TabSwitchDetector } from '../../components/main/TabSwitchDetector'
-import { useWebSocketContext } from '../../components/main/WebSocketContext'
 import { WebSocketProvider } from '../../components/main/WebSocketProvider'
+import { WsGate } from '../../components/main/WsGate'
+import { WsReconnectNotice } from '../../components/main/WsReconnectNotice'
 import { useExamStore } from '../../store/examStore'
-import { saveStudentSession } from '../../utils/studentSession'
+import { getStudentSession, saveStudentSession } from '../../utils/studentSession'
 
 function getExamUiStatus(endTime: string): 'ongoing' | 'warning' | 'ending' {
   const remainingMs = new Date(endTime).getTime() - Date.now()
@@ -28,6 +30,7 @@ function getExamUiStatus(endTime: string): 'ongoing' | 'warning' | 'ending' {
 
 function MainPageInner() {
   const problems = useExamStore((state) => state.problems)
+  const examInfo = useExamStore((state) => state.examInfo)
   const setCurrentProblemId = useExamStore((state) => state.setCurrentProblemId)
   const markSaving = useExamStore((state) => state.markSaving)
   const markSaved = useExamStore((state) => state.markSaved)
@@ -38,10 +41,7 @@ function MainPageInner() {
   const setExamStatus = useExamStore((state) => state.setExamStatus)
   const hydrateCodes = useExamStore((state) => state.hydrateCodes)
 
-  const { sendMessage } = useWebSocketContext()
-
   const [refreshingProblems, setRefreshingProblems] = useState(false)
-
   const savedProblemCount = useExamStore(
     (state) => problems.filter((p) => state.codes.get(p.id)?.savedAt).length
   )
@@ -54,20 +54,18 @@ function MainPageInner() {
   )
 
   const handleSaveCode = useCallback(
-    async (problemId: number, code: string) => {
+    async (problemId: number, code: string): Promise<boolean> => {
       markSaving(problemId)
       try {
         const result = await saveStudentCode(problemId, code)
         markSaved(problemId, result.savedAt)
-        sendMessage({
-          type: 'code_save',
-          data: { problem_id: problemId, saved_at: result.savedAt },
-        })
+        return true
       } catch {
         clearSaving(problemId)
+        return false
       }
     },
-    [markSaving, markSaved, clearSaving, sendMessage]
+    [markSaving, markSaved, clearSaving]
   )
 
   const handleRefreshProblems = useCallback(async () => {
@@ -76,7 +74,7 @@ function MainPageInner() {
 
     setRefreshingProblems(true)
     try {
-      const examDetail = await fetchPublicExamDetail(state.examInfo.id)
+      const examDetail = await fetchStudentExamProblems()
       const nextProblems = examDetail.problems.length > 0 ? examDetail.problems : state.problems
       const existingIds = new Set(state.problems.map((p) => p.id))
       const newIds = nextProblems.filter((p) => !existingIds.has(p.id)).map((p) => p.id)
@@ -96,12 +94,13 @@ function MainPageInner() {
         hydrateCodes(snapshots)
       }
 
-      // 更新 sessionStorage
+      // 更新 sessionStorage（保留原有 token）
       const current = useExamStore.getState()
+      const existing = getStudentSession()
       if (current.examInfo) {
         saveStudentSession({
-          studentToken: '',
-          websocketToken: '',
+          studentToken: existing?.studentToken ?? '',
+          websocketToken: existing?.websocketToken ?? '',
           wsUrl: current.wsUrl ?? '',
           examInfo: current.examInfo,
           problems: current.problems,
@@ -114,46 +113,48 @@ function MainPageInner() {
 
   return (
     <>
-      <ExamShell
-        statusBar={
-          <StatusBar
-            onRefreshProblems={handleRefreshProblems}
-            refreshingProblems={refreshingProblems}
-          />
-        }
-      >
-        <div className="flex-1 min-h-0 p-3 lg:p-4">
-          <div className="flex h-full min-h-0 flex-col overflow-hidden card-base rounded-3xl">
-            <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 backdrop-blur lg:px-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div className="min-w-0">
-                  <div className="section-label text-xs">Kexie Online Exam</div>
-                  <h1 className="mt-1 truncate text-xl font-bold text-slate-900 lg:text-2xl">
-                    考试中
-                  </h1>
-                  <p className="mt-1 text-sm text-slate-500">
-                    共 {problems.length} 题 · 已保存 {savedProblemCount}/{problems.length}
-                  </p>
+      <WsGate>
+        <ExamShell
+          statusBar={
+            <StatusBar
+              onRefreshProblems={handleRefreshProblems}
+              refreshingProblems={refreshingProblems}
+            />
+          }
+        >
+          <div className="flex-1 min-h-0 p-3 lg:p-4">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden card-base">
+              <div className="flex items-center justify-between gap-4 border-b border-kx-surface0 bg-white px-4 py-2 lg:px-6">
+                <h1 className="min-w-0 truncate text-sm font-medium text-kx-text">
+                  {examInfo?.name}
+                </h1>
+                <p className="shrink-0 text-xs text-kx-subtext">
+                  共 <span className="data-mono">{problems.length}</span> 题 · 已保存{' '}
+                  <span className="data-mono text-kx-text">
+                    {savedProblemCount}/{problems.length}
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex-1 min-h-0 flex flex-col xl:flex-row">
+                <div className="flex min-h-0 border-b border-kx-surface0 xl:w-[52%] xl:border-b-0 xl:border-r">
+                  <ProblemNav onSelectProblem={handleSelectProblem} />
+                  <ProblemContent />
+                </div>
+                <div className="min-h-0 xl:w-[48%]">
+                  <CodeEditor onSave={handleSaveCode} />
                 </div>
               </div>
             </div>
-
-            <div className="flex-1 min-h-0 flex flex-col xl:flex-row">
-              <div className="flex min-h-0 border-b border-slate-200 xl:w-[52%] xl:border-b-0 xl:border-r">
-                <ProblemNav onSelectProblem={handleSelectProblem} />
-                <ProblemContent />
-              </div>
-              <div className="min-h-0 xl:w-[48%]">
-                <CodeEditor onSave={handleSaveCode} />
-              </div>
-            </div>
           </div>
-        </div>
-      </ExamShell>
-      <SystemNotice />
-      <FullscreenGuard />
-      <TabSwitchDetector />
-      <SubmitFlow />
+        </ExamShell>
+        <SystemNotice />
+        <FullscreenGuard />
+        <TabSwitchDetector />
+        <SubmitFlow />
+        <AutoSaveBackup />
+      </WsGate>
+      <WsReconnectNotice />
     </>
   )
 }

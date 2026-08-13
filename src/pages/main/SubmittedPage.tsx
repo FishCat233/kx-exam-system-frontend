@@ -27,39 +27,39 @@ export function SubmittedPage() {
   return (
     <PageContainer>
       <ContentCard className="max-w-2xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-kx-green">
+          <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
 
         <div className="mt-6 text-center">
-          <SectionLabel>Exam Finished</SectionLabel>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">{pageTitle}</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-500">
+          <SectionLabel className="text-sm">Exam Finished</SectionLabel>
+          <h1 className="mt-2 text-3xl font-bold text-kx-text">{pageTitle}</h1>
+          <p className="mt-3 text-sm leading-6 text-kx-text">
             {state?.forced
               ? '本场考试已被系统或监考端结束，当前答题状态已经停止。'
               : '您的答卷已提交，系统已记录本次考试结果。'}
           </p>
         </div>
 
-        <div className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div className="mt-8 space-y-4 border-t border-kx-surface0 pt-6">
           <div>
-            <div className="text-sm text-slate-500">考试名称</div>
-            <div className="mt-1 text-base font-medium text-slate-900">
+            <div className="text-sm text-kx-subtext">考试名称</div>
+            <div className="mt-1 text-base font-medium text-kx-text">
               {state?.examName || 'C 语言考试'}
             </div>
           </div>
           <div>
-            <div className="text-sm text-slate-500">完成时间</div>
-            <div className="mt-1 text-base font-medium text-slate-900">
+            <div className="text-sm text-kx-subtext">完成时间</div>
+            <div className="mt-1 data-mono text-base font-medium text-kx-text">
               {formatTime(state?.submitTime)}
             </div>
           </div>
           {state?.forced && (
             <div>
-              <div className="text-sm text-slate-500">结束原因</div>
-              <div className="mt-1 text-base font-medium text-red-600">
+              <div className="text-sm text-kx-red">结束原因</div>
+              <div className="mt-1 text-base font-medium text-kx-red">
                 {state.reason || '系统强制收卷'}
               </div>
             </div>
@@ -70,7 +70,7 @@ export function SubmittedPage() {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className="btn-primary rounded-2xl px-6 py-3 text-sm"
+            className="btn-primary px-6 py-3 text-sm"
           >
             返回登录页
           </button>

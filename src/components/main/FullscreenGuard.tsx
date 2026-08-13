@@ -1,21 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import screenfull from 'screenfull'
+
+import { requestFullscreenMode } from '@/utils/fullscreen'
 
 import { useWebSocketContext } from './WebSocketContext'
-
-async function requestFullscreenMode(): Promise<void> {
-  if (screenfull.isEnabled) {
-    await screenfull.request(document.documentElement)
-    return
-  }
-
-  if (document.documentElement.requestFullscreen) {
-    await document.documentElement.requestFullscreen()
-    return
-  }
-
-  throw new Error('当前浏览器不支持全屏模式')
-}
 
 export function FullscreenGuard() {
   const { sendMessage } = useWebSocketContext()
@@ -30,7 +17,7 @@ export function FullscreenGuard() {
       await requestFullscreenMode()
     } catch (error) {
       setRestoreError(
-        error instanceof Error ? error.message : '恢复全屏失败，请手动按 F11 进入全屏。'
+        error instanceof Error ? error.message : '恢复全屏失败，请重试或联系监考老师。'
       )
     } finally {
       setRestoring(false)
@@ -58,45 +45,64 @@ export function FullscreenGuard() {
     }
   }, [sendMessage])
 
+  // F11 拦截：浏览器窗口全屏对 Fullscreen API 不可见，统一重定向为 API 全屏
+  useEffect(() => {
+    const handleF11Keydown = (event: KeyboardEvent) => {
+      if (event.code !== 'F11') {
+        return
+      }
+      event.preventDefault()
+      if (!document.fullscreenElement && !restoring) {
+        void restoreFullscreen()
+      }
+    }
+
+    window.addEventListener('keydown', handleF11Keydown)
+    return () => {
+      window.removeEventListener('keydown', handleF11Keydown)
+    }
+  }, [restoreFullscreen, restoring])
+
   if (isFullscreen) {
     return null
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg
-            className="w-8 h-8 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-kx-red px-6">
+      <svg
+        className="h-28 w-28 text-white"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+      <h3 className="m-0 text-center text-6xl font-black tracking-wider text-white">
+        全屏模式已退出
+      </h3>
+      <p className="text-center text-xl font-medium text-white/90">
+        您已退出全屏模式，请立即恢复全屏以继续考试。
+      </p>
+
+      {restoreError && (
+        <div className="rounded-md bg-kx-dark/70 px-4 py-2 text-base font-bold text-white">
+          {restoreError}
         </div>
-        <h3 className="text-xl font-bold text-slate-800 mb-2">全屏模式已退出</h3>
-        <p className="text-slate-600 mb-4">您已退出全屏模式，请立即恢复全屏以继续考试。</p>
+      )}
 
-        {restoreError && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
-            {restoreError}
-          </div>
-        )}
-
-        <button
-          onClick={() => void restoreFullscreen()}
-          disabled={restoring}
-          className="btn-primary px-6 py-2"
-        >
-          {restoring ? '恢复中...' : '恢复全屏'}
-        </button>
-      </div>
+      <button
+        onClick={() => void restoreFullscreen()}
+        disabled={restoring}
+        className="mt-2 rounded-md bg-white px-10 py-4 text-xl font-black text-kx-red transition-colors hover:bg-kx-mantle disabled:bg-kx-mantle disabled:text-kx-subtext"
+      >
+        {restoring ? '恢复中...' : '恢复全屏'}
+      </button>
     </div>
   )
 }

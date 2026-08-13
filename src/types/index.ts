@@ -6,14 +6,12 @@ export interface ExamInfo {
   startTime: string
   endTime: string
   status?: string
-  pledgeContent?: string
 }
 
 export interface LoginFormData {
   studentId: string
   name: string
   loginCode: string
-  pledgeAgreed: boolean
 }
 
 export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice'
@@ -37,7 +35,7 @@ export interface Problem {
 export interface ProblemSummary {
   id: number
   title: string
-  type: ProblemType
+  type?: ProblemType
   orderNum: number
 }
 
@@ -49,7 +47,7 @@ export interface StudentCode {
 
 export type ExamStatus = 'ongoing' | 'warning' | 'ending'
 
-export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting'
+export type WebSocketStatus = 'connected' | 'disconnected' | 'connecting' | 'failed'
 
 export interface WebSocketMessage {
   type: string

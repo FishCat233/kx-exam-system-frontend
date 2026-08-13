@@ -5,16 +5,17 @@ interface StatusDotProps {
 }
 
 const colorMap = {
-  green: 'bg-green-500',
-  red: 'bg-red-500',
-  yellow: 'bg-yellow-500',
-  gray: 'bg-slate-500',
+  green: 'text-kx-green',
+  red: 'text-kx-red',
+  yellow: 'text-kx-yellow',
+  gray: 'text-kx-subtext',
 } as const
 
 export function StatusDot({ color, animate = false, className }: StatusDotProps) {
   return (
     <span
-      className={`w-2.5 h-2.5 rounded-full ${colorMap[color]} ${animate ? 'animate-pulse' : ''} ${className ?? ''}`}
+      aria-hidden="true"
+      className={`w-2.5 h-2.5 status-dot ${colorMap[color]} ${animate ? 'status-dot--flash' : ''} ${className ?? ''}`}
     />
   )
 }

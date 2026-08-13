@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SaveStatusIndicator } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
@@ -8,49 +8,22 @@ interface ChoiceQuestionProps {
   problemId: number
   problemType: ProblemType
   options: ProblemOption[]
-  onSave: (problemId: number, answer: string) => void
+  onSave: (problemId: number, answer: string) => Promise<boolean>
 }
 
-interface ChoiceQuestionEditorProps extends ChoiceQuestionProps {
-  isDirty: boolean
-  setIsDirty: (dirty: boolean) => void
+interface ChoiceQuestionEditorProps {
+  problemId: number
+  options: ProblemOption[]
+  onSave: (problemId: number, answer: string) => Promise<boolean>
 }
 
-function SingleChoiceEditor({
-  problemId,
-  options,
-  onSave,
-  isDirty,
-  setIsDirty,
-}: ChoiceQuestionEditorProps) {
-  const getCode = useExamStore((state) => state.getCode)
-  const updateCode = useExamStore((state) => state.updateCode)
-
-  const [selectedOption, setSelectedOption] = useState<string>(() => {
-    const codeState = getCode(problemId)
-    return codeState.code || ''
-  })
-
-  const handleSelect = useCallback(
-    (optionId: string) => {
-      setSelectedOption(optionId)
-      setIsDirty(true)
-      updateCode(problemId, optionId)
-    },
-    [problemId, updateCode, setIsDirty]
-  )
-
-  const handleSave = useCallback(() => {
-    onSave(problemId, selectedOption)
-    setIsDirty(false)
-  }, [problemId, selectedOption, onSave, setIsDirty])
-
+function useCtrlSave(onSave: () => void, enabled: boolean) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()
-        if (isDirty) {
-          handleSave()
+        if (enabled) {
+          onSave()
         }
       }
     }
@@ -59,7 +32,68 @@ function SingleChoiceEditor({
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isDirty, handleSave])
+  }, [enabled, onSave])
+}
+
+function ChoiceSaveBar({
+  hint,
+  isDirty,
+  onSave,
+}: {
+  hint: string
+  isDirty: boolean
+  onSave: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between px-6 py-4 border-t border-kx-surface0 bg-white">
+      <div className="text-sm text-kx-text">{hint}</div>
+      <button
+        onClick={onSave}
+        disabled={!isDirty}
+        className={`px-6 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+          isDirty
+            ? 'btn-primary'
+            : 'rounded-md border border-kx-surface0 bg-kx-base text-kx-subtext cursor-not-allowed'
+        }`}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+          />
+        </svg>
+        保存答案
+      </button>
+    </div>
+  )
+}
+
+function useProblemCodeState(problemId: number) {
+  return useExamStore((state) => state.codes.get(problemId))
+}
+
+function SingleChoiceEditor({ problemId, options, onSave }: ChoiceQuestionEditorProps) {
+  const updateCode = useExamStore((state) => state.updateCode)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
+
+  const [selectedOption, setSelectedOption] = useState<string>(() => codeState?.code || '')
+
+  const handleSelect = useCallback(
+    (optionId: string) => {
+      setSelectedOption(optionId)
+      updateCode(problemId, optionId)
+    },
+    [problemId, updateCode]
+  )
+
+  const handleSave = useCallback(async () => {
+    await onSave(problemId, selectedOption)
+  }, [problemId, selectedOption, onSave])
+
+  useCtrlSave(handleSave, isDirty)
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -68,10 +102,10 @@ function SingleChoiceEditor({
           {options.map((option) => (
             <label
               key={option.id}
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+              className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-kx-blue ${
                 selectedOption === option.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                  ? 'border-kx-blue bg-kx-blue'
+                  : 'border-kx-surface1 hover:border-kx-blue'
               }`}
             >
               <input
@@ -80,60 +114,37 @@ function SingleChoiceEditor({
                 value={option.id}
                 checked={selectedOption === option.id}
                 onChange={() => handleSelect(option.id)}
-                className="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500"
+                className="sr-only peer"
               />
               <span
-                className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${
-                  selectedOption === option.id
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-slate-200 text-slate-700'
+                className={`w-8 h-8 data-mono flex items-center justify-center font-bold text-sm rounded-md ${
+                  selectedOption === option.id ? 'bg-white text-kx-blue' : 'bg-kx-base text-kx-text'
                 }`}
               >
                 {option.id}
               </span>
-              <span className="flex-1 text-slate-800">{option.content}</span>
+              <span
+                className={`flex-1 ${selectedOption === option.id ? 'text-white' : 'text-kx-text'}`}
+              >
+                {option.content}
+              </span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <div className="text-sm text-slate-500">请选择一项正确答案</div>
-        <button
-          onClick={handleSave}
-          disabled={!isDirty}
-          className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-            />
-          </svg>
-          保存答案
-        </button>
-      </div>
+      <ChoiceSaveBar hint="请选择一项正确答案" isDirty={isDirty} onSave={handleSave} />
     </div>
   )
 }
 
-function MultipleChoiceEditor({
-  problemId,
-  options,
-  onSave,
-  isDirty,
-  setIsDirty,
-}: ChoiceQuestionEditorProps) {
-  const getCode = useExamStore((state) => state.getCode)
+function MultipleChoiceEditor({ problemId, options, onSave }: ChoiceQuestionEditorProps) {
   const updateCode = useExamStore((state) => state.updateCode)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(() => {
-    const codeState = getCode(problemId)
-    const savedAnswer = codeState.code || ''
+    const savedAnswer = codeState?.code || ''
     return new Set(savedAnswer ? savedAnswer.split(',') : [])
   })
 
@@ -146,33 +157,17 @@ function MultipleChoiceEditor({
         newSelected.add(optionId)
       }
       setSelectedOptions(newSelected)
-      setIsDirty(true)
       updateCode(problemId, Array.from(newSelected).sort().join(','))
     },
-    [problemId, selectedOptions, updateCode, setIsDirty]
+    [problemId, selectedOptions, updateCode]
   )
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const answer = Array.from(selectedOptions).sort().join(',')
-    onSave(problemId, answer)
-    setIsDirty(false)
-  }, [problemId, selectedOptions, onSave, setIsDirty])
+    await onSave(problemId, answer)
+  }, [problemId, selectedOptions, onSave])
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        if (isDirty) {
-          handleSave()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isDirty, handleSave])
+  useCtrlSave(handleSave, isDirty)
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -183,10 +178,10 @@ function MultipleChoiceEditor({
             return (
               <label
                 key={option.id}
-                className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                className={`flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-kx-blue ${
                   isSelected
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                    ? 'border-kx-blue bg-kx-blue'
+                    : 'border-kx-surface1 hover:border-kx-blue'
                 }`}
               >
                 <input
@@ -194,63 +189,66 @@ function MultipleChoiceEditor({
                   value={option.id}
                   checked={isSelected}
                   onChange={() => handleToggle(option.id)}
-                  className="w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                  className="sr-only peer"
                 />
                 <span
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm ${
-                    isSelected ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-700'
+                  className={`w-8 h-8 data-mono flex items-center justify-center font-bold text-sm rounded-md ${
+                    isSelected ? 'bg-white text-kx-blue' : 'bg-kx-base text-kx-text'
                   }`}
                 >
                   {option.id}
                 </span>
-                <span className="flex-1 text-slate-800">{option.content}</span>
+                <span className={`flex-1 ${isSelected ? 'text-white' : 'text-kx-text'}`}>
+                  {option.content}
+                </span>
               </label>
             )
           })}
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <div className="text-sm text-slate-500">已选择 {selectedOptions.size} 项 · 可选择多项</div>
-        <button
-          onClick={handleSave}
-          disabled={!isDirty}
-          className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            isDirty ? 'btn-primary' : 'bg-slate-300 text-slate-500 cursor-not-allowed rounded-lg'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-            />
-          </svg>
-          保存答案
-        </button>
-      </div>
+      <ChoiceSaveBar
+        hint={`已选择 ${selectedOptions.size} 项 · 可选择多项`}
+        isDirty={isDirty}
+        onSave={handleSave}
+      />
     </div>
   )
 }
 
 export function ChoiceQuestion({ problemId, problemType, options, onSave }: ChoiceQuestionProps) {
-  const [isDirty, setIsDirty] = useState(false)
-  const getCode = useExamStore((state) => state.getCode)
-  const codeState = getCode(problemId)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
+
+  // 切题/卸载时自动保存未保存的答案
+  const onSaveRef = useRef(onSave)
+  useEffect(() => {
+    onSaveRef.current = onSave
+  }, [onSave])
+
+  useEffect(() => {
+    const problemIdRef = problemId
+    return () => {
+      const state = useExamStore.getState()
+      const snapshot = state.codes.get(problemIdRef)
+      if (snapshot?.isDirty) {
+        void onSaveRef.current(problemIdRef, snapshot.code)
+      }
+    }
+  }, [problemId])
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-kx-surface0 bg-white">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-700">
+          <span className="text-sm text-kx-text">
             {problemType === 'single_choice' ? '单选题' : '多选题'}
           </span>
           <span
-            className={`px-2 py-0.5 text-xs rounded font-medium ${
+            className={`rounded border px-2 py-0.5 text-xs font-medium ${
               problemType === 'single_choice'
-                ? 'bg-green-100 text-green-600'
-                : 'bg-orange-100 text-orange-600'
+                ? 'border-kx-green text-kx-green'
+                : 'border-kx-blue text-kx-blue'
             }`}
           >
             {problemType === 'single_choice' ? '单选' : '多选'}
@@ -259,29 +257,21 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
 
         <SaveStatusIndicator
           status={
-            codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null
+            codeState?.isSaving
+              ? 'saving'
+              : isDirty
+                ? 'unsaved'
+                : codeState?.savedAt
+                  ? 'saved'
+                  : null
           }
         />
       </div>
 
       {problemType === 'single_choice' ? (
-        <SingleChoiceEditor
-          problemId={problemId}
-          problemType={problemType}
-          options={options}
-          onSave={onSave}
-          isDirty={isDirty}
-          setIsDirty={setIsDirty}
-        />
+        <SingleChoiceEditor problemId={problemId} options={options} onSave={onSave} />
       ) : (
-        <MultipleChoiceEditor
-          problemId={problemId}
-          problemType={problemType}
-          options={options}
-          onSave={onSave}
-          isDirty={isDirty}
-          setIsDirty={setIsDirty}
-        />
+        <MultipleChoiceEditor problemId={problemId} options={options} onSave={onSave} />
       )}
     </div>
   )

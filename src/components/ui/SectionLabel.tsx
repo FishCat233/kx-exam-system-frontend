@@ -4,5 +4,5 @@ interface SectionLabelProps {
 }
 
 export function SectionLabel({ children, className }: SectionLabelProps) {
-  return <span className={`section-label ${className ?? ''}`}>{children}</span>
+  return <span className={`font-medium text-kx-text ${className ?? ''}`}>{children}</span>
 }

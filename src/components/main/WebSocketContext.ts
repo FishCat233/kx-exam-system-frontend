@@ -6,6 +6,7 @@ export interface WebSocketContextValue {
   sendMessage: (message: WebSocketMessage) => boolean
   subscribe: (handler: (message: WebSocketMessage) => void) => () => void
   disconnect: () => void
+  reconnect: () => void
 }
 
 export const WebSocketContext = createContext<WebSocketContextValue | null>(null)

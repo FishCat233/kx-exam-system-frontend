@@ -6,6 +6,7 @@ interface CodeState {
   code: string
   savedAt: string | null
   isSaving: boolean
+  isDirty: boolean
 }
 
 interface CodeSnapshot {
@@ -32,6 +33,9 @@ interface ExamState {
   // WebSocket 状态
   wsStatus: WebSocketStatus
 
+  // 是否曾经成功建立过 WebSocket 连接（决定是否解锁答题）
+  wsHasConnected: boolean
+
   // 考试状态
   examStatus: ExamStatus
 
@@ -46,6 +50,7 @@ interface ExamState {
   syncProblems: (problems: Problem[]) => void
   setCurrentProblemId: (problemId: number) => void
   setWsStatus: (status: WebSocketStatus) => void
+  setWsHasConnected: (connected: boolean) => void
   setExamStatus: (status: ExamStatus) => void
   setPendingSubmit: (pending: boolean) => void
 
@@ -78,6 +83,7 @@ const initialState = {
   currentProblemId: null,
   codes: new Map<number, CodeState>(),
   wsStatus: 'disconnected' as WebSocketStatus,
+  wsHasConnected: false,
   examStatus: 'ongoing' as ExamStatus,
   pendingSubmit: false,
 }
@@ -100,6 +106,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: DEFAULT_CODE,
         savedAt: null,
         isSaving: false,
+        isDirty: false,
       })
     }
     set({ codes })
@@ -115,7 +122,15 @@ export const useExamStore = create<ExamState>((set, get) => ({
 
     for (const problem of problems) {
       const existing = state.codes.get(problem.id)
-      nextCodes.set(problem.id, existing ?? { code: DEFAULT_CODE, savedAt: null, isSaving: false })
+      nextCodes.set(
+        problem.id,
+        existing ?? {
+          code: DEFAULT_CODE,
+          savedAt: null,
+          isSaving: false,
+          isDirty: false,
+        }
+      )
     }
 
     const currentProblemStillExists = problems.some(
@@ -138,6 +153,8 @@ export const useExamStore = create<ExamState>((set, get) => ({
 
   setWsStatus: (wsStatus) => set({ wsStatus }),
 
+  setWsHasConnected: (connected) => set({ wsHasConnected: connected }),
+
   setExamStatus: (examStatus) => set({ examStatus }),
 
   setPendingSubmit: (pending) => set({ pendingSubmit: pending }),
@@ -149,6 +166,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: DEFAULT_CODE,
         savedAt: null,
         isSaving: false,
+        isDirty: false,
       }
     )
   },
@@ -161,6 +179,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       code,
       savedAt: existing?.savedAt || null,
       isSaving: existing?.isSaving || false,
+      isDirty: true,
     })
     set({ codes: newCodes })
   },
@@ -183,6 +202,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       newCodes.set(problemId, {
         ...existing,
         isSaving: false,
+        isDirty: false,
         savedAt: savedAt ?? new Date().toISOString(),
       })
       set({ codes: newCodes })
@@ -209,6 +229,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: snapshot.code,
         savedAt: snapshot.savedAt,
         isSaving: existing?.isSaving ?? false,
+        isDirty: false,
       })
     }
 

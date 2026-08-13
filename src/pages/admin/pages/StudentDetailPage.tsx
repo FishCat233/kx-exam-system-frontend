@@ -142,7 +142,7 @@ export function StudentDetailPage() {
         <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }}>
           <Descriptions.Item label="学号">{student.studentId}</Descriptions.Item>
           <Descriptions.Item label="姓名">{student.name}</Descriptions.Item>
-          <Descriptions.Item label="登陆码">
+          <Descriptions.Item label="登录码">
             <Typography.Text copyable className="font-mono">
               {student.loginCode}
             </Typography.Text>

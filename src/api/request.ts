@@ -39,7 +39,17 @@ function getToken(authMode: RequestConfig['authMode'] = 'admin'): string | null 
   return localStorage.getItem('admin_token')
 }
 
-// 清除认证信息并跳转登录页
+// 业务性 401（如登录凭证错误）透出后端原因，token 类错误统一映射为登录过期
+const TOKEN_ERROR_HINTS = ['token', 'authorization', 'bearer']
+
+function normalizeUnauthorizedDetail(detail: string): string {
+  const lower = detail.toLowerCase()
+  if (TOKEN_ERROR_HINTS.some((hint) => lower.includes(hint))) {
+    return '登录已过期，请重新登录'
+  }
+  return detail
+}
+
 function handleUnauthorized(authMode: RequestConfig['authMode'] = 'admin'): void {
   if (authMode === 'student') {
     clearStudentSession()
@@ -108,8 +118,24 @@ export async function request<T>(endpoint: string, config: RequestConfig = {}): 
 
     // 处理 401 未授权
     if (response.status === 401) {
+      // 优先透出后端具体原因（如登录凭证错误），而非一律判为登录过期
+      let detail = '登录已过期，请重新登录'
+      try {
+        const body = (await response.json()) as { detail?: unknown; message?: unknown }
+        const reason =
+          typeof body?.detail === 'string'
+            ? body.detail
+            : typeof body?.message === 'string'
+              ? body.message
+              : ''
+        if (reason) {
+          detail = normalizeUnauthorizedDetail(reason)
+        }
+      } catch {
+        // 响应体不是 JSON，保留默认文案
+      }
       handleUnauthorized(authMode)
-      throw new ApiError(401, '登录已过期，请重新登录')
+      throw new ApiError(401, detail)
     }
 
     // 解析响应体

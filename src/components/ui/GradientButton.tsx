@@ -4,7 +4,7 @@ interface GradientButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
 
 export function GradientButton({ children, className, ...props }: GradientButtonProps) {
   return (
-    <button className={`btn-gradient ${className ?? ''}`} {...props}>
+    <button className={`btn-primary ${className ?? ''}`} {...props}>
       {children}
     </button>
   )

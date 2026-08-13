@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 
 import 'virtual:uno.css'
+import 'katex/dist/katex.min.css'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

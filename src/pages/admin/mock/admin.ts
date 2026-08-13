@@ -141,41 +141,43 @@ export async function loginAdmin(
   }
 }
 
+const mockAdmins: Admin[] = [
+  {
+    id: 1,
+    username: 'admin',
+    name: '超级管理员',
+    is_active: true,
+    role: 'super_admin',
+    remark: '系统默认超级管理员',
+    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 2,
+    username: 'teacher1',
+    name: '张老师',
+    is_active: true,
+    role: 'admin',
+    remark: 'C语言课程教师',
+    created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 3,
+    username: 'teacher2',
+    name: '李老师',
+    is_active: false,
+    role: 'admin',
+    remark: '已停用账号',
+    created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
 export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
-  const admins: Admin[] = [
-    {
-      id: 1,
-      username: 'admin',
-      name: '超级管理员',
-      is_active: true,
-      role: 'super_admin',
-      remark: '系统默认超级管理员',
-      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 2,
-      username: 'teacher1',
-      name: '张老师',
-      is_active: true,
-      role: 'admin',
-      remark: 'C语言课程教师',
-      created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 3,
-      username: 'teacher2',
-      name: '李老师',
-      is_active: false,
-      role: 'admin',
-      remark: '已停用账号',
-      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]
+  const admins = mockAdmins.map((admin) => ({ ...admin }))
 
   if (isActive !== undefined) {
     return admins.filter((admin) => admin.is_active === isActive)
@@ -214,21 +216,27 @@ export async function createAdmin(
 }
 
 export async function updateAdmin(
-  _id: number,
+  id: number,
   data: UpdateAdminRequest
 ): Promise<{ success: boolean; admin?: Admin; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
+  const index = mockAdmins.findIndex((admin) => admin.id === id)
+  if (index === -1) {
+    return {
+      success: false,
+      message: '管理员不存在',
+    }
+  }
+
   const updatedAdmin: Admin = {
-    id: 1,
-    username: 'teacher1',
-    name: data.name || '张老师',
-    is_active: data.is_active !== undefined ? data.is_active : true,
-    role: 'admin',
-    remark: data.remark || 'C语言课程教师',
-    created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    ...mockAdmins[index],
+    name: data.name ?? mockAdmins[index].name,
+    is_active: data.is_active ?? mockAdmins[index].is_active,
+    remark: data.remark ?? mockAdmins[index].remark,
     updated_at: new Date().toISOString(),
   }
+  mockAdmins[index] = updatedAdmin
 
   return {
     success: true,

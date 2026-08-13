@@ -18,7 +18,9 @@ export async function loginAdmin(
   data: AdminLoginRequest
 ): Promise<{ success: boolean; data?: AdminLoginResponse; message?: string }> {
   try {
-    const result = await http.post<AdminLoginResponse>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, data)
+    const result = await http.post<AdminLoginResponse>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, data, {
+      authMode: 'none',
+    })
     return { success: true, data: result }
   } catch (error) {
     return {
@@ -53,11 +55,6 @@ export async function verifyAdminToken(token: string): Promise<AdminVerifyResult
 export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
   const params = isActive !== undefined ? `?is_active=${isActive}` : ''
   return http.get<Admin[]>(`${API_ENDPOINTS.ADMIN.LIST}${params}`)
-}
-
-// 获取管理员详情
-export async function fetchAdminDetail(id: number): Promise<Admin> {
-  return http.get<Admin>(API_ENDPOINTS.ADMIN.DETAIL(id))
 }
 
 // 创建管理员

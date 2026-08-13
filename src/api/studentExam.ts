@@ -1,4 +1,4 @@
-import type { ExamInfo, Problem } from '@/types'
+import type { ExamInfo, Problem, ProblemOption } from '@/types'
 
 import { API_ENDPOINTS } from './config'
 import { http } from './request'
@@ -11,24 +11,28 @@ interface PublicExamResponse {
   start_time: string
   end_time: string
   status: string
-  pledge_content?: string | null
 }
 
-interface ProblemOptionResponse {
-  id: string
-  content: string
-  is_correct: boolean
-}
-
-interface PublicExamDetailResponse extends PublicExamResponse {
+interface StudentExamProblemsResponse {
+  exam_info: {
+    id: number
+    name: string
+    subject: string
+    duration: number
+    start_time: string
+    end_time: string
+    status: string
+  }
   problems: Array<{
     id: number
     exam_id: number
     title: string
     content: string
     type: 'coding' | 'single_choice' | 'multiple_choice'
-    options: ProblemOptionResponse[] | null
+    options: ProblemOption[] | null
     order_num: number
+    created_at: string
+    updated_at: string
   }>
 }
 
@@ -41,11 +45,10 @@ function mapExamInfo(exam: PublicExamResponse): ExamInfo {
     startTime: exam.start_time,
     endTime: exam.end_time,
     status: exam.status,
-    pledgeContent: exam.pledge_content ?? '',
   }
 }
 
-function mapProblem(problem: PublicExamDetailResponse['problems'][number]): Problem {
+function mapProblem(problem: StudentExamProblemsResponse['problems'][number]): Problem {
   return {
     id: problem.id,
     examId: problem.exam_id,
@@ -62,15 +65,17 @@ export async function fetchPublicExamList(): Promise<ExamInfo[]> {
   return result.map(mapExamInfo)
 }
 
-export async function fetchPublicExamDetail(
-  examId: number
-): Promise<{ examInfo: ExamInfo; problems: Problem[] }> {
-  const result = await http.get<PublicExamDetailResponse>(API_ENDPOINTS.EXAM.DETAIL(examId), {
-    authMode: 'none',
-  })
+export async function fetchStudentExamProblems(): Promise<{
+  examInfo: ExamInfo
+  problems: Problem[]
+}> {
+  const result = await http.get<StudentExamProblemsResponse>(
+    API_ENDPOINTS.STUDENT_SIDE.EXAM_PROBLEMS,
+    { authMode: 'student' }
+  )
 
   return {
-    examInfo: mapExamInfo(result),
+    examInfo: mapExamInfo(result.exam_info),
     problems: result.problems.map(mapProblem).sort((a, b) => a.orderNum - b.orderNum),
   }
 }

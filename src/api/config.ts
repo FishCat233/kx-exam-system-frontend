@@ -15,12 +15,15 @@ export const API_ENDPOINTS = {
   CODE: {
     DETAIL: (problemId: number) => `/api/code/${problemId}`,
     SAVE: (problemId: number) => `/api/code/${problemId}`,
-    SUBMIT: (problemId: number) => `/api/code/${problemId}/submit`,
+    SUBMIT: '/api/code/submit',
+  },
+  // WebSocket 兜底上报
+  WS: {
+    REPORT: '/api/ws/report',
   },
   // 管理员相关
   ADMIN: {
     LIST: '/api/admin/admins',
-    DETAIL: (id: number) => `/api/admin/admins/${id}`,
     CREATE: '/api/admin/admins',
     UPDATE: (id: number) => `/api/admin/admins/${id}`,
     DELETE: (id: number) => `/api/admin/admins/${id}`,
@@ -29,7 +32,7 @@ export const API_ENDPOINTS = {
     FORCE_CHANGE_PASSWORD: (id: number) => `/api/admin/admins/${id}/force-change-password`,
     CHANGE_PASSWORD: '/api/admin/change-password',
   },
-  // 考生相关
+  // 考生管理（管理端）
   STUDENT: {
     LIST: (examId: number) => `/api/admin/exams/${examId}/students`,
     DETAIL: (id: number) => `/api/admin/students/${id}`,
@@ -41,10 +44,13 @@ export const API_ENDPOINTS = {
   DASHBOARD: (examId: number) => `/api/admin/dashboard/${examId}`,
   // 导出
   EXPORT: (examId: number) => `/api/admin/exams/${examId}/export`,
+  // 考生侧
+  STUDENT_SIDE: {
+    EXAM_PROBLEMS: '/api/student/exam/problems',
+  },
   // 考试
   EXAM: {
     LIST: '/api/exams',
-    DETAIL: (id: number) => `/api/exams/${id}`,
     CREATE: '/api/exams',
     UPDATE: (id: number) => `/api/exams/${id}`,
     DELETE: (id: number) => `/api/exams/${id}`,

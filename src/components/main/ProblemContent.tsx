@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { MarkdownRenderer } from '../../components/ui'
+import { MarkdownRenderer, SectionLabel } from '../../components/ui'
 import { useExamStore } from '../../store/examStore'
 
 export const ProblemContent = memo(function ProblemContent() {
@@ -11,10 +11,10 @@ export const ProblemContent = memo(function ProblemContent() {
 
   if (!problem) {
     return (
-      <div className="flex-1 flex items-center justify-center text-slate-400 bg-white">
+      <div className="flex-1 flex items-center justify-center text-kx-subtext bg-white">
         <div className="text-center">
           <svg
-            className="w-12 h-12 mx-auto mb-3 text-slate-300"
+            className="w-12 h-12 mx-auto mb-3 text-kx-subtext"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -35,15 +35,16 @@ export const ProblemContent = memo(function ProblemContent() {
   return (
     <div className="flex-1 bg-white overflow-y-auto">
       <div className="p-6 lg:p-8 max-w-3xl">
-        <div className="mb-6">
-          <h1 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2">
-            {problem.orderNum}. {problem.title}
-          </h1>
-          <div className="flex items-center gap-3 text-sm text-slate-500">
-            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs font-medium">
+        <div className="mb-6 pb-4 border-b border-kx-surface0">
+          <SectionLabel className="text-xs text-kx-subtext">
+            题目 {String(problem.orderNum).padStart(2, '0')}
+          </SectionLabel>
+          <h1 className="mt-1 text-xl lg:text-2xl font-bold text-kx-text">{problem.title}</h1>
+          <div className="mt-2 flex items-center gap-3 text-sm">
+            <span className="rounded border border-kx-blue px-2 py-0.5 text-kx-blue text-xs font-medium">
               C语言
             </span>
-            <span>题目 ID: {problem.id}</span>
+            <span className="data-mono text-kx-subtext">题目 ID: {problem.id}</span>
           </div>
         </div>
 

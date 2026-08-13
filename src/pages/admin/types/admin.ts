@@ -119,7 +119,6 @@ export interface Exam {
   actual_start_time?: string
   actual_end_time?: string
   status: ExamStatus
-  pledge_content: string
   created_at: string
   updated_at: string
 }
@@ -142,7 +141,6 @@ export interface CreateExamRequest {
   duration: number
   start_time: string
   end_time: string
-  pledge_content: string
 }
 
 export interface UpdateExamRequest {
@@ -151,7 +149,6 @@ export interface UpdateExamRequest {
   duration?: number
   start_time?: string
   end_time?: string
-  pledge_content?: string
   status?: ExamStatus
 }
 

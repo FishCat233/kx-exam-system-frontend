@@ -7,18 +7,18 @@ interface InlineAlertProps {
 const variantConfig = {
   error: {
     container: 'alert-error',
-    icon: 'text-red-500',
-    text: 'text-red-600',
+    icon: 'text-kx-red',
+    text: 'text-kx-red',
   },
   warning: {
     container: 'alert-warning',
-    icon: 'text-yellow-500',
-    text: 'text-yellow-700',
+    icon: 'text-kx-yellow',
+    text: 'text-kx-yellow',
   },
   info: {
-    container: 'flex items-center gap-1.5 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg',
-    icon: 'text-blue-500',
-    text: 'text-blue-700',
+    container: 'alert-info',
+    icon: 'text-kx-blue',
+    text: 'text-kx-blue',
   },
 } as const
 
