@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.1...kx-exam-system-frontend-v0.1.2) (2026-08-13)
+
+
+### 🐛 Fixes
+
+* **editor:** 统一 CodeMirror 依赖版本，修复编辑器崩溃 ([53c53c2](https://github.com/FishCat233/kx-exam-system-frontend/commit/53c53c2b35a7a136bceb9a4d07a4b04ef33c5e50))
+
 ## [0.1.1](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.0...kx-exam-system-frontend-v0.1.1) (2026-08-13)
 
 
