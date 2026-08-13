@@ -1,11 +1,19 @@
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
+import 'katex/dist/katex.min.css'
 import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
+import c from 'react-syntax-highlighter/dist/esm/languages/prism/c'
+import cpp from 'react-syntax-highlighter/dist/esm/languages/prism/cpp'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+
+SyntaxHighlighter.registerLanguage('c', c)
+SyntaxHighlighter.registerLanguage('cpp', cpp)
+
+const SUPPORTED_LANGS = ['c', 'cpp']
 
 interface MarkdownRendererProps {
   content: string
@@ -50,10 +58,18 @@ const useMarkdownComponents = () =>
           )
         }
 
+        if (!match || !SUPPORTED_LANGS.includes(match[1])) {
+          return (
+            <pre className="my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-dark p-4 font-mono text-sm text-kx-text">
+              {children}
+            </pre>
+          )
+        }
+
         return (
           <div className="my-4 overflow-hidden rounded-md border border-kx-surface0">
             <SyntaxHighlighter
-              language={match ? match[1] : 'text'}
+              language={match[1]}
               style={vscDarkPlus}
               customStyle={{
                 margin: 0,

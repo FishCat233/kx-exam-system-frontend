@@ -25,5 +25,9 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      // MainPage（考试页）约 570KB，含 CodeMirror 固有体积且已按路由懒加载隔离，调高阈值避免误报
+      chunkSizeWarningLimit: 600,
+    },
   }
 })
