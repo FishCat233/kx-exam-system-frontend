@@ -6,6 +6,7 @@ interface CodeState {
   code: string
   savedAt: string | null
   isSaving: boolean
+  isDirty: boolean
 }
 
 interface CodeSnapshot {
@@ -105,6 +106,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: DEFAULT_CODE,
         savedAt: null,
         isSaving: false,
+        isDirty: false,
       })
     }
     set({ codes })
@@ -120,7 +122,15 @@ export const useExamStore = create<ExamState>((set, get) => ({
 
     for (const problem of problems) {
       const existing = state.codes.get(problem.id)
-      nextCodes.set(problem.id, existing ?? { code: DEFAULT_CODE, savedAt: null, isSaving: false })
+      nextCodes.set(
+        problem.id,
+        existing ?? {
+          code: DEFAULT_CODE,
+          savedAt: null,
+          isSaving: false,
+          isDirty: false,
+        }
+      )
     }
 
     const currentProblemStillExists = problems.some(
@@ -156,6 +166,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: DEFAULT_CODE,
         savedAt: null,
         isSaving: false,
+        isDirty: false,
       }
     )
   },
@@ -168,6 +179,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       code,
       savedAt: existing?.savedAt || null,
       isSaving: existing?.isSaving || false,
+      isDirty: true,
     })
     set({ codes: newCodes })
   },
@@ -190,6 +202,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       newCodes.set(problemId, {
         ...existing,
         isSaving: false,
+        isDirty: false,
         savedAt: savedAt ?? new Date().toISOString(),
       })
       set({ codes: newCodes })
@@ -216,6 +229,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         code: snapshot.code,
         savedAt: snapshot.savedAt,
         isSaving: existing?.isSaving ?? false,
+        isDirty: false,
       })
     }
 

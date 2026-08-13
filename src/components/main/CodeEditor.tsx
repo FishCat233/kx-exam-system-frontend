@@ -6,7 +6,7 @@ import { githubDark, githubLight } from '@uiw/codemirror-theme-github'
 import { material } from '@uiw/codemirror-theme-material'
 import { vscodeDark } from '@uiw/codemirror-theme-vscode'
 import CodeMirror from '@uiw/react-codemirror'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { SaveStatusIndicator } from '../../components/ui'
@@ -48,15 +48,16 @@ interface ProblemCodeEditorProps extends CodeEditorProps {
 }
 
 function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
-  const getCode = useExamStore((state) => state.getCode)
   const updateCode = useExamStore((state) => state.updateCode)
+  const codeState = useExamStore((state) => state.codes.get(problemId))
 
-  const [localCode, setLocalCode] = useState(() => getCode(problemId).code)
-  const [isDirty, setIsDirty] = useState(false)
+  const [localCode, setLocalCode] = useState(() => codeState?.code ?? '')
   const [themeKey, setThemeKey] = useState<ThemeKey>(getStoredTheme)
 
   const currentTheme = THEME_CONFIG[themeKey]
   const isDark = currentTheme.isDark
+
+  const isDirty = codeState?.isDirty ?? false
 
   const handleThemeChange = useCallback((key: ThemeKey) => {
     setThemeKey(key)
@@ -70,17 +71,13 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
   const handleChange = useCallback(
     (value: string) => {
       setLocalCode(value)
-      setIsDirty(true)
       updateCode(problemId, value)
     },
     [problemId, updateCode]
   )
 
   const handleSave = useCallback(async () => {
-    const ok = await onSave(problemId, localCode)
-    if (ok) {
-      setIsDirty(false)
-    }
+    await onSave(problemId, localCode)
   }, [problemId, localCode, onSave])
 
   useEffect(() => {
@@ -95,7 +92,22 @@ function ProblemCodeEditor({ problemId, onSave }: ProblemCodeEditorProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSave])
 
-  const codeState = getCode(problemId)
+  // 切题/卸载时自动保存未保存的代码
+  const onSaveRef = useRef(onSave)
+  useEffect(() => {
+    onSaveRef.current = onSave
+  }, [onSave])
+
+  useEffect(() => {
+    const problemIdRef = problemId
+    return () => {
+      const state = useExamStore.getState()
+      const snapshot = state.codes.get(problemIdRef)
+      if (snapshot?.isDirty) {
+        void onSaveRef.current(problemIdRef, snapshot.code)
+      }
+    }
+  }, [problemId])
 
   return (
     <div className="flex flex-col h-full">

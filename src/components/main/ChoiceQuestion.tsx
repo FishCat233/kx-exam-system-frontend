@@ -11,10 +11,10 @@ interface ChoiceQuestionProps {
   onSave: (problemId: number, answer: string) => Promise<boolean>
 }
 
-interface ChoiceQuestionEditorProps extends ChoiceQuestionProps {
-  isDirty: boolean
-  setIsDirty: (dirty: boolean) => void
-  onAnswerChange: (answer: string) => void
+interface ChoiceQuestionEditorProps {
+  problemId: number
+  options: ProblemOption[]
+  onSave: (problemId: number, answer: string) => Promise<boolean>
 }
 
 function useCtrlSave(onSave: () => void, enabled: boolean) {
@@ -70,38 +70,28 @@ function ChoiceSaveBar({
   )
 }
 
-function SingleChoiceEditor({
-  problemId,
-  options,
-  onSave,
-  isDirty,
-  setIsDirty,
-  onAnswerChange,
-}: ChoiceQuestionEditorProps) {
-  const getCode = useExamStore((state) => state.getCode)
-  const updateCode = useExamStore((state) => state.updateCode)
+function useProblemCodeState(problemId: number) {
+  return useExamStore((state) => state.codes.get(problemId))
+}
 
-  const [selectedOption, setSelectedOption] = useState<string>(() => {
-    const codeState = getCode(problemId)
-    return codeState.code || ''
-  })
+function SingleChoiceEditor({ problemId, options, onSave }: ChoiceQuestionEditorProps) {
+  const updateCode = useExamStore((state) => state.updateCode)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
+
+  const [selectedOption, setSelectedOption] = useState<string>(() => codeState?.code || '')
 
   const handleSelect = useCallback(
     (optionId: string) => {
       setSelectedOption(optionId)
-      setIsDirty(true)
-      onAnswerChange(optionId)
       updateCode(problemId, optionId)
     },
-    [problemId, updateCode, setIsDirty, onAnswerChange]
+    [problemId, updateCode]
   )
 
   const handleSave = useCallback(async () => {
-    const ok = await onSave(problemId, selectedOption)
-    if (ok) {
-      setIsDirty(false)
-    }
-  }, [problemId, selectedOption, onSave, setIsDirty])
+    await onSave(problemId, selectedOption)
+  }, [problemId, selectedOption, onSave])
 
   useCtrlSave(handleSave, isDirty)
 
@@ -148,20 +138,13 @@ function SingleChoiceEditor({
   )
 }
 
-function MultipleChoiceEditor({
-  problemId,
-  options,
-  onSave,
-  isDirty,
-  setIsDirty,
-  onAnswerChange,
-}: ChoiceQuestionEditorProps) {
-  const getCode = useExamStore((state) => state.getCode)
+function MultipleChoiceEditor({ problemId, options, onSave }: ChoiceQuestionEditorProps) {
   const updateCode = useExamStore((state) => state.updateCode)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(() => {
-    const codeState = getCode(problemId)
-    const savedAnswer = codeState.code || ''
+    const savedAnswer = codeState?.code || ''
     return new Set(savedAnswer ? savedAnswer.split(',') : [])
   })
 
@@ -174,20 +157,15 @@ function MultipleChoiceEditor({
         newSelected.add(optionId)
       }
       setSelectedOptions(newSelected)
-      setIsDirty(true)
-      onAnswerChange(Array.from(newSelected).sort().join(','))
       updateCode(problemId, Array.from(newSelected).sort().join(','))
     },
-    [problemId, selectedOptions, updateCode, setIsDirty, onAnswerChange]
+    [problemId, selectedOptions, updateCode]
   )
 
   const handleSave = useCallback(async () => {
     const answer = Array.from(selectedOptions).sort().join(',')
-    const ok = await onSave(problemId, answer)
-    if (ok) {
-      setIsDirty(false)
-    }
-  }, [problemId, selectedOptions, onSave, setIsDirty])
+    await onSave(problemId, answer)
+  }, [problemId, selectedOptions, onSave])
 
   useCtrlSave(handleSave, isDirty)
 
@@ -239,13 +217,10 @@ function MultipleChoiceEditor({
 }
 
 export function ChoiceQuestion({ problemId, problemType, options, onSave }: ChoiceQuestionProps) {
-  const [isDirty, setIsDirty] = useState(false)
-  const getCode = useExamStore((state) => state.getCode)
-  const codeState = getCode(problemId)
+  const codeState = useProblemCodeState(problemId)
+  const isDirty = codeState?.isDirty ?? false
 
   // 切题/卸载时自动保存未保存的答案
-  const latestAnswerRef = useRef<string>(codeState.code || '')
-  const isDirtyRef = useRef(false)
   const onSaveRef = useRef(onSave)
   useEffect(() => {
     onSaveRef.current = onSave
@@ -254,22 +229,13 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
   useEffect(() => {
     const problemIdRef = problemId
     return () => {
-      if (isDirtyRef.current) {
-        void onSaveRef.current(problemIdRef, latestAnswerRef.current)
+      const state = useExamStore.getState()
+      const snapshot = state.codes.get(problemIdRef)
+      if (snapshot?.isDirty) {
+        void onSaveRef.current(problemIdRef, snapshot.code)
       }
     }
   }, [problemId])
-
-  const markDirty = useCallback((answer: string) => {
-    latestAnswerRef.current = answer
-    isDirtyRef.current = true
-    setIsDirty(true)
-  }, [])
-
-  const handleSetDirty = useCallback((dirty: boolean) => {
-    isDirtyRef.current = dirty
-    setIsDirty(dirty)
-  }, [])
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -291,31 +257,21 @@ export function ChoiceQuestion({ problemId, problemType, options, onSave }: Choi
 
         <SaveStatusIndicator
           status={
-            codeState.isSaving ? 'saving' : isDirty ? 'unsaved' : codeState.savedAt ? 'saved' : null
+            codeState?.isSaving
+              ? 'saving'
+              : isDirty
+                ? 'unsaved'
+                : codeState?.savedAt
+                  ? 'saved'
+                  : null
           }
         />
       </div>
 
       {problemType === 'single_choice' ? (
-        <SingleChoiceEditor
-          problemId={problemId}
-          problemType={problemType}
-          options={options}
-          onSave={onSave}
-          isDirty={isDirty}
-          setIsDirty={handleSetDirty}
-          onAnswerChange={markDirty}
-        />
+        <SingleChoiceEditor problemId={problemId} options={options} onSave={onSave} />
       ) : (
-        <MultipleChoiceEditor
-          problemId={problemId}
-          problemType={problemType}
-          options={options}
-          onSave={onSave}
-          isDirty={isDirty}
-          setIsDirty={handleSetDirty}
-          onAnswerChange={markDirty}
-        />
+        <MultipleChoiceEditor problemId={problemId} options={options} onSave={onSave} />
       )}
     </div>
   )

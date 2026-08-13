@@ -47,7 +47,7 @@ const statusConfig = {
   saved: {
     icon: CheckIcon,
     text: '已保存',
-    color: 'text-kx-green',
+    color: 'text-kx-subtext',
   },
 } as const
 

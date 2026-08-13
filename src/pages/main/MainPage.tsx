@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { fetchStudentCode, saveStudentCode } from '@/api'
 import { fetchStudentExamProblems } from '@/api/studentExam'
 
+import { AutoSaveBackup } from '../../components/main/AutoSaveBackup'
 import { CodeEditor } from '../../components/main/CodeEditor'
 import { ExamBootstrap } from '../../components/main/ExamBootstrap'
 import { ExamShell } from '../../components/main/ExamShell'
@@ -129,7 +130,7 @@ function MainPageInner() {
                 </h1>
                 <p className="shrink-0 text-xs text-kx-subtext">
                   共 <span className="data-mono">{problems.length}</span> 题 · 已保存{' '}
-                  <span className="data-mono text-kx-green">
+                  <span className="data-mono text-kx-text">
                     {savedProblemCount}/{problems.length}
                   </span>
                 </p>
@@ -151,6 +152,7 @@ function MainPageInner() {
         <FullscreenGuard />
         <TabSwitchDetector />
         <SubmitFlow />
+        <AutoSaveBackup />
       </WsGate>
       <WsReconnectNotice />
     </>

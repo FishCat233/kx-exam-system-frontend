@@ -60,6 +60,11 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
   const currentProblemId = useExamStore((state) => state.currentProblemId)
   const codes = useExamStore((state) => state.codes)
 
+  const isProblemDirty = (problemId: number): boolean => {
+    const codeState = codes.get(problemId)
+    return codeState?.isDirty ?? false
+  }
+
   const isProblemSaved = (problemId: number): boolean => {
     const codeState = codes.get(problemId)
     return codeState?.savedAt !== null && codeState?.savedAt !== undefined
@@ -77,7 +82,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
       <div className="flex-1 overflow-y-auto py-2">
         {problems.map((problem, index) => {
           const isActive = currentProblemId === problem.id
-          const isSaved = isProblemSaved(problem.id)
+          const isDirty = isProblemDirty(problem.id)
 
           return (
             <button
@@ -121,11 +126,11 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
                   </div>
                 </div>
 
-                {isSaved &&
+                {isDirty &&
                   (isActive ? (
-                    <span aria-hidden="true" className="w-2.5 h-2.5 status-dot text-white" />
+                    <span aria-hidden="true" className="w-2.5 h-2.5 status-dot text-kx-yellow" />
                   ) : (
-                    <StatusDot color="green" />
+                    <StatusDot color="yellow" />
                   ))}
               </div>
             </button>
@@ -136,7 +141,7 @@ export function ProblemNav({ onSelectProblem }: ProblemNavProps) {
       <div className="hidden lg:block p-4 border-t border-kx-surface0">
         <div className="flex items-center justify-between text-xs text-kx-subtext">
           <span>已保存</span>
-          <span className="data-mono font-medium text-kx-green">
+          <span className="data-mono font-medium text-kx-text">
             {problems.filter((p) => isProblemSaved(p.id)).length}/{problems.length}
           </span>
         </div>
