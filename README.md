@@ -23,7 +23,7 @@ pnpm dev          # 启动开发服务器
 开发服务器默认 http://localhost:5173，通过 Vite 代理转发 API 到 8000 端口。
 
 ```bash
-npx tsc --noEmit            # 类型检查
+npx tsc -b                 # 类型检查（必须用 -b：tsc --noEmit 在 solution 风格 tsconfig 下是空检查）
 npx prettier --write .      # 格式化
 npx eslint .                # 代码检查
 ```
