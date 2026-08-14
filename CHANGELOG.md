@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.9](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.8...kx-exam-system-frontend-v0.1.9) (2026-08-14)
+
+
+### 🐛 Fixes
+
+* 语法高亮样式补类型标注，修复 Docker 构建失败 ([a189ebe](https://github.com/FishCat233/kx-exam-system-frontend/commit/a189ebe4d6681a91ed9e1e918377ffd00fa09c09))
+
+
+### 🧰 Chores
+
+* 触发 release-please ([8732ced](https://github.com/FishCat233/kx-exam-system-frontend/commit/8732ced28e80ecc4e975a3f07a7a2a93301f4a91))
+
 ## [0.1.8](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.7...kx-exam-system-frontend-v0.1.8) (2026-08-14)
 
 
