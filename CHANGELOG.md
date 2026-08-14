@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.6](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.5...kx-exam-system-frontend-v0.1.6) (2026-08-14)
+
+
+### ✨ Features
+
+* 填空题空位自动编号，题干与答题区一一对应 ([b822b16](https://github.com/FishCat233/kx-exam-system-frontend/commit/b822b166c6d5f56396c3bc3e2edcad51d48971f6))
+* 考生端与管理端支持填空题 ([26cda28](https://github.com/FishCat233/kx-exam-system-frontend/commit/26cda286adb99c6ac6137e94147a8dd9330e5493))
+* 考试页全局禁选中防插件弹窗，代码块支持一键复制 ([aa9d5b3](https://github.com/FishCat233/kx-exam-system-frontend/commit/aa9d5b3cd2fa969dee66a42a51d4eb69b3d6fc5c))
+
+
+### 🐛 Fixes
+
+* 修复 kx-surface 色板类名未生效的问题 ([c4e7a88](https://github.com/FishCat233/kx-exam-system-frontend/commit/c4e7a88964f6f08b0d5b4aa45b24ea0f5022436e))
+* 修复管理员列表 mock 数据不同步 ([10e4b7e](https://github.com/FishCat233/kx-exam-system-frontend/commit/10e4b7e1c907bae0e359f406b8f33dd57a7bc733))
+
+
+### ♻️ Refactors
+
+* 切屏监控组件重构为 InvisibleMonitor 并统一退出全屏计数 ([da7a884](https://github.com/FishCat233/kx-exam-system-frontend/commit/da7a884c701c03d02155f4566e0c1b2ca4cb7e92))
+
 ## [0.1.5](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.4...kx-exam-system-frontend-v0.1.5) (2026-08-13)
 
 
