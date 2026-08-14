@@ -177,7 +177,9 @@ const mockAdmins: Admin[] = [
 export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
   await new Promise((resolve) => setTimeout(resolve, 300))
 
-  const admins = mockAdmins.map((admin) => ({ ...admin }))
+  const admins = mockAdmins
+    .map((admin) => ({ ...admin }))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   if (isActive !== undefined) {
     return admins.filter((admin) => admin.is_active === isActive)
@@ -208,6 +210,8 @@ export async function createAdmin(
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
+
+  mockAdmins.unshift(newAdmin)
 
   return {
     success: true,
@@ -244,26 +248,62 @@ export async function updateAdmin(
   }
 }
 
-export async function deleteAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+export async function deleteAdmin(id: number): Promise<{ success: boolean; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const index = mockAdmins.findIndex((admin) => admin.id === id)
+  if (index === -1) {
+    return {
+      success: false,
+      message: '管理员不存在',
+    }
+  }
+
+  mockAdmins.splice(index, 1)
 
   return {
     success: true,
   }
 }
 
-export async function deactivateAdmin(
-  _id: number
-): Promise<{ success: boolean; message?: string }> {
+export async function deactivateAdmin(id: number): Promise<{ success: boolean; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const index = mockAdmins.findIndex((admin) => admin.id === id)
+  if (index === -1) {
+    return {
+      success: false,
+      message: '管理员不存在',
+    }
+  }
+
+  mockAdmins[index] = {
+    ...mockAdmins[index],
+    is_active: false,
+    updated_at: new Date().toISOString(),
+  }
 
   return {
     success: true,
   }
 }
 
-export async function activateAdmin(_id: number): Promise<{ success: boolean; message?: string }> {
+export async function activateAdmin(id: number): Promise<{ success: boolean; message?: string }> {
   await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const index = mockAdmins.findIndex((admin) => admin.id === id)
+  if (index === -1) {
+    return {
+      success: false,
+      message: '管理员不存在',
+    }
+  }
+
+  mockAdmins[index] = {
+    ...mockAdmins[index],
+    is_active: true,
+    updated_at: new Date().toISOString(),
+  }
 
   return {
     success: true,
