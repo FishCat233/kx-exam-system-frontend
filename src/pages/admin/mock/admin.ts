@@ -172,6 +172,16 @@ const mockAdmins: Admin[] = [
     created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
   },
+  {
+    id: 4,
+    username: 'teacher3',
+    name: '王老师',
+    is_active: true,
+    role: 'senior_admin',
+    remark: '高级管理员：负责出题与考试配置',
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 ]
 
 export async function fetchAdminList(isActive?: boolean): Promise<Admin[]> {
@@ -205,7 +215,7 @@ export async function createAdmin(
     username: data.username,
     name: data.name || null,
     is_active: true,
-    role: 'admin',
+    role: data.role ?? 'admin',
     remark: data.remark || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -238,6 +248,7 @@ export async function updateAdmin(
     name: data.name ?? mockAdmins[index].name,
     is_active: data.is_active ?? mockAdmins[index].is_active,
     remark: data.remark ?? mockAdmins[index].remark,
+    role: data.role ?? mockAdmins[index].role,
     updated_at: new Date().toISOString(),
   }
   mockAdmins[index] = updatedAdmin

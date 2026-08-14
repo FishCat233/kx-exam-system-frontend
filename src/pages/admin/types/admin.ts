@@ -4,7 +4,7 @@ export type SubmitStatus = 'not_started' | 'in_progress' | 'submitted' | 'force_
 
 export type LogLevel = 'normal' | 'warning' | 'critical'
 
-export type AdminRole = 'super_admin' | 'admin'
+export type AdminRole = 'super_admin' | 'senior_admin' | 'admin'
 
 export type ProblemType = 'coding' | 'single_choice' | 'multiple_choice' | 'fill_blank'
 
@@ -48,12 +48,14 @@ export interface CreateAdminRequest {
   password: string
   name?: string
   remark?: string
+  role?: AdminRole
 }
 
 export interface UpdateAdminRequest {
   name?: string
   remark?: string
   is_active?: boolean
+  role?: AdminRole
 }
 
 export interface ChangePasswordRequest {

@@ -64,7 +64,7 @@ function formatTime(isoString: string | null): string {
 export function StudentListPage() {
   const navigate = useNavigate()
   const { currentExam, currentExamId } = useExam()
-  const { isSuperAdmin } = useAuth()
+  const { isSuperAdmin, isSeniorAdmin } = useAuth()
   const [students, setStudents] = useState<Student[]>([])
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
@@ -332,7 +332,7 @@ export function StudentListPage() {
           考生管理
         </Title>
         <Space>
-          {isSuperAdmin && (
+          {(isSuperAdmin || isSeniorAdmin) && (
             <>
               <Button
                 type="primary"

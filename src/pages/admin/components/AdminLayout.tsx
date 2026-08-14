@@ -127,7 +127,7 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [collapsed] = useState(false)
-  const { adminInfo, isSuperAdmin, logout } = useAuth()
+  const { adminInfo, isSuperAdmin, isSeniorAdmin, logout } = useAuth()
   const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false)
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -147,22 +147,12 @@ export function AdminLayout() {
       },
     ]
 
-    if (isSuperAdmin) {
+    if (isSuperAdmin || isSeniorAdmin) {
       items.push(
-        {
-          key: '/admin/export',
-          icon: <FileZipOutlined />,
-          label: '阅卷导出',
-        },
         {
           key: '/admin/exams',
           icon: <CalendarOutlined />,
           label: '考试管理',
-        },
-        {
-          key: '/admin/admins',
-          icon: <SafetyCertificateOutlined />,
-          label: '管理员管理',
         },
         {
           key: '/admin/problems',
@@ -172,8 +162,23 @@ export function AdminLayout() {
       )
     }
 
+    if (isSuperAdmin) {
+      items.push(
+        {
+          key: '/admin/export',
+          icon: <FileZipOutlined />,
+          label: '阅卷导出',
+        },
+        {
+          key: '/admin/admins',
+          icon: <SafetyCertificateOutlined />,
+          label: '管理员管理',
+        }
+      )
+    }
+
     return items
-  }, [isSuperAdmin])
+  }, [isSuperAdmin, isSeniorAdmin])
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     navigate(e.key)

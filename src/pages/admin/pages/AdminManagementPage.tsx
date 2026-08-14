@@ -36,19 +36,27 @@ import {
 import { API_CONFIG } from '@/api/config'
 
 import { AdminFormModal } from '../components/AdminFormModal'
+import { useAuth } from '../hooks/useAuth'
 import * as mockAdmin from '../mock/admin'
-import type { Admin, CreateAdminRequest, UpdateAdminRequest } from '../types/admin'
+import type { Admin, AdminRole, CreateAdminRequest, UpdateAdminRequest } from '../types/admin'
 
 const { Title, Text } = Typography
 const { Search } = Input
 const { Option } = Select
 const { confirm } = Modal
 
+const roleTagMap: Record<AdminRole, { color: string; text: string }> = {
+  super_admin: { color: 'gold', text: '超级管理员' },
+  senior_admin: { color: 'blue', text: '高级管理员' },
+  admin: { color: 'default', text: '管理员' },
+}
+
 function formatTime(isoString: string): string {
   return new Date(isoString).toLocaleString('zh-CN')
 }
 
 export function AdminManagementPage() {
+  const { adminInfo } = useAuth()
   const [admins, setAdmins] = useState<Admin[]>([])
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([])
   const [loading, setLoading] = useState(true)
@@ -264,6 +272,15 @@ export function AdminManagementPage() {
       ),
     },
     {
+      title: '角色',
+      dataIndex: 'role',
+      key: 'role',
+      width: 120,
+      render: (role: AdminRole) => (
+        <Tag color={roleTagMap[role].color}>{roleTagMap[role].text}</Tag>
+      ),
+    },
+    {
       title: '备注',
       dataIndex: 'remark',
       key: 'remark',
@@ -406,6 +423,7 @@ export function AdminManagementPage() {
       <AdminFormModal
         visible={modalVisible}
         admin={editingAdmin}
+        currentAdminId={adminInfo?.id}
         onCancel={() => setModalVisible(false)}
         onSubmit={handleModalSubmit}
         loading={modalLoading}

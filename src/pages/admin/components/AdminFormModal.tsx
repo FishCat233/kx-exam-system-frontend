@@ -1,25 +1,34 @@
-import { Form, Input, Modal, Switch, message } from 'antd'
+import { Form, Input, Modal, Select, Switch, message } from 'antd'
 import { useEffect } from 'react'
 
-import type { Admin, CreateAdminRequest, UpdateAdminRequest } from '../types/admin'
+import type { Admin, AdminRole, CreateAdminRequest, UpdateAdminRequest } from '../types/admin'
 
 interface AdminFormModalProps {
   visible: boolean
   admin: Admin | null
+  currentAdminId?: number
   onCancel: () => void
   onSubmit: (values: CreateAdminRequest | UpdateAdminRequest) => Promise<void>
   loading?: boolean
 }
 
+const ROLE_OPTIONS: { value: AdminRole; label: string }[] = [
+  { value: 'super_admin', label: '超级管理员' },
+  { value: 'senior_admin', label: '高级管理员' },
+  { value: 'admin', label: '管理员' },
+]
+
 export function AdminFormModal({
   visible,
   admin,
+  currentAdminId,
   onCancel,
   onSubmit,
   loading = false,
 }: AdminFormModalProps) {
   const [form] = Form.useForm()
   const isEditing = !!admin
+  const isSelf = isEditing && admin.id === currentAdminId
 
   useEffect(() => {
     if (visible && admin) {
@@ -28,10 +37,11 @@ export function AdminFormModal({
         name: admin.name,
         remark: admin.remark,
         is_active: admin.is_active,
+        role: admin.role,
       })
     } else if (visible) {
       form.resetFields()
-      form.setFieldsValue({ is_active: true })
+      form.setFieldsValue({ is_active: true, role: 'admin' })
     }
   }, [visible, admin, form])
 
@@ -91,6 +101,15 @@ export function AdminFormModal({
             <Input.Password placeholder="请输入密码" />
           </Form.Item>
         )}
+
+        <Form.Item name="role" label="角色" rules={[{ required: true, message: '请选择角色' }]}>
+          <Select
+            options={ROLE_OPTIONS}
+            placeholder="请选择角色"
+            disabled={isSelf}
+            tooltip={isSelf ? '不能修改自己的角色' : undefined}
+          />
+        </Form.Item>
 
         <Form.Item
           name="name"
