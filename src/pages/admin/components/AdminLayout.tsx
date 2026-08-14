@@ -10,7 +10,7 @@ import {
   CalendarOutlined,
   FileTextOutlined,
 } from '@ant-design/icons'
-import { Layout, Menu, Avatar, Dropdown, Badge, theme, Modal, Form, Input, message } from 'antd'
+import { Layout, Menu, Avatar, Dropdown, theme, Modal, Form, Input, message } from 'antd'
 import type { MenuProps } from 'antd'
 import { useState, useMemo } from 'react'
 import { useNavigate, useLocation, Outlet } from 'react-router'
@@ -246,9 +246,7 @@ export function AdminLayout() {
               style={{ borderRadius: borderRadiusLG }}
               className="flex items-center gap-2 cursor-pointer px-2 py-1 transition-colors hover:bg-slate-100"
             >
-              <Badge dot color={adminInfo?.is_active ? 'green' : 'red'}>
-                <Avatar icon={<UserOutlined />} />
-              </Badge>
+              <Avatar icon={<UserOutlined />} />
               <span className="ml-2">{adminInfo?.name || adminInfo?.username || '管理员'}</span>
               <DownOutlined className="text-xs" />
             </div>
