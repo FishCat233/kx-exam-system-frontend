@@ -13,6 +13,7 @@ import { API_CONFIG } from '@/api/config'
 import { fetchExamList, deleteExam, updateExam } from '@/api/exam'
 
 import { ExamFormModal } from '../components/ExamFormModal'
+import { useExam } from '../contexts/ExamContext'
 import { useAuth } from '../hooks/useAuth'
 import * as mockExam from '../mock/exam'
 import type { Exam, ExamStatus } from '../types/admin'
@@ -28,6 +29,7 @@ const statusMap: Record<ExamStatus, { text: string; color: string }> = {
 
 export function ExamManagementPage() {
   const { isSuperAdmin } = useAuth()
+  const { notifyExamListChanged } = useExam()
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<ExamStatus | 'all'>('all')
@@ -86,6 +88,7 @@ export function ExamManagementPage() {
 
           message.success('考试删除成功')
           loadExams()
+          notifyExamListChanged()
         } catch {
           message.error('删除失败')
         }
@@ -108,6 +111,7 @@ export function ExamManagementPage() {
           if (result.success) {
             message.success('考试已开启')
             loadExams()
+            notifyExamListChanged()
           } else {
             message.error(result.message || '开启失败')
           }
@@ -133,6 +137,7 @@ export function ExamManagementPage() {
           if (result.success) {
             message.success('考试已结束')
             loadExams()
+            notifyExamListChanged()
           } else {
             message.error(result.message || '结束失败')
           }

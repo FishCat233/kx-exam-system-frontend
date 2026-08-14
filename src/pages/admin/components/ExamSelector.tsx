@@ -13,7 +13,7 @@ const { Text } = Typography
 const { Option } = Select
 
 export function ExamSelector() {
-  const { setCurrentExam, currentExamId } = useExam()
+  const { setCurrentExam, currentExamId, examListVersion } = useExam()
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -46,7 +46,7 @@ export function ExamSelector() {
 
   useEffect(() => {
     loadExams()
-  }, [loadExams])
+  }, [loadExams, examListVersion])
 
   const handleExamChange = (examId: number) => {
     const exam = exams.find((e) => e.id === examId)

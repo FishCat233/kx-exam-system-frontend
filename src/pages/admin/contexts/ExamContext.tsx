@@ -7,12 +7,15 @@ interface ExamContextType {
   currentExam: Exam | null
   setCurrentExam: (exam: Exam | null) => void
   currentExamId: number | null
+  examListVersion: number
+  notifyExamListChanged: () => void
 }
 
 const ExamContext = createContext<ExamContextType | undefined>(undefined)
 
 export function ExamProvider({ children }: { children: ReactNode }) {
   const [currentExam, setCurrentExam] = useState<Exam | null>(null)
+  const [examListVersion, setExamListVersion] = useState(0)
 
   const handleSetCurrentExam = useCallback((exam: Exam | null) => {
     setCurrentExam(exam)
@@ -30,6 +33,8 @@ export function ExamProvider({ children }: { children: ReactNode }) {
         currentExam,
         setCurrentExam: handleSetCurrentExam,
         currentExamId: currentExam?.id ?? null,
+        examListVersion,
+        notifyExamListChanged: () => setExamListVersion((v) => v + 1),
       }}
     >
       {children}

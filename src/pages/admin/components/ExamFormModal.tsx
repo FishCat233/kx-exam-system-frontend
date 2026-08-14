@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { API_CONFIG } from '@/api/config'
 import { createExam, updateExam } from '@/api/exam'
 
+import { useExam } from '../contexts/ExamContext'
 import * as mockExam from '../mock/exam'
 import type { Exam, CreateExamRequest, UpdateExamRequest } from '../types/admin'
 
@@ -32,6 +33,7 @@ function calculateDurationMinutes(
 export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormModalProps) {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const { notifyExamListChanged } = useExam()
   const isEditing = !!exam
   const isNotStarted = exam?.status === 'not_started'
   const startTime = Form.useWatch('start_time', form)
@@ -73,6 +75,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         if (result.success) {
           message.success('考试更新成功')
           onSuccess()
+          notifyExamListChanged()
           onClose()
         } else {
           message.error('考试更新失败')
@@ -87,6 +90,7 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
         if (result.success) {
           message.success('考试创建成功')
           onSuccess()
+          notifyExamListChanged()
           onClose()
           form.resetFields()
         } else {
