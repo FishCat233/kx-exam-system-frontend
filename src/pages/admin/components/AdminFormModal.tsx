@@ -103,12 +103,7 @@ export function AdminFormModal({
         )}
 
         <Form.Item name="role" label="角色" rules={[{ required: true, message: '请选择角色' }]}>
-          <Select
-            options={ROLE_OPTIONS}
-            placeholder="请选择角色"
-            disabled={isSelf}
-            tooltip={isSelf ? '不能修改自己的角色' : undefined}
-          />
+          <Select options={ROLE_OPTIONS} placeholder="请选择角色" disabled={isSelf} />
         </Form.Item>
 
         <Form.Item
