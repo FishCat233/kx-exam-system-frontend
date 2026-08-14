@@ -5,7 +5,6 @@ import ReactMarkdown from 'react-markdown'
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import c from 'react-syntax-highlighter/dist/esm/languages/prism/c'
 import cpp from 'react-syntax-highlighter/dist/esm/languages/prism/cpp'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -16,6 +15,73 @@ SyntaxHighlighter.registerLanguage('c', c)
 SyntaxHighlighter.registerLanguage('cpp', cpp)
 
 const SUPPORTED_LANGS = ['c', 'cpp']
+
+// catppuccin latte 语法高亮（与 uno.config.ts 的 kx-* token 同源色板）
+const CATPPUCCIN_LATTE = {
+  text: '#4C4F69',
+  subtext0: '#6C6F85',
+  blue: '#1E66F5',
+  lavender: '#7287FD',
+  sky: '#04A5E5',
+  teal: '#179299',
+  green: '#40A02B',
+  yellow: '#DF8E1D',
+  peach: '#FE640B',
+  red: '#D20F39',
+  mauve: '#8839EF',
+  pink: '#EA76CB',
+}
+
+const catppuccinLatteStyle = {
+  'code[class*="language-"]': {
+    color: CATPPUCCIN_LATTE.text,
+    background: 'none',
+    textAlign: 'left',
+    whiteSpace: 'pre',
+    wordSpacing: 'normal',
+    wordBreak: 'normal',
+    wordWrap: 'normal',
+    tabSize: 4,
+    hyphens: 'none',
+  },
+  'pre[class*="language-"]': {
+    color: CATPPUCCIN_LATTE.text,
+    background: 'transparent',
+    margin: 0,
+    padding: '1rem',
+    fontSize: '0.875rem',
+    lineHeight: '1.5',
+  },
+  comment: { color: CATPPUCCIN_LATTE.subtext0, fontStyle: 'italic' },
+  prolog: { color: CATPPUCCIN_LATTE.subtext0 },
+  doctype: { color: CATPPUCCIN_LATTE.subtext0 },
+  cdata: { color: CATPPUCCIN_LATTE.subtext0 },
+  punctuation: { color: CATPPUCCIN_LATTE.text },
+  property: { color: CATPPUCCIN_LATTE.teal },
+  tag: { color: CATPPUCCIN_LATTE.red },
+  boolean: { color: CATPPUCCIN_LATTE.peach },
+  number: { color: CATPPUCCIN_LATTE.peach },
+  constant: { color: CATPPUCCIN_LATTE.peach },
+  symbol: { color: CATPPUCCIN_LATTE.lavender },
+  selector: { color: CATPPUCCIN_LATTE.green },
+  'attr-name': { color: CATPPUCCIN_LATTE.yellow },
+  string: { color: CATPPUCCIN_LATTE.green },
+  char: { color: CATPPUCCIN_LATTE.green },
+  builtin: { color: CATPPUCCIN_LATTE.blue },
+  operator: { color: CATPPUCCIN_LATTE.text },
+  entity: { color: CATPPUCCIN_LATTE.sky },
+  url: { color: CATPPUCCIN_LATTE.teal },
+  variable: { color: CATPPUCCIN_LATTE.text },
+  atrule: { color: CATPPUCCIN_LATTE.mauve },
+  'attr-value': { color: CATPPUCCIN_LATTE.green },
+  function: { color: CATPPUCCIN_LATTE.blue },
+  'class-name': { color: CATPPUCCIN_LATTE.yellow },
+  keyword: { color: CATPPUCCIN_LATTE.mauve },
+  regex: { color: CATPPUCCIN_LATTE.pink },
+  important: { color: CATPPUCCIN_LATTE.peach },
+  bold: { fontWeight: 'bold' },
+  italic: { fontStyle: 'italic' },
+}
 
 // 代码块一键复制：考试页全局禁选中后，考生复制题干代码骨架的唯一途径
 function CodeCopyButton({ code }: { code: string }) {
@@ -69,7 +135,7 @@ function CodeCopyButton({ code }: { code: string }) {
       type="button"
       onClick={handleCopy}
       aria-label="复制代码"
-      className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-xs text-white transition-colors hover:bg-black/60"
+      className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-md border border-kx-surface0 bg-white/80 px-2 py-1 text-xs text-kx-text transition-colors hover:bg-white"
     >
       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -130,7 +196,7 @@ const useMarkdownComponents = () =>
 
         if (!match || !SUPPORTED_LANGS.includes(match[1])) {
           return (
-            <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-dark p-4">
+            <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-mantle p-4">
               <pre className="font-mono text-sm text-kx-text">{children}</pre>
               <CodeCopyButton code={String(children)} />
             </div>
@@ -138,16 +204,16 @@ const useMarkdownComponents = () =>
         }
 
         return (
-          <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0">
+          <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-mantle">
             <SyntaxHighlighter
               language={match[1]}
-              style={vscDarkPlus}
+              style={catppuccinLatteStyle}
               customStyle={{
                 margin: 0,
                 padding: '1rem',
                 fontSize: '0.875rem',
                 lineHeight: '1.5',
-                background: '#181825',
+                background: 'transparent',
               }}
             >
               {String(children).replace(/\n$/, '')}
