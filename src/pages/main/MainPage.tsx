@@ -8,12 +8,12 @@ import { CodeEditor } from '../../components/main/CodeEditor'
 import { ExamBootstrap } from '../../components/main/ExamBootstrap'
 import { ExamShell } from '../../components/main/ExamShell'
 import { FullscreenGuard } from '../../components/main/FullscreenGuard'
+import { InvisibleMonitor } from '../../components/main/InvisibleMonitor'
 import { ProblemContent } from '../../components/main/ProblemContent'
 import { ProblemNav } from '../../components/main/ProblemNav'
 import { StatusBar } from '../../components/main/StatusBar'
 import { SubmitFlow } from '../../components/main/SubmitFlow'
 import { SystemNotice } from '../../components/main/SystemNotice'
-import { TabSwitchDetector } from '../../components/main/TabSwitchDetector'
 import { WebSocketProvider } from '../../components/main/WebSocketProvider'
 import { WsGate } from '../../components/main/WsGate'
 import { WsReconnectNotice } from '../../components/main/WsReconnectNotice'
@@ -150,7 +150,7 @@ function MainPageInner() {
         </ExamShell>
         <SystemNotice />
         <FullscreenGuard />
-        <TabSwitchDetector />
+        <InvisibleMonitor />
         <SubmitFlow />
         <AutoSaveBackup />
       </WsGate>

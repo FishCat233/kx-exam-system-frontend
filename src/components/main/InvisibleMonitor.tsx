@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useWebSocketContext } from './WebSocketContext'
 
-export function TabSwitchDetector() {
+export function InvisibleMonitor() {
   const { sendMessage } = useWebSocketContext()
   const [tabSwitchCount, setTabSwitchCount] = useState(0)
   const [showWarning, setShowWarning] = useState(false)
@@ -29,7 +29,7 @@ export function TabSwitchDetector() {
         },
       })
 
-      if (countRef.current >= 2) {
+      if (countRef.current >= 1) {
         setShowWarning(true)
       }
     },
@@ -57,11 +57,20 @@ export function TabSwitchDetector() {
       increment(false, 'window_blur')
     }
 
+    const handleFullscreenChange = () => {
+      // 退出全屏视为一次切屏，进入全屏不计数
+      if (!document.fullscreenElement) {
+        increment(false, 'fullscreen_exit')
+      }
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('blur', handleWindowBlur)
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('blur', handleWindowBlur)
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
   }, [increment])
 
