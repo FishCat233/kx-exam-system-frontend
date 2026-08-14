@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.7...kx-exam-system-frontend-v0.1.8) (2026-08-14)
+
+
+### 📝 Documentation
+
+* README 特性列表更新到当前设计 ([d49fdd5](https://github.com/FishCat233/kx-exam-system-frontend/commit/d49fdd5b8f507ca4986839413cbc19104eeb4390))
+
 ## [0.1.7](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.6...kx-exam-system-frontend-v0.1.7) (2026-08-14)
 
 
