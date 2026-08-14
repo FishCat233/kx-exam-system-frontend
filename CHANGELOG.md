@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.10](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.9...kx-exam-system-frontend-v0.1.10) (2026-08-14)
+
+
+### ✨ Features
+
+* **admin:** 新增高级管理员角色支持与权限入口 ([5eca8a9](https://github.com/FishCat233/kx-exam-system-frontend/commit/5eca8a9fef2d48af0a95740a02d95b61cf039e07))
+* **admin:** 考生管理对普通管理员开放监考操作 ([b64f68f](https://github.com/FishCat233/kx-exam-system-frontend/commit/b64f68f18033368b6a8ba48b1516495d5d65fd26))
+
+
+### ♻️ Refactors
+
+* **admin:** 移除头像上的账号状态徽标，无实际信息量 ([1dbda3a](https://github.com/FishCat233/kx-exam-system-frontend/commit/1dbda3a082082b387a1a6d1e0802541aeb040002))
+
 ## [0.1.9](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.8...kx-exam-system-frontend-v0.1.9) (2026-08-14)
 
 
