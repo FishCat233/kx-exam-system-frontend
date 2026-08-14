@@ -97,8 +97,11 @@ export function ExamFormModal({ visible, exam, onClose, onSuccess }: ExamFormMod
           message.error(result.message || '考试创建失败')
         }
       }
-    } catch {
-      // 表单验证失败
+    } catch (error) {
+      // 表单验证失败不提示；API 错误（如 400 校验失败）透出后端原因
+      if (error instanceof Error) {
+        message.error(error.message)
+      }
     } finally {
       setLoading(false)
     }
