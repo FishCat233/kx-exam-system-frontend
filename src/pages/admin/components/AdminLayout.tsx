@@ -141,18 +141,18 @@ export function AdminLayout() {
         label: '仪表盘',
       },
       {
-        key: '/admin/export',
-        icon: <FileZipOutlined />,
-        label: '阅卷导出',
+        key: '/admin/students',
+        icon: <TeamOutlined />,
+        label: '考生管理',
       },
     ]
 
     if (isSuperAdmin) {
       items.push(
         {
-          key: '/admin/students',
-          icon: <TeamOutlined />,
-          label: '考生管理',
+          key: '/admin/export',
+          icon: <FileZipOutlined />,
+          label: '阅卷导出',
         },
         {
           key: '/admin/exams',
@@ -163,15 +163,14 @@ export function AdminLayout() {
           key: '/admin/admins',
           icon: <SafetyCertificateOutlined />,
           label: '管理员管理',
+        },
+        {
+          key: '/admin/problems',
+          icon: <FileTextOutlined />,
+          label: '试题管理',
         }
       )
     }
-
-    items.push({
-      key: '/admin/problems',
-      icon: <FileTextOutlined />,
-      label: '试题管理',
-    })
 
     return items
   }, [isSuperAdmin])

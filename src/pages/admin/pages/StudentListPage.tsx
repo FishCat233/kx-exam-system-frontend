@@ -19,7 +19,6 @@ import {
   Tooltip,
   Badge,
   Empty,
-  Result,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useEffect, useState, useCallback } from 'react'
@@ -76,7 +75,7 @@ export function StudentListPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const loadData = useCallback(async () => {
-    if (!currentExamId || !isSuperAdmin) {
+    if (!currentExamId) {
       setStudents([])
       setFilteredStudents([])
       setLoading(false)
@@ -94,7 +93,7 @@ export function StudentListPage() {
     } finally {
       setLoading(false)
     }
-  }, [currentExamId, isSuperAdmin])
+  }, [currentExamId])
 
   useEffect(() => {
     loadData()
@@ -317,10 +316,6 @@ export function StudentListPage() {
     },
   ]
 
-  if (!isSuperAdmin) {
-    return <Result status="403" title="无权限访问" subTitle="考生管理仅对超级管理员开放。" />
-  }
-
   if (!currentExamId) {
     return (
       <Empty
@@ -337,17 +332,21 @@ export function StudentListPage() {
           考生管理
         </Title>
         <Space>
-          <Button
-            type="primary"
-            ghost
-            icon={<PlusOutlined />}
-            onClick={() => setCreateModalVisible(true)}
-          >
-            手动添加
-          </Button>
-          <Button icon={<UploadOutlined />} onClick={() => setBatchImportVisible(true)}>
-            批量导入
-          </Button>
+          {isSuperAdmin && (
+            <>
+              <Button
+                type="primary"
+                ghost
+                icon={<PlusOutlined />}
+                onClick={() => setCreateModalVisible(true)}
+              >
+                手动添加
+              </Button>
+              <Button icon={<UploadOutlined />} onClick={() => setBatchImportVisible(true)}>
+                批量导入
+              </Button>
+            </>
+          )}
           <Search
             placeholder="搜索学号/姓名/登录码"
             allowClear
@@ -360,14 +359,16 @@ export function StudentListPage() {
           <Button icon={<ReloadOutlined />} onClick={loadData} loading={loading}>
             刷新
           </Button>
-          <Button
-            type="primary"
-            icon={<ExportOutlined />}
-            onClick={handleExport}
-            loading={exporting}
-          >
-            导出
-          </Button>
+          {isSuperAdmin && (
+            <Button
+              type="primary"
+              icon={<ExportOutlined />}
+              onClick={handleExport}
+              loading={exporting}
+            >
+              导出
+            </Button>
+          )}
         </Space>
       </div>
 
