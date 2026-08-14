@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.6...kx-exam-system-frontend-v0.1.7) (2026-08-14)
+
+
+### 🐛 Fixes
+
+* **admin:** 创建考试后顶部考试选择器自动刷新 ([5c8ccc1](https://github.com/FishCat233/kx-exam-system-frontend/commit/5c8ccc1cf9fb1fda6901e010ed3bdc2e22d86cc2))
+* **admin:** 创建考试失败时透出后端报错原因 ([6306d6c](https://github.com/FishCat233/kx-exam-system-frontend/commit/6306d6c085f541f3d1017135601da143e868a9cb))
+
 ## [0.1.6](https://github.com/FishCat233/kx-exam-system-frontend/compare/kx-exam-system-frontend-v0.1.5...kx-exam-system-frontend-v0.1.6) (2026-08-14)
 
 
