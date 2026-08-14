@@ -10,6 +10,8 @@ import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
+import { rehypeBlankNumbering } from './rehypeBlankNumbering'
+
 SyntaxHighlighter.registerLanguage('c', c)
 SyntaxHighlighter.registerLanguage('cpp', cpp)
 
@@ -18,6 +20,7 @@ const SUPPORTED_LANGS = ['c', 'cpp']
 interface MarkdownRendererProps {
   content: string
   className?: string
+  numberBlanks?: boolean
 }
 
 const useMarkdownComponents = () =>
@@ -119,14 +122,22 @@ const useMarkdownComponents = () =>
     []
   )
 
-export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+export function MarkdownRenderer({
+  content,
+  className,
+  numberBlanks = false,
+}: MarkdownRendererProps) {
   const components = useMarkdownComponents()
+
+  // 插件工厂带编号计数状态：react-markdown 每次渲染重建 processor 并重新调用工厂，
+  // 保证每次解析编号都从 1 开始
+  const rehypePlugins = numberBlanks ? [rehypeKatex, rehypeBlankNumbering] : [rehypeKatex]
 
   return (
     <div className={`max-w-none ${className ?? ''}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={rehypePlugins}
         components={components}
       >
         {content}

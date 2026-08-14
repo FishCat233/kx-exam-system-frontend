@@ -48,7 +48,7 @@ export const ProblemContent = memo(function ProblemContent() {
           </div>
         </div>
 
-        <MarkdownRenderer content={problem.content} />
+        <MarkdownRenderer content={problem.content} numberBlanks={problem.type === 'fill_blank'} />
       </div>
     </div>
   )

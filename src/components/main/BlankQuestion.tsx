@@ -118,14 +118,12 @@ export function BlankQuestion({ problemId, content, onSave }: BlankQuestionProps
           <div className="space-y-4">
             {Array.from({ length: blankCount }, (_, index) => (
               <div key={index} className="flex items-center gap-4">
-                <span className="w-16 shrink-0 text-sm font-medium text-kx-text">
-                  填空 {index + 1}
-                </span>
+                <span className="blank-marker shrink-0">{index + 1}</span>
                 <input
                   type="text"
                   value={answers[index] ?? ''}
                   onChange={(e) => handleChange(index, e.target.value)}
-                  placeholder={`请输入第 ${index + 1} 空答案`}
+                  placeholder="请输入答案"
                   className="h-12 flex-1 rounded-lg border border-solid border-kx-surface1 bg-white px-3.5 text-kx-text transition-all duration-150 placeholder:text-kx-surface1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kx-blue"
                 />
               </div>

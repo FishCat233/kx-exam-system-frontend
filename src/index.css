@@ -131,6 +131,26 @@ button:focus:not(:focus-visible) {
   outline-offset: 2px;
 }
 
+/* 填空空位编号标记：题干与答题区共用（自动编号 (1)(2)...） */
+.blank-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  margin: 0 0.15rem;
+  border-radius: 6px;
+  border: 1px solid var(--kx-yellow);
+  background-color: #fdf0d5;
+  color: #9c5c00;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 /* 状态点：圆形，闪烁用边框/填充切换而非透明度 */
 .status-dot {
   display: inline-block;

@@ -309,7 +309,7 @@ export function ProblemFormModal({
                   ? `检测到 ${blankCount} 个空位，考生将按顺序填写 ${blankCount} 个答案`
                   : '题目内容中未检测到空位'
               }
-              description="在题目内容中用 4 个连续下划线（____）标记空位，考生端会自动生成对应数量的答案输入框。"
+              description="在题目内容中用 4 个连续下划线（____）标记空位，空位会自动编号（如 __1__、__2__），考生按编号在右侧答题区填写对应答案。"
             />
           </Form.Item>
         )}
