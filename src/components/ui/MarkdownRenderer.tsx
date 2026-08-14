@@ -1,5 +1,5 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
 import 'katex/dist/katex.min.css'
 import ReactMarkdown from 'react-markdown'
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -16,6 +16,73 @@ SyntaxHighlighter.registerLanguage('c', c)
 SyntaxHighlighter.registerLanguage('cpp', cpp)
 
 const SUPPORTED_LANGS = ['c', 'cpp']
+
+// 代码块一键复制：考试页全局禁选中后，考生复制题干代码骨架的唯一途径
+function CodeCopyButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current)
+      }
+    }
+  }, [])
+
+  const handleCopy = async () => {
+    const text = code.replace(/\n$/, '')
+    let ok = false
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        ok = true
+      }
+    } catch {
+      ok = false
+    }
+    if (!ok) {
+      // 内网 HTTP 非安全上下文兜底：clipboard API 不可用时用 execCommand 复制
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      try {
+        ok = document.execCommand('copy')
+      } finally {
+        document.body.removeChild(textarea)
+      }
+    }
+    if (ok) {
+      setCopied(true)
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current)
+      }
+      timerRef.current = window.setTimeout(() => setCopied(false), 1500)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label="复制代码"
+      className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-xs text-white transition-colors hover:bg-black/60"
+    >
+      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+        />
+      </svg>
+      {copied ? '已复制' : '复制'}
+    </button>
+  )
+}
 
 interface MarkdownRendererProps {
   content: string
@@ -63,14 +130,15 @@ const useMarkdownComponents = () =>
 
         if (!match || !SUPPORTED_LANGS.includes(match[1])) {
           return (
-            <pre className="my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-dark p-4 font-mono text-sm text-kx-text">
-              {children}
-            </pre>
+            <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0 bg-kx-dark p-4">
+              <pre className="font-mono text-sm text-kx-text">{children}</pre>
+              <CodeCopyButton code={String(children)} />
+            </div>
           )
         }
 
         return (
-          <div className="my-4 overflow-hidden rounded-md border border-kx-surface0">
+          <div className="relative my-4 overflow-hidden rounded-md border border-kx-surface0">
             <SyntaxHighlighter
               language={match[1]}
               style={vscDarkPlus}
@@ -84,6 +152,7 @@ const useMarkdownComponents = () =>
             >
               {String(children).replace(/\n$/, '')}
             </SyntaxHighlighter>
+            <CodeCopyButton code={String(children)} />
           </div>
         )
       },

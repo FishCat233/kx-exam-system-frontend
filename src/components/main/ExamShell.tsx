@@ -7,7 +7,7 @@ interface ExamShellProps {
 
 export function ExamShell({ statusBar, children }: ExamShellProps) {
   return (
-    <div className="fixed inset-0 flex flex-col bg-kx-base">
+    <div className="fixed inset-0 flex flex-col bg-kx-base select-none">
       {statusBar}
       {children}
     </div>

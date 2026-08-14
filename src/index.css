@@ -151,6 +151,17 @@ button:focus:not(:focus-visible) {
   vertical-align: middle;
 }
 
+/* 考试页全局禁选中（ExamShell select-none）后，恢复编辑器和输入框的可选中：
+   考生写代码要复制粘贴，填空答案要编辑，主题下拉要操作 */
+.cm-editor,
+.cm-content,
+input,
+textarea,
+select {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* 状态点：圆形，闪烁用边框/填充切换而非透明度 */
 .status-dot {
   display: inline-block;
